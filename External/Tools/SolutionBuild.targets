@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project DefaultTargets="BuildComplete" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <SatisfactoryCodeCoverage>95</SatisfactoryCodeCoverage>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+
+        <Configuration>Release</Configuration>
+
+        <RootBuildPath>$(MSBuildProjectDirectory)\Build</RootBuildPath>
+        <BaseBuildPath>$(RootBuildPath)\$(Configuration)</BaseBuildPath>
+      
+        <BinariesPath>$(BaseBuildPath)\Binaries</BinariesPath>
+        <MetadataPath>$(BaseBuildPath)\Metadata</MetadataPath>
+        <ReportingPath>$(BaseBuildPath)\Reporting</ReportingPath>
+
+        <ExternalPath>$(MSBuildProjectDirectory)\External</ExternalPath>
+        <ExternalReferencesPath>$(ExternalPath)\References</ExternalReferencesPath>
+        <ExternalToolsPath>$(ExternalPath)\Tools</ExternalToolsPath>
+
+        <MSBuildCommunityTasksPath>$(ExternalToolsPath)\MSBuildCommunityTasks</MSBuildCommunityTasksPath>
+
+        <NUnitPath>$(ExternalToolsPath)\NUnit</NUnitPath>
+
+        <TestingFramework Condition="$(TestingFramework) == ''">NUnit</TestingFramework>
+        <TestingOutputFileName>UnitTestResults</TestingOutputFileName>
+    </PropertyGroup>
+
+    <Import Project="$(ExternalToolsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+
+    <Target Name="Clean">
+        <Delete Files="$(RootBuildPath)\**" ContinueOnError="false" />
+
+        <RemoveDir Directories="$(RootBuildPath)" ContinueOnError="false" />
+        <RemoveDir Directories="%(ApplicationProject.RelativeDir)bin;%(ApplicationProject.RelativeDir)obj" ContinueOnError="false" />
+        <RemoveDir Directories="%(TestingProject.RelativeDir)bin;%(TestingProject.RelativeDir)obj" ContinueOnError="false" />
+    </Target>
+
+    <Target Name="Build" DependsOnTargets="Clean">
+        <MakeDir Directories="$(RootBuildPath);$(BinariesPath)" />
+
+        <MSBuild
+                    Projects="@(ApplicationProject)"
+                    Properties="OutputPath=$(BinariesPath);Configuration=$(Configuration);TreatWarningsAsErrors=$(TreatWarningsAsErrors);DebugSymbols=$(DebugSymbols);DebugType=$(DebugType)"
+            Targets="Build">
+
+            <Output ItemName="ApplicationAssembly" TaskParameter="TargetOutputs" />
+        </MSBuild>
+
+        <MSBuild
+            Projects="@(TestingProject)"
+            Properties="OutputPath=$(BinariesPath);Configuration=$(Configuration);TreatWarningsAsErrors=$(TreatWarningsAsErrors);DebugSymbols=$(DebugSymbols);DebugType=$(DebugType)"
+            Targets="Build">
+
+            <Output ItemName="TestingAssembly" TaskParameter="TargetOutputs" />
+        </MSBuild>
+    </Target>
+
+    <Target Name="UnitTest" DependsOnTargets="Build">
+        <Error Text="Unrecognized Testing Framework." Condition="$(TestingFramework) != 'NUnit' And $(TestingFramework) != 'MbUnit'" />
+
+        <Exec WorkingDirectory="$(BinariesPath)"
+              Command="&quot;$(NUnitPath)\nunit-console.exe&quot; /process=Single /framework=v4.0.30319 @(TestingAssembly -> '&quot;$(BinariesPath)\%(Filename)%(Extension)&quot;') /xml=&quot;$(BaseBuildPath)\$(TestingOutputFileName).xml&quot;" />
+        
+        <!--NCover
+          Condition="$(TestingFramework) == 'NUnit'"
+                ToolPath="$(NCoverPath)"
+                CommandLineExe="$(NUnitPath)\nunit-console.exe"
+                CommandLineArgs=" /framework=v4.0.30319 @(TestingAssembly -> '&quot;$(BinariesPath)\%(Filename)%(Extension)&quot;') /xml=&quot;$(BaseBuildPath)\$(TestingOutputFileName).xml&quot;"
+                CoverageFile="$(BaseBuildPath)\CodeCoverage.xml"
+                LogFile="$(BaseBuildPath)\CodeCoverage.log"
+                WorkingDirectory="$(BinariesPath)"
+                Assemblies="@(ApplicationAssembly)" / -->
+
+
+        <CreateItem Include="$(TestingOutputFileName).xml">
+            <Output TaskParameter="Include" ItemName="ReportingFile" />
+        </CreateItem>
+    </Target>
+
+    <Target Name="LayoutOutputFiles">
+        <CreateItem Include="$(BinariesPath)\*.pdb;$(BinariesPath)\*.xml">
+            <Output TaskParameter="Include" ItemName ="MetadataFile" />
+        </CreateItem>
+
+        <MakeDir Directories="$(MetadataPath);$(ReportingPath)" />
+
+        <Move SourceFiles="@(MetadataFile)" DestinationFolder="$(MetadataPath)" />
+        <Move SourceFiles="@(ReportingFile -> '$(BaseBuildPath)\%(Identity)')" DestinationFolder="$(ReportingPath)" />
+    </Target>
+
+    <Target Name="CorePackage" />
+
+    <Target Name="Package" DependsOnTargets="@(PrePackageTargets);CorePackage;@(ChildPackageTargets);@(PostPackageTargets)" />
+
+    <Target Name="BuildComplete" DependsOnTargets="UnitTest;@(PreLayoutOutputFilesTarget);LayoutOutputFiles;Package" />
+</Project>

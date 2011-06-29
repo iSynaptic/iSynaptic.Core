@@ -1,15 +1,22 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{B3E50D72-4A3E-46A6-9076-B9A195681C56}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.UnitTests", "Testing\iSynaptic.Core.UnitTests\iSynaptic.Core.UnitTests.csproj", "{31B46ABA-DA7D-46F5-A71B-983183B8FD59}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{200C7EE8-10EC-4902-8623-FB23DF5CFA8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.Modeling", "Application\iSynaptic.Core.Modeling\iSynaptic.Core.Modeling.csproj", "{9FA02168-E0E8-43F1-9EBD-E4CA13C2F508}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.UnitTests", "Testing\iSynaptic.Core.UnitTests\iSynaptic.Core.UnitTests.csproj", "{31B46ABA-DA7D-46F5-A71B-983183B8FD59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.TestingCommons", "Application\iSynaptic.Core.TestingCommons\iSynaptic.Core.TestingCommons.csproj", "{C262D4C6-ABDD-459C-B26A-CE0AEF0A8743}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core", "Application\iSynaptic.Core\iSynaptic.Core.csproj", "{E249B9CC-0867-4BC2-AF95-AAC079C696B2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{98D0CEF3-3E43-4E74-9618-17ADCCA2847F}"
+	ProjectSection(SolutionItems) = preProject
+		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
+		iSynaptic.Core.ReleaseNotes.txt = iSynaptic.Core.ReleaseNotes.txt
+		LICENSE = LICENSE
+		README = README
+		Work Items.txt = Work Items.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,21 +28,16 @@ Global
 		{31B46ABA-DA7D-46F5-A71B-983183B8FD59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31B46ABA-DA7D-46F5-A71B-983183B8FD59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31B46ABA-DA7D-46F5-A71B-983183B8FD59}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9FA02168-E0E8-43F1-9EBD-E4CA13C2F508}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9FA02168-E0E8-43F1-9EBD-E4CA13C2F508}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9FA02168-E0E8-43F1-9EBD-E4CA13C2F508}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9FA02168-E0E8-43F1-9EBD-E4CA13C2F508}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C262D4C6-ABDD-459C-B26A-CE0AEF0A8743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C262D4C6-ABDD-459C-B26A-CE0AEF0A8743}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C262D4C6-ABDD-459C-B26A-CE0AEF0A8743}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C262D4C6-ABDD-459C-B26A-CE0AEF0A8743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E249B9CC-0867-4BC2-AF95-AAC079C696B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E249B9CC-0867-4BC2-AF95-AAC079C696B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E249B9CC-0867-4BC2-AF95-AAC079C696B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E249B9CC-0867-4BC2-AF95-AAC079C696B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{31B46ABA-DA7D-46F5-A71B-983183B8FD59} = {B3E50D72-4A3E-46A6-9076-B9A195681C56}
-		{9FA02168-E0E8-43F1-9EBD-E4CA13C2F508} = {200C7EE8-10EC-4902-8623-FB23DF5CFA8D}
-		{C262D4C6-ABDD-459C-B26A-CE0AEF0A8743} = {200C7EE8-10EC-4902-8623-FB23DF5CFA8D}
+		{E249B9CC-0867-4BC2-AF95-AAC079C696B2} = {200C7EE8-10EC-4902-8623-FB23DF5CFA8D}
 	EndGlobalSection
 EndGlobal
