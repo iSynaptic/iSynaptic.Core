@@ -1,17 +1,14 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{B3E50D72-4A3E-46A6-9076-B9A195681C56}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.UnitTests", "src\iSynaptic.Core.UnitTests\iSynaptic.Core.UnitTests.csproj", "{31B46ABA-DA7D-46F5-A71B-983183B8FD59}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{200C7EE8-10EC-4902-8623-FB23DF5CFA8D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.UnitTests", "Testing\iSynaptic.Core.UnitTests\iSynaptic.Core.UnitTests.csproj", "{31B46ABA-DA7D-46F5-A71B-983183B8FD59}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core", "Application\iSynaptic.Core\iSynaptic.Core.csproj", "{E249B9CC-0867-4BC2-AF95-AAC079C696B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core", "src\iSynaptic.Core\iSynaptic.Core.csproj", "{E249B9CC-0867-4BC2-AF95-AAC079C696B2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{98D0CEF3-3E43-4E74-9618-17ADCCA2847F}"
 	ProjectSection(SolutionItems) = preProject
 		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
+		iSynaptic.Core.nuspec = iSynaptic.Core.nuspec
 		iSynaptic.Core.ReleaseNotes.txt = iSynaptic.Core.ReleaseNotes.txt
 		LICENSE = LICENSE
 		README = README
@@ -35,9 +32,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{31B46ABA-DA7D-46F5-A71B-983183B8FD59} = {B3E50D72-4A3E-46A6-9076-B9A195681C56}
-		{E249B9CC-0867-4BC2-AF95-AAC079C696B2} = {200C7EE8-10EC-4902-8623-FB23DF5CFA8D}
 	EndGlobalSection
 EndGlobal

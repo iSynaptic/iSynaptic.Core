@@ -2,29 +2,28 @@
 <Project ToolsVersion="4.0" DefaultTargets="BuildComplete" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <SolutionName>iSynaptic.Core</SolutionName>
-    <TestingFramework>NUnit</TestingFramework>
 
-    <NugetPath Condition="$(NugetPath) == ''">External\Tools\Nuget</NugetPath>
+    <NugetPath Condition="$(NugetPath) == ''">tools\Nuget</NugetPath>
   </PropertyGroup>
 
-  <Import Project="External\Tools\SolutionBuild.targets" />
+  <Import Project="tools\SolutionBuild.targets" />
 
   <PropertyGroup>
-    <CoreNuspecFile>$(MSBuildProjectDirectory)\Application\$(SolutionName)\$(SolutionName).nuspec</CoreNuspecFile>
+    <CoreNuspecFile>$(MSBuildProjectDirectory)\$(SolutionName).nuspec</CoreNuspecFile>
     
-    <PackagesPath Condition="$(PackagesPath) == ''">$(RootBuildPath)\$(Configuration)\Packages</PackagesPath>
+    <PackagesPath Condition="$(PackagesPath) == ''">$(RootOutputPath)\$(Configuration)\Packages</PackagesPath>
   </PropertyGroup>
   
   <ItemGroup>
-    <ApplicationProject Include="Application\$(SolutionName)\$(SolutionName).csproj" />
-    <TestingProject Include="Testing\$(SolutionName).UnitTests\$(SolutionName).UnitTests.csproj" />
+    <ApplicationProject Include="src\$(SolutionName)\$(SolutionName).csproj" />
+    <TestingProject Include="src\$(SolutionName).UnitTests\$(SolutionName).UnitTests.csproj" />
   </ItemGroup>
 
   <Target Name="CorePackage">
     <MakeDir Directories="$(PackagesPath)" />
 
-    <Copy SourceFiles="$(SolutionName).ReleaseNotes.txt" DestinationFolder="$(BaseBuildPath)" />
+    <Copy SourceFiles="$(SolutionName).ReleaseNotes.txt" DestinationFolder="$(BaseOutputPath)" />
     
-    <Exec Command="$(NugetPath)\nuget.exe pack &quot;$(CoreNuspecFile)&quot; -BasePath &quot;$(BaseBuildPath)&quot; -OutputDirectory &quot;$(PackagesPath)&quot;" />
+    <Exec Command="$(NugetPath)\nuget.exe pack &quot;$(CoreNuspecFile)&quot; -BasePath &quot;$(BaseOutputPath)&quot; -OutputDirectory &quot;$(PackagesPath)&quot;" />
   </Target>
 </Project>
