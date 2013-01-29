@@ -4,7 +4,7 @@
     <id>iSynaptic.Core</id>
     <version>0.1.0</version>
     <authors>Jordan Terrell</authors>
-    <description>Library of common functionality for application infrastructure.</description>
+    <description>Framework for common application infrastructure.</description>
     <language>en-US</language>
     <licenseUrl>https://github.com/iSynaptic/iSynaptic.Core/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/iSynaptic/iSynaptic.Core</projectUrl>
@@ -12,10 +12,12 @@
       <frameworkAssembly assemblyName="System" targetFramework="net45" />
       <frameworkAssembly assemblyName="System.Core" targetFramework="net45" />
     </frameworkAssemblies>
+    <dependencies>
+      <dependency id="iSynaptic.Commons" version="0.4.14" />
+    </dependencies>
   </metadata>
   <files>
     <file src="Binaries\iSynaptic.Core.dll" target="lib" />
-    <file src="Metadata\iSynaptic.Core.pdb" target="lib" />
     <file src="iSynaptic.Core.ReleaseNotes.txt" target="ReleaseNotes.txt" />
   </files>
 </package>

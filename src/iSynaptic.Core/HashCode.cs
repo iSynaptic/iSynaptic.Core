@@ -21,30 +21,25 @@
 // THE SOFTWARE.
 
 using System;
-using iSynaptic.Commons;
 
 namespace iSynaptic
 {
-    [Serializable]
-    public abstract class AggregateEvent<TIdentifier> : IAggregateEvent<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    public static class HashCode
     {
-        protected AggregateEvent(TIdentifier id, Int32 version)
+        public static int MixJenkins32(Int32 input)
         {
-            if (version <= 0)
-                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
+            Int32 output = input;
 
-            EventId = Guid.NewGuid();
-            RecordedAt = SystemClock.UtcNow;
+            output += (output << 12);
+            output ^= (output >> 22);
+            output += (output << 4);
+            output ^= (output >> 9);
+            output += (output << 10);
+            output ^= (output >> 2);
+            output += (output << 7);
+            output ^= (output >> 12);
 
-            Id = id;
-            Version = version;
+            return output;
         }
-
-        public Guid EventId { get; private set; }
-        public DateTime RecordedAt { get; private set; }
-
-        public TIdentifier Id { get; private set; }
-        public Int32 Version { get; private set; }
     }
 }

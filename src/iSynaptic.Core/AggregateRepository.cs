@@ -28,26 +28,21 @@ using iSynaptic.Commons;
 
 namespace iSynaptic
 {
-    public abstract class AggregateRepository<TAggregate, TIdentifier>
-        where TAggregate : Aggregate<TIdentifier>
+    public abstract class AggregateRepository<TAggregate, TIdentifier> : IAggregateRepository<TAggregate, TIdentifier> 
+        where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        public Task<TAggregate> Get(TIdentifier id)
-        {
-            return Get(id, Int32.MaxValue);
-        }
-
         public async Task<TAggregate> Get(TIdentifier id, Int32 maxVersion)
         {
             var memento = await GetMemento(id, maxVersion);
 
-            if (memento.IsEmpty)
+            if (memento.IsEmpty())
                 return null;
 
-            var aggregateType = typeof(TAggregate);
+            var aggregate = (TAggregate)FormatterServices.GetSafeUninitializedObject(memento.AggregateType);
 
-            var aggregate = (TAggregate)FormatterServices.GetSafeUninitializedObject(aggregateType);
-            aggregate.Initialize(memento);
+            var ag = AsInternal(aggregate);
+            ag.Initialize(memento);
 
             return aggregate;
         }
@@ -56,27 +51,10 @@ namespace iSynaptic
         {
             Guard.NotNull(aggregate, "aggregate");
 
-            if (SaveBehavior == AggregateRepositorySaveBehavior.SaveEventsOnly || SaveBehavior == AggregateRepositorySaveBehavior.SaveBothEventsAndSnapshot)
-                await SaveEventStream(aggregate.Id, aggregate.GetUncommittedEvents());
+            var ag = AsInternal(aggregate);
 
-            if (SaveBehavior == AggregateRepositorySaveBehavior.SaveSnapshotOnly || SaveBehavior == AggregateRepositorySaveBehavior.SaveBothEventsAndSnapshot)
-                await SaveSnapshot(aggregate);
-
-            aggregate.CommitEvents();
-        }
-
-        public Task SaveSnapshot(TIdentifier id)
-        {
-            return SaveSnapshot(id, Int32.MaxValue);
-        }
-
-        public async Task SaveSnapshot(TIdentifier id, Int32 maxVersion)
-        {
-            var aggregate = await Get(id, maxVersion);
-            if (aggregate == null)
-                throw new InvalidOperationException("Unable to find aggregate.");
-
-            await SaveSnapshot(aggregate);
+            await SaveEventStream(aggregate.GetType(), aggregate.Id, ag.GetUncommittedEvents());
+            ag.CommitEvents();
         }
 
         public async Task SaveSnapshot(TAggregate aggregate)
@@ -87,14 +65,20 @@ namespace iSynaptic
             if (snapshot == null)
                 throw new ArgumentException("Aggregate doesn't support snapshots.", "aggregate");
 
-            await SaveSnapshot(snapshot);
+            await SaveSnapshot(aggregate.GetType(), snapshot);
         }
 
-        protected virtual AggregateRepositorySaveBehavior SaveBehavior { get { return AggregateRepositorySaveBehavior.SaveEventsOnly; } }
+        private IAggregateInternal<TIdentifier> AsInternal(TAggregate aggregate)
+        {
+            var ag = aggregate as IAggregateInternal<TIdentifier>;
+
+            if(ag == null) throw new InvalidOperationException("Aggregate must inherit from Aggregate<TIdentifier>.");
+            return ag;
+        }
 
         public abstract Task<AggregateMemento<TIdentifier>> GetMemento(TIdentifier id, Int32 maxVersion);
 
-        protected abstract Task SaveSnapshot(AggregateSnapshot<TIdentifier> snapshot);
-        protected abstract Task SaveEventStream(TIdentifier id, IEnumerable<AggregateEvent<TIdentifier>> events);
+        protected abstract Task SaveSnapshot(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot);
+        protected abstract Task SaveEventStream(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events);
     }
 }

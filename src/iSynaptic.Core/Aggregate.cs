@@ -31,80 +31,34 @@ using iSynaptic.Commons.Reflection;
 
 namespace iSynaptic
 {
-    public abstract class Aggregate
+    internal interface IAggregateInternal<out TIdentifier>
+        where TIdentifier : IEquatable<TIdentifier>
     {
-        private static readonly TypeHierarchyComparer _typeHierarchyComparer
-            = new TypeHierarchyComparer();
+        void Initialize(AggregateMemento memento);
+        IEnumerable<IAggregateEvent<TIdentifier>> GetUncommittedEvents();
 
-        private static readonly ConcurrentDictionary<Type, Delegate> _dispatchers
-            = new ConcurrentDictionary<Type, Delegate>();
-
-        internal static Action<Aggregate<TIdentifier>, AggregateEvent<TIdentifier>> GetDispatcher<TIdentifier>(Type aggregateType)
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            var baseAggregateType = typeof (Aggregate<TIdentifier>);
-
-            return (Action<Aggregate<TIdentifier>, AggregateEvent<TIdentifier>>)_dispatchers.GetOrAdd(aggregateType, t =>
-            {
-                var eventType = typeof (AggregateEvent<TIdentifier>);
-                var baseDispatcher = baseAggregateType.IsAssignableFrom(t.BaseType)
-                    ? GetDispatcher<TIdentifier>(t.BaseType)
-                    : null;
-
-                var aggregateParam = Expression.Parameter(baseAggregateType);
-                var eventParam = Expression.Parameter(eventType);
-
-                var applicators = t
-                    .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Where(x => x.DeclaringType == t)
-                    .Select(m => new { Method = m, Parameters = m.GetParameters() })
-                    .Where(x => x.Method.Name == "On" && x.Parameters.Length == 1)
-                    .Select(x => new { x.Method, x.Parameters[0].ParameterType })
-                    .Where(x => eventType.IsAssignableFrom(x.ParameterType))
-                    .OrderByDescending(x => x.ParameterType, _typeHierarchyComparer)
-                    .Select(x => 
-                        Expression.IfThen(
-                            Expression.TypeIs(eventParam, x.ParameterType),
-                            Expression.Call(
-                                Expression.Convert(aggregateParam, t),
-                                x.Method,
-                                Expression.Convert(eventParam, x.ParameterType))))
-                    .OfType<Expression>()
-                    .ToArray();
-
-                if (applicators.Length <= 0)
-                    return baseDispatcher ?? (Delegate)(Action<Aggregate<TIdentifier>, AggregateEvent<TIdentifier>>)((a, e) => { });
-
-                if (baseDispatcher != null)
-                    applicators = applicators.Concat(new[]{Expression.Call(baseDispatcher.GetMethodInfo(), aggregateParam, eventParam)}).ToArray();
-
-                return Expression.Lambda<Action<Aggregate<TIdentifier>, AggregateEvent<TIdentifier>>>(Expression.Block(applicators), aggregateParam, eventParam)
-                    .Compile();
-            });
-        }
-
-        internal Aggregate() { }
+        void CommitEvents();
     }
 
-    public abstract class Aggregate<TIdentifier> : Aggregate
+    public abstract class Aggregate<TIdentifier> : Aggregate, IAggregate<TIdentifier>, IAggregateInternal<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
         private AggregateEventStream<TIdentifier> _events;
-        private Action<Aggregate<TIdentifier>, AggregateEvent<TIdentifier>> _dispatcher;
+        private Action<IAggregate<TIdentifier>, IAggregateEvent<TIdentifier>> _dispatcher;
 
         protected Aggregate()
         {
             Initialize(AggregateMemento<TIdentifier>.Empty);
         }
 
-        internal void Initialize(AggregateMemento<TIdentifier> memento)
+        private void Initialize(AggregateMemento<TIdentifier> memento)
         {
             _events = new AggregateEventStream<TIdentifier>();
             _dispatcher = GetDispatcher<TIdentifier>(GetType());
 
             OnInitialize();
 
-            if (!memento.IsEmpty)
+            if (!memento.IsEmpty())
             {
                 if (memento.Snapshot.HasValue)
                     ApplySnapshot(memento.Snapshot.Value);
@@ -113,7 +67,12 @@ namespace iSynaptic
             }
         }
 
-        private void ApplySnapshot(AggregateSnapshot<TIdentifier> snapshot)
+        void IAggregateInternal<TIdentifier>.Initialize(AggregateMemento memento)
+        {
+            Initialize(memento.ToMemento<TIdentifier>());
+        }
+
+        private void ApplySnapshot(IAggregateSnapshot<TIdentifier> snapshot)
         {
             Id = snapshot.Id;
             Version = snapshot.Version;
@@ -121,7 +80,15 @@ namespace iSynaptic
             OnApplySnapshot(snapshot);
         }
 
-        protected void ApplyEvent(AggregateEvent<TIdentifier> @event)
+        protected void ApplyEvent(Func<TIdentifier, Int32, IAggregateEvent<TIdentifier>> eventFactory)
+        {
+            if(Version <= 0)
+                throw new InvalidOperationException("This overload of ApplyEvent can only be called after the first event is applied.");
+
+            ApplyEvent(eventFactory(Id, Version + 1));
+        }
+
+        protected void ApplyEvent(IAggregateEvent<TIdentifier> @event)
         {
             Guard.NotNull(@event, "event");
 
@@ -131,7 +98,7 @@ namespace iSynaptic
             ApplyEventsCore(new[] { @event });
         }
 
-        private void ApplyEventsCore(IEnumerable<AggregateEvent<TIdentifier>> events)
+        private void ApplyEventsCore(IEnumerable<IAggregateEvent<TIdentifier>> events)
         {
             lock (events)
             {
@@ -148,28 +115,79 @@ namespace iSynaptic
             }
         }
 
-        internal AggregateSnapshot<TIdentifier> TakeSnapshot()
-        {
-            return OnTakeSnapshot();
-        }
-
-        internal IEnumerable<AggregateEvent<TIdentifier>> GetUncommittedEvents()
+        public virtual IAggregateSnapshot<TIdentifier> TakeSnapshot() { return null; }
+            
+        IEnumerable<IAggregateEvent<TIdentifier>> IAggregateInternal<TIdentifier>.GetUncommittedEvents()
         {
             return _events.UncommittedEvents;
         }
 
-        internal void CommitEvents()
+        public IEnumerable<IAggregateEvent<TIdentifier>> GetEvents() { return _events.Events; }
+
+        void IAggregateInternal<TIdentifier>.CommitEvents()
         {
             _events.CommitEvents();
         }
 
         protected virtual void OnInitialize() { }
-        protected virtual void OnApplySnapshot(AggregateSnapshot<TIdentifier> snapshot) { }
-        protected virtual AggregateSnapshot<TIdentifier> OnTakeSnapshot() { return null; }
-
+        protected virtual void OnApplySnapshot(IAggregateSnapshot<TIdentifier> snapshot) { }
+        
         public TIdentifier Id { get; private set; }
         public Int32 Version { get; private set; }
+    }
 
-        public IEnumerable<AggregateEvent<TIdentifier>> GetEvents() { return _events.Events; }
+    public abstract class Aggregate
+    {
+        private static readonly TypeHierarchyComparer _typeHierarchyComparer
+            = new TypeHierarchyComparer();
+
+        private static readonly ConcurrentDictionary<Type, Delegate> _dispatchers
+            = new ConcurrentDictionary<Type, Delegate>();
+
+        internal static Action<IAggregate<TIdentifier>, IAggregateEvent<TIdentifier>> GetDispatcher<TIdentifier>(Type aggregateType)
+            where TIdentifier : IEquatable<TIdentifier>
+        {
+            var baseAggregateType = typeof(IAggregate<TIdentifier>);
+
+            return (Action<IAggregate<TIdentifier>, IAggregateEvent<TIdentifier>>)_dispatchers.GetOrAdd(aggregateType, t =>
+            {
+                var eventType = typeof(IAggregateEvent<TIdentifier>);
+                var baseDispatcher = baseAggregateType.IsAssignableFrom(t.BaseType)
+                    ? GetDispatcher<TIdentifier>(t.BaseType)
+                    : null;
+
+                var aggregateParam = Expression.Parameter(baseAggregateType);
+                var eventParam = Expression.Parameter(eventType);
+
+                var applicators = t
+                    .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(x => x.DeclaringType == t)
+                    .Select(m => new { Method = m, Parameters = m.GetParameters() })
+                    .Where(x => x.Method.Name == "On" && x.Parameters.Length == 1)
+                    .Select(x => new { x.Method, x.Parameters[0].ParameterType })
+                    .Where(x => eventType.IsAssignableFrom(x.ParameterType))
+                    .OrderByDescending(x => x.ParameterType, _typeHierarchyComparer)
+                    .Select(x =>
+                        Expression.IfThen(
+                            Expression.TypeIs(eventParam, x.ParameterType),
+                            Expression.Call(
+                                Expression.Convert(aggregateParam, t),
+                                x.Method,
+                                Expression.Convert(eventParam, x.ParameterType))))
+                    .OfType<Expression>()
+                    .ToArray();
+
+                if (applicators.Length <= 0)
+                    return baseDispatcher ?? (Delegate)(Action<IAggregate<TIdentifier>, IAggregateEvent<TIdentifier>>)((a, e) => { });
+
+                if (baseDispatcher != null)
+                    applicators = applicators.Concat(new[] { Expression.Call(baseDispatcher.GetMethodInfo(), aggregateParam, eventParam) }).ToArray();
+
+                return Expression.Lambda<Action<IAggregate<TIdentifier>, IAggregateEvent<TIdentifier>>>(Expression.Block(applicators), aggregateParam, eventParam)
+                    .Compile();
+            });
+        }
+
+        internal Aggregate() { }
     }
 }

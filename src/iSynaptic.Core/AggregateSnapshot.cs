@@ -25,7 +25,8 @@ using iSynaptic.Commons;
 
 namespace iSynaptic
 {
-    public abstract class AggregateSnapshot<TIdentifier> : IComparable<AggregateSnapshot<TIdentifier>>
+    [Serializable]
+    public abstract class AggregateSnapshot<TIdentifier> : IAggregateSnapshot<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
         protected AggregateSnapshot(TIdentifier id, Int32 version, DateTime takenAt)
@@ -39,19 +40,6 @@ namespace iSynaptic
             Id = id;
             Version = version;
             TakenAt = takenAt;
-        }
-
-        public int CompareTo(AggregateSnapshot<TIdentifier> other)
-        {
-            Guard.NotNull(other, "other");
-
-            if(GetType() != other.GetType())
-                throw new ArgumentException("Snapshot types must be the same.", "other");
-
-            if(!Id.Equals(other.Id))
-                throw new ArgumentException("Snapshot aggregate identifiers must be the same to compare.", "other");
-
-            return Version.CompareTo(other.Version);
         }
 
         public TIdentifier Id { get; private set; }

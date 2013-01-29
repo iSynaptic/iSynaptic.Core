@@ -31,13 +31,13 @@ namespace iSynaptic
     public class AggregateEventStream<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly List<AggregateEvent<TIdentifier>> _events
-            = new List<AggregateEvent<TIdentifier>>();
+        private readonly List<IAggregateEvent<TIdentifier>> _events
+            = new List<IAggregateEvent<TIdentifier>>();
 
         private Int32 _startVersion;
         private Int32 _uncommittedOffset;
 
-        public void AppendEvent(AggregateEvent<TIdentifier> @event)
+        public void AppendEvent(IAggregateEvent<TIdentifier> @event)
         {
             Guard.NotNull(@event, "event");
 
@@ -71,19 +71,19 @@ namespace iSynaptic
             }
         }
 
-        public IEnumerable<AggregateEvent<TIdentifier>> CommittedEvents
+        public IEnumerable<IAggregateEvent<TIdentifier>> CommittedEvents
         {
-            get { return _events.Take(_uncommittedOffset); }
+            get { return _events.Take(_uncommittedOffset).ToArray(); }
         }
 
-        public IEnumerable<AggregateEvent<TIdentifier>> UncommittedEvents
+        public IEnumerable<IAggregateEvent<TIdentifier>> UncommittedEvents
         {
-            get { return _events.Skip(_uncommittedOffset); }
+            get { return _events.Skip(_uncommittedOffset).ToArray(); }
         }
 
-        public IEnumerable<AggregateEvent<TIdentifier>> Events
+        public IEnumerable<IAggregateEvent<TIdentifier>> Events
         {
-            get { return _events; }
+            get { return _events.ToArray(); }
         }
 
         public Boolean IsTruncated

@@ -22,29 +22,19 @@
 
 using System;
 using iSynaptic.Commons;
+using System.Linq;
 
 namespace iSynaptic
 {
-    [Serializable]
-    public abstract class AggregateEvent<TIdentifier> : IAggregateEvent<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    public static class AggregateMementoExtensions
     {
-        protected AggregateEvent(TIdentifier id, Int32 version)
+        public static Boolean IsEmpty<TIdentifier>(this AggregateMemento<TIdentifier> @this)
+            where TIdentifier : IEquatable<TIdentifier>
         {
-            if (version <= 0)
-                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
+            Guard.NotNull(@this, "this");
 
-            EventId = Guid.NewGuid();
-            RecordedAt = SystemClock.UtcNow;
-
-            Id = id;
-            Version = version;
+            return !@this.Snapshot.AsMaybe().HasValue &&
+                   (@this.Events == null || !@this.Events.Any());
         }
-
-        public Guid EventId { get; private set; }
-        public DateTime RecordedAt { get; private set; }
-
-        public TIdentifier Id { get; private set; }
-        public Int32 Version { get; private set; }
     }
 }

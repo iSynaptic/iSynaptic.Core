@@ -21,30 +21,16 @@
 // THE SOFTWARE.
 
 using System;
-using iSynaptic.Commons;
+using System.Threading.Tasks;
 
 namespace iSynaptic
 {
-    [Serializable]
-    public abstract class AggregateEvent<TIdentifier> : IAggregateEvent<TIdentifier>
+    public interface IAggregateRepository<TAggregate, in TIdentifier>
+        where TAggregate : IAggregate<TIdentifier> 
         where TIdentifier : IEquatable<TIdentifier>
     {
-        protected AggregateEvent(TIdentifier id, Int32 version)
-        {
-            if (version <= 0)
-                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
-
-            EventId = Guid.NewGuid();
-            RecordedAt = SystemClock.UtcNow;
-
-            Id = id;
-            Version = version;
-        }
-
-        public Guid EventId { get; private set; }
-        public DateTime RecordedAt { get; private set; }
-
-        public TIdentifier Id { get; private set; }
-        public Int32 Version { get; private set; }
+        Task<TAggregate> Get(TIdentifier id, Int32 maxVersion);
+        Task Save(TAggregate aggregate);
+        Task SaveSnapshot(TAggregate aggregate);
     }
 }

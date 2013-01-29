@@ -21,33 +21,56 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using iSynaptic.Commons;
 
 namespace iSynaptic
 {
-    public struct AggregateMemento<TIdentifier>
+    public class AggregateMemento<TIdentifier> : AggregateMemento
         where TIdentifier : IEquatable<TIdentifier>
     {
         public static readonly AggregateMemento<TIdentifier> Empty 
             = new AggregateMemento<TIdentifier>();
 
-        private readonly Maybe<AggregateSnapshot<TIdentifier>> _snapshot;
-        private readonly AggregateEvent<TIdentifier>[] _events;
-
-        public AggregateMemento(Maybe<AggregateSnapshot<TIdentifier>> snapshot, IEnumerable<AggregateEvent<TIdentifier>> events)
-            : this()
+        private AggregateMemento()
         {
-            _snapshot = snapshot;
-            _events = events != null
-                ? events.ToArray()
-                : null;
         }
 
-        public Boolean IsEmpty { get { return !_snapshot.HasValue && (_events == null || _events.Length <= 0); } }
+        public AggregateMemento(Type aggregateType, Maybe<IAggregateSnapshot<TIdentifier>> snapshot, IEnumerable<IAggregateEvent<TIdentifier>> events)
+            : base(aggregateType, snapshot.Cast<Object>(), events)
+        {
+        }
 
-        public Maybe<AggregateSnapshot<TIdentifier>> Snapshot { get { return _snapshot; } }
-        public IEnumerable<AggregateEvent<TIdentifier>> Events { get { return _events ?? Enumerable.Empty<AggregateEvent<TIdentifier>>(); } }
+        public new Maybe<IAggregateSnapshot<TIdentifier>> Snapshot { get { return base.Snapshot.Cast<IAggregateSnapshot<TIdentifier>>(); } }
+        public new IEnumerable<IAggregateEvent<TIdentifier>> Events { get { return (IEnumerable<IAggregateEvent<TIdentifier>>)base.Events; } }
+    }
+
+    public class AggregateMemento
+    {
+        internal AggregateMemento()
+        {
+        }
+
+        internal AggregateMemento(Type aggregateType, IMaybe<Object> snapshot, IEnumerable events)
+        {
+            Snapshot = snapshot;
+            Events = events;
+            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
+        }
+
+        public Type AggregateType { get; private set; }
+        protected IMaybe<Object> Snapshot { get; set; }
+        protected IEnumerable Events { get; set; }
+
+        internal AggregateMemento<TIdentifier> ToMemento<TIdentifier>()
+            where TIdentifier : IEquatable<TIdentifier>
+        {
+            return new AggregateMemento<TIdentifier>(AggregateType, 
+                Snapshot.Cast<IAggregateSnapshot<TIdentifier>>(),
+                Events.Cast<IAggregateEvent<TIdentifier>>()
+            );
+        }
     }
 }

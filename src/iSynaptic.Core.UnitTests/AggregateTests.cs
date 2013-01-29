@@ -24,6 +24,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using iSynaptic.Commons;
 using iSynaptic.TestAggregates;
 
 namespace iSynaptic
@@ -32,37 +33,44 @@ namespace iSynaptic
     public class AggregateTests
     {
         [Test]
-        public void CreatedPost_AppliesEvent()
+        public void CreatedServiceCase_AppliesEvent()
         {
-            var post = new FauxPost("Test", "This is a test.", 47);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
             
-            post.Id.Should().NotBe(Guid.Empty);
-            post.Version.Should().Be(1);
-            post.Title.Should().Be("Test");
-            post.Description.Should().Be("This is a test.");
-            post.Price.Should().Be(47);
+            serviceCase.Id.Should().NotBe(Guid.Empty);
+            serviceCase.Version.Should().Be(1);
+            serviceCase.Title.Should().Be(ServiceCase.SampleContent.Title);
+            serviceCase.Description.Should().Be(ServiceCase.SampleContent.Description);
+            serviceCase.Priority.Should().Be(ServiceCasePriority.Normal);
         }
 
         [Test]
-        public void UpdateTextCopyCommand_AppliesEvent()
+        public void StartCommunicationThead_YieldsEventAndReturnsThread()
         {
-            var post = new FauxPost("Test", "This is a test.", 47);
-            post.UpdateTextCopy("T2", "D2");
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
 
-            post.Id.Should().NotBe(Guid.Empty);
-            post.Version.Should().Be(2);
-            post.Title.Should().Be("T2");
-            post.Description.Should().Be("D2");
-            post.Price.Should().Be(47);
+            thread.Should().NotBeNull();
+            serviceCase.Threads.Any(x => x.ThreadId == thread.ThreadId).Should().BeTrue();
         }
 
         [Test]
         public void UncommittedEventsRetreivable()
         {
-            var post = new FauxPost("Test", "This is a test.", 47);
-            post.ChangePrice(42.47m);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
 
-            post.GetEvents().Count().Should().Be(2);
+            thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow);
+
+            serviceCase.GetEvents().Count().Should().Be(3);
+            serviceCase.GetEvents()
+                       .Select(x => x.GetType())
+                       .SequenceEqual(new[]
+                       {
+                           typeof (ServiceCase.Opened), typeof (ServiceCase.CommunicationThreadStarted),
+                           typeof (ServiceCase.CommunicationRecorded)
+                       })
+                       .Should().BeTrue();
         }
     }
 }

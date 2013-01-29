@@ -50,10 +50,17 @@
     <Compile Include="AggregateEvent.cs" />
     <Compile Include="AggregateEventStream.cs" />
     <Compile Include="AggregateMemento.cs" />
+    <Compile Include="AggregateMementoExtensions.cs" />
     <Compile Include="AggregateRepository.cs" />
+    <Compile Include="AggregateRepositoryExtensions.cs" />
     <Compile Include="AggregateRepositorySaveBehavior.cs" />
     <Compile Include="AggregateSnapshot.cs" />
-    <Compile Include="InMemoryRepository.cs" />
+    <Compile Include="HashCode.cs" />
+    <Compile Include="IAggregate.cs" />
+    <Compile Include="IAggregateEvent.cs" />
+    <Compile Include="IAggregateRepository.cs" />
+    <Compile Include="IAggregateSnapshot.cs" />
+    <Compile Include="InMemoryAggregateRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

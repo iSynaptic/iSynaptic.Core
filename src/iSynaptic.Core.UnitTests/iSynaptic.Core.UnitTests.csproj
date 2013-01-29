@@ -80,8 +80,14 @@
     </Compile>
     <Compile Include="AggregateEventStreamTests.cs" />
     <Compile Include="AggregateTests.cs" />
-    <Compile Include="TestAggregates\FauxPost.cs" />
-    <Compile Include="InMemoryRepositoryTests.cs" />
+    <Compile Include="HomogeneousAggregateTests.cs" />
+    <Compile Include="TestAggregates\CustomerAgentRoleIdentifier.cs" />
+    <Compile Include="TestAggregates\CustomerRoleIdentifier.cs" />
+    <Compile Include="TestAggregates\CustomerServiceRepresentativeRoleIdentifier.cs" />
+    <Compile Include="TestAggregates\HomogeneousRole.cs" />
+    <Compile Include="TestAggregates\RoleIdentifier.cs" />
+    <Compile Include="TestAggregates\ServiceCase.cs" />
+    <Compile Include="InMemoryAggregateRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

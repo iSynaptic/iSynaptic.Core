@@ -24,6 +24,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+using iSynaptic.Commons;
 using iSynaptic.TestAggregates;
 
 namespace iSynaptic
@@ -31,10 +32,10 @@ namespace iSynaptic
     [TestFixture]
     public class AggregateEventStreamTests
     {
-        private static readonly FauxPost.Created _createdEvent 
-            = new FauxPost.Created("Test", "This is a test post.", 42);
+        private static readonly ServiceCase.Opened _openedEvent
+            = new ServiceCase.Opened(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
 
-        private static readonly Guid _id = _createdEvent.Id;
+        private static readonly Guid _id = _openedEvent.Id;
 
         [Test]
         public void Stream_DefaultsCorrect()
@@ -49,12 +50,11 @@ namespace iSynaptic
         public void Appending_OutOfOrder_ThrowsException()
         {
             var stream = new AggregateEventStream<Guid>();
-            var e1 = _createdEvent;
-            var e2 = new FauxPost.PriceChanged(_id, 2, 47);
+            var e2 = new ServiceCase.CommunicationThreadStarted(_id, 2, 1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
 
             stream.AppendEvent(e2);
 
-            stream.Invoking(x => x.AppendEvent(e1))
+            stream.Invoking(x => x.AppendEvent(_openedEvent))
                 .ShouldThrow<InvalidOperationException>();
         }
 
@@ -62,9 +62,9 @@ namespace iSynaptic
         public void Appending_WithGaps_ThrowsException()
         {
             var stream = new AggregateEventStream<Guid>();
-            var outOfOrderEvent = new FauxPost.PriceChanged(_id, 3, 47);
+            var outOfOrderEvent = new ServiceCase.CommunicationThreadStarted(_id, 3, 1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
 
-            stream.AppendEvent(_createdEvent);
+            stream.AppendEvent(_openedEvent);
 
             stream.Invoking(x => x.AppendEvent(outOfOrderEvent))
                   .ShouldThrow<InvalidOperationException>();
@@ -74,7 +74,7 @@ namespace iSynaptic
         public void AppendingInitialEvent_WithVersionEqualToOne_IsNotTruncated()
         {
             var stream = new AggregateEventStream<Guid>();
-            stream.AppendEvent(_createdEvent);
+            stream.AppendEvent(_openedEvent);
             stream.IsTruncated.Should().BeFalse();
         }
 
@@ -82,7 +82,7 @@ namespace iSynaptic
         public void AppendingInitialEvent_WithVersionGreaterThanOne_IsTruncated()
         {
             var stream = new AggregateEventStream<Guid>();
-            stream.AppendEvent(new FauxPost.PriceChanged(_id, 7, 42));
+            stream.AppendEvent(new ServiceCase.CommunicationThreadStarted(_id, 7, 1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription));
             stream.IsTruncated.Should().BeTrue();
         }
 
@@ -91,7 +91,7 @@ namespace iSynaptic
         public void AppendingInitialEvent_EventStreamsAndVersionCorrect()
         {
             var stream = new AggregateEventStream<Guid>();
-            stream.AppendEvent(_createdEvent);
+            stream.AppendEvent(_openedEvent);
 
             stream.Events.Count().Should().Be(1);
             stream.UncommittedEvents.Count().Should().Be(1);
@@ -100,14 +100,14 @@ namespace iSynaptic
             stream.CommittedVersion.Should().Be(0);
             stream.Version.Should().Be(1);
 
-            stream.UncommittedEvents.First().Should().Be(_createdEvent);
+            stream.UncommittedEvents.First().Should().Be(_openedEvent);
         }
 
         [Test]
         public void CommittingInitialEvent_EventStreamsAndVersionCorrect()
         {
             var stream = new AggregateEventStream<Guid>();
-            stream.AppendEvent(_createdEvent);
+            stream.AppendEvent(_openedEvent);
             stream.CommitEvents();
 
             stream.Events.Count().Should().Be(1);
@@ -117,7 +117,7 @@ namespace iSynaptic
             stream.CommittedVersion.Should().Be(1);
             stream.Version.Should().Be(1);
 
-            stream.CommittedEvents.First().Should().Be(_createdEvent);
+            stream.CommittedEvents.First().Should().Be(_openedEvent);
         }
 
         [Test]
@@ -125,10 +125,10 @@ namespace iSynaptic
         {
             var stream = new AggregateEventStream<Guid>();
 
-            var e2 = new FauxPost.TextCopyUpdated(_id, 2, "Updated title", "Updated description");
-            var e3 = new FauxPost.PriceChanged(_id, 3, 3.47m);
+            var e2 = new ServiceCase.CommunicationThreadStarted(_id, 2, 1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
+            var e3 = new ServiceCase.CommunicationRecorded(_id, 3, 1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow);
 
-            stream.AppendEvent(_createdEvent);
+            stream.AppendEvent(_openedEvent);
             stream.AppendEvent(e2);
             stream.AppendEvent(e3);
 
@@ -139,7 +139,7 @@ namespace iSynaptic
             stream.CommittedVersion.Should().Be(0);
             stream.Version.Should().Be(3);
 
-            stream.UncommittedEvents.ElementAt(0).Should().Be(_createdEvent);
+            stream.UncommittedEvents.ElementAt(0).Should().Be(_openedEvent);
             stream.UncommittedEvents.ElementAt(1).Should().Be(e2);
             stream.UncommittedEvents.ElementAt(2).Should().Be(e3);
         }
@@ -149,10 +149,10 @@ namespace iSynaptic
         {
             var stream = new AggregateEventStream<Guid>();
 
-            var e2 = new FauxPost.TextCopyUpdated(_id, 2, "Updated title", "Updated description");
-            var e3 = new FauxPost.PriceChanged(_id, 3, 3.47m);
+            var e2 = new ServiceCase.CommunicationThreadStarted(_id, 2, 1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
+            var e3 = new ServiceCase.CommunicationRecorded(_id, 3, 1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow);
 
-            stream.AppendEvent(_createdEvent);
+            stream.AppendEvent(_openedEvent);
             stream.AppendEvent(e2);
             stream.AppendEvent(e3);
 
@@ -165,7 +165,7 @@ namespace iSynaptic
             stream.CommittedVersion.Should().Be(3);
             stream.Version.Should().Be(3);
 
-            stream.CommittedEvents.ElementAt(0).Should().Be(_createdEvent);
+            stream.CommittedEvents.ElementAt(0).Should().Be(_openedEvent);
             stream.CommittedEvents.ElementAt(1).Should().Be(e2);
             stream.CommittedEvents.ElementAt(2).Should().Be(e3);
         }
@@ -175,10 +175,10 @@ namespace iSynaptic
         {
             var stream = new AggregateEventStream<Guid>();
 
-            var e2 = new FauxPost.TextCopyUpdated(_id, 2, "Updated title", "Updated description");
-            var e3 = new FauxPost.PriceChanged(_id, 3, 3.47m);
+            var e2 = new ServiceCase.CommunicationThreadStarted(_id, 2, 1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
+            var e3 = new ServiceCase.CommunicationRecorded(_id, 3, 1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow);
 
-            stream.AppendEvent(_createdEvent);
+            stream.AppendEvent(_openedEvent);
             stream.AppendEvent(e2);
             stream.AppendEvent(e3);
 
@@ -191,7 +191,7 @@ namespace iSynaptic
             stream.CommittedVersion.Should().Be(2);
             stream.Version.Should().Be(3);
 
-            stream.CommittedEvents.ElementAt(0).Should().Be(_createdEvent);
+            stream.CommittedEvents.ElementAt(0).Should().Be(_openedEvent);
             stream.CommittedEvents.ElementAt(1).Should().Be(e2);
             stream.UncommittedEvents.ElementAt(0).Should().Be(e3);
         }
@@ -201,9 +201,9 @@ namespace iSynaptic
         {
             var stream = new AggregateEventStream<Guid>();
 
-            var e1 = new FauxPost.TextCopyUpdated(_id, 7, "Updated title", "Updated description");
-            var e2 = new FauxPost.TextCopyUpdated(_id, 8, "Updated title again", "Updated description again");
-            var e3 = new FauxPost.PriceChanged(_id, 9, 3.47m);
+            var e1 = new ServiceCase.CommunicationThreadStarted(_id, 7, 1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
+            var e2 = new ServiceCase.CommunicationRecorded(_id, 8, 1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow);
+            var e3 = new ServiceCase.CommunicationRecorded(_id, 9, 1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow);
 
             stream.AppendEvent(e1);
             stream.AppendEvent(e2);
