@@ -62,7 +62,7 @@ namespace iSynaptic
                               x.Events.SkipWhile(y => y.Version <= s.Select(z => z.Version).ValueOrDefault())
                                .TakeWhile(y => y.Version <= maxVersion));
                       })
-                      .ValueOrDefault(AggregateMemento<TIdentifier>.Empty));
+                      .ValueOrDefault());
             }
         }
 
@@ -70,13 +70,12 @@ namespace iSynaptic
         {
             lock (_state)
             {
-                var state = _state.TryGetValue(snapshot.Id)
-                                .ValueOrDefault(AggregateMemento<TIdentifier>.Empty);
+                var state = _state.TryGetValue(snapshot.Id).ValueOrDefault();
 
-                if (state.Snapshot.Where(x => x.Version >= snapshot.Version).HasValue)
+                if (state != null && state.Snapshot.Where(x => x.Version >= snapshot.Version).HasValue)
                     throw new InvalidOperationException("Snapshot already exists that covers this aggregate version.");
 
-                _state[snapshot.Id] = new AggregateMemento<TIdentifier>(aggregateType, snapshot.ToMaybe(), state.Events);
+                _state[snapshot.Id] = new AggregateMemento<TIdentifier>(aggregateType, snapshot.ToMaybe(), state != null ? state.Events : null);
             }
 
             return _completedTask;
@@ -95,7 +94,7 @@ namespace iSynaptic
                             x.Snapshot,
                             events.SkipWhile(y => y.Version <= lastEvent.Select(z => z.Version).ValueOrDefault()));
                     })
-                    .ValueOrDefault(() => new AggregateMemento<TIdentifier>(aggregateType, Maybe.NoValue, events));
+                    .ValueOrDefault(() => new AggregateMemento<TIdentifier>(aggregateType, Maybe<IAggregateSnapshot<TIdentifier>>.NoValue, events));
             }
 
             return _completedTask;

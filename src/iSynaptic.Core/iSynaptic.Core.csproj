@@ -58,6 +58,7 @@
     <Compile Include="HashCode.cs" />
     <Compile Include="IAggregate.cs" />
     <Compile Include="IAggregateEvent.cs" />
+    <Compile Include="IAggregateMemento.cs" />
     <Compile Include="IAggregateRepository.cs" />
     <Compile Include="IAggregateSnapshot.cs" />
     <Compile Include="InMemoryAggregateRepository.cs" />

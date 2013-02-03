@@ -64,6 +64,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\iSynaptic.Commons.0.4.14\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -81,6 +84,7 @@
     <Compile Include="AggregateEventStreamTests.cs" />
     <Compile Include="AggregateTests.cs" />
     <Compile Include="HomogeneousAggregateTests.cs" />
+    <Compile Include="InMemoryJsonAggregateRepository.cs" />
     <Compile Include="TestAggregates\CustomerAgentRoleIdentifier.cs" />
     <Compile Include="TestAggregates\CustomerRoleIdentifier.cs" />
     <Compile Include="TestAggregates\CustomerServiceRepresentativeRoleIdentifier.cs" />

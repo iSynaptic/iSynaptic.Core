@@ -29,18 +29,26 @@ using iSynaptic.TestAggregates;
 
 namespace iSynaptic
 {
-    [TestFixture]
+    [TestFixture(typeof(InMemoryAggregateRepository<ServiceCase, Guid>))]
+    [TestFixture(typeof(InMemoryJsonAggregateRepository<ServiceCase, Guid>))]
+    [CLSCompliant(false)]
     public class InMemoryAggregateRepositoryTests
     {
+        private readonly IAggregateRepository<ServiceCase, Guid> _repo;
+
+        public InMemoryAggregateRepositoryTests(Type repoType)
+        {
+            _repo = (IAggregateRepository<ServiceCase, Guid>)Activator.CreateInstance(repoType);
+        }
+
         [Test]
         public async void RoundTrip()
         {
             var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
 
-            var repo = new InMemoryAggregateRepository<ServiceCase, Guid>();
-            await repo.Save(serviceCase);
+            await _repo.Save(serviceCase);
 
-            var reconsituted = await repo.Get(serviceCase.Id);
+            var reconsituted = await _repo.Get(serviceCase.Id);
             reconsituted.Should().NotBeNull();
             reconsituted.Should().NotBeSameAs(serviceCase);
 
@@ -57,11 +65,10 @@ namespace iSynaptic
         {
             var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
 
-            var repo = new InMemoryAggregateRepository<ServiceCase, Guid>();
-            await repo.Save(serviceCase);
-            await repo.SaveSnapshot(serviceCase.Id);
+            await _repo.Save(serviceCase);
+            await _repo.SaveSnapshot(serviceCase.Id);
 
-            var reconsituted = await repo.Get(serviceCase.Id);
+            var reconsituted = await _repo.Get(serviceCase.Id);
             reconsituted.Should().NotBeNull();
             reconsituted.Should().NotBeSameAs(serviceCase);
 
@@ -78,15 +85,14 @@ namespace iSynaptic
         {
             var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
 
-            var repo = new InMemoryAggregateRepository<ServiceCase, Guid>();
-            await repo.Save(serviceCase);
-            await repo.SaveSnapshot(serviceCase.Id);
+            await _repo.Save(serviceCase);
+            await _repo.SaveSnapshot(serviceCase.Id);
 
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
                                                  ServiceCase.SampleContent.TopicDescription);
-            await repo.Save(serviceCase);
+            await _repo.Save(serviceCase);
 
-            var reconsituted = await repo.Get(serviceCase.Id);
+            var reconsituted = await _repo.Get(serviceCase.Id);
             reconsituted.Should().NotBeNull();
             reconsituted.Should().NotBeSameAs(serviceCase);
 
@@ -105,15 +111,14 @@ namespace iSynaptic
             var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
                                                               ServiceCase.SampleContent.TopicDescription);
 
-            var repo = new InMemoryAggregateRepository<ServiceCase, Guid>();
-            await repo.Save(serviceCase);
-            await repo.SaveSnapshot(serviceCase.Id);
+            await _repo.Save(serviceCase);
+            await _repo.SaveSnapshot(serviceCase.Id);
 
             thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow);
-            await repo.Save(serviceCase);
-            await repo.SaveSnapshot(serviceCase.Id);
+            await _repo.Save(serviceCase);
+            await _repo.SaveSnapshot(serviceCase.Id);
 
-            var reconsituted = await repo.Get(serviceCase.Id);
+            var reconsituted = await _repo.Get(serviceCase.Id);
             reconsituted.Should().NotBeNull();
             reconsituted.Should().NotBeSameAs(serviceCase);
 
@@ -132,11 +137,10 @@ namespace iSynaptic
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
                                                               ServiceCase.SampleContent.TopicDescription);
 
-            var repo = new InMemoryAggregateRepository<ServiceCase, Guid>();
-            await repo.Save(serviceCase);
-            await repo.SaveSnapshot(serviceCase.Id);
+            await _repo.Save(serviceCase);
+            await _repo.SaveSnapshot(serviceCase.Id);
 
-            repo.Invoking(x => x.SaveSnapshot(serviceCase.Id).Wait())
+            _repo.Invoking(x => x.SaveSnapshot(serviceCase.Id).Wait())
                 .ShouldThrow<AggregateException>()
                 .Subject.InnerException
                 .Should().BeAssignableTo<InvalidOperationException>();

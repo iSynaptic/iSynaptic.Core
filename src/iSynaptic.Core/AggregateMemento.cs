@@ -21,56 +21,34 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using iSynaptic.Commons;
 
 namespace iSynaptic
 {
-    public class AggregateMemento<TIdentifier> : AggregateMemento
+    public sealed class AggregateMemento<TIdentifier> : IAggregateMemento
         where TIdentifier : IEquatable<TIdentifier>
     {
-        public static readonly AggregateMemento<TIdentifier> Empty 
-            = new AggregateMemento<TIdentifier>();
-
-        private AggregateMemento()
-        {
-        }
-
         public AggregateMemento(Type aggregateType, Maybe<IAggregateSnapshot<TIdentifier>> snapshot, IEnumerable<IAggregateEvent<TIdentifier>> events)
-            : base(aggregateType, snapshot.Cast<Object>(), events)
         {
-        }
-
-        public new Maybe<IAggregateSnapshot<TIdentifier>> Snapshot { get { return base.Snapshot.Cast<IAggregateSnapshot<TIdentifier>>(); } }
-        public new IEnumerable<IAggregateEvent<TIdentifier>> Events { get { return (IEnumerable<IAggregateEvent<TIdentifier>>)base.Events; } }
-    }
-
-    public class AggregateMemento
-    {
-        internal AggregateMemento()
-        {
-        }
-
-        internal AggregateMemento(Type aggregateType, IMaybe<Object> snapshot, IEnumerable events)
-        {
-            Snapshot = snapshot;
-            Events = events;
             AggregateType = Guard.NotNull(aggregateType, "aggregateType");
+            Snapshot = snapshot;
+            Events = events ?? Enumerable.Empty<IAggregateEvent<TIdentifier>>();
+        }
+
+        AggregateMemento<TDesiredIdentifier> IAggregateMemento.ToMemento<TDesiredIdentifier>()
+        {
+            var m = this as AggregateMemento<TDesiredIdentifier>;
+
+            return m ?? new AggregateMemento<TDesiredIdentifier>(AggregateType,
+                Snapshot.Cast<IAggregateSnapshot<TDesiredIdentifier>>(),
+                Events.Cast<IAggregateEvent<TDesiredIdentifier>>()
+            );
         }
 
         public Type AggregateType { get; private set; }
-        protected IMaybe<Object> Snapshot { get; set; }
-        protected IEnumerable Events { get; set; }
-
-        internal AggregateMemento<TIdentifier> ToMemento<TIdentifier>()
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            return new AggregateMemento<TIdentifier>(AggregateType, 
-                Snapshot.Cast<IAggregateSnapshot<TIdentifier>>(),
-                Events.Cast<IAggregateEvent<TIdentifier>>()
-            );
-        }
+        public Maybe<IAggregateSnapshot<TIdentifier>> Snapshot { get; private set; }
+        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
     }
 }

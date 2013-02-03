@@ -34,7 +34,7 @@ namespace iSynaptic
     internal interface IAggregateInternal<out TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        void Initialize(AggregateMemento memento);
+        void Initialize(IAggregateMemento memento);
         IEnumerable<IAggregateEvent<TIdentifier>> GetUncommittedEvents();
 
         void CommitEvents();
@@ -48,26 +48,28 @@ namespace iSynaptic
 
         protected Aggregate()
         {
-            Initialize(AggregateMemento<TIdentifier>.Empty);
+            Initialize(null);
         }
 
-        private void Initialize(AggregateMemento<TIdentifier> memento)
+        private void Initialize(IAggregateMemento memento)
         {
             _events = new AggregateEventStream<TIdentifier>();
             _dispatcher = GetDispatcher<TIdentifier>(GetType());
 
             OnInitialize();
 
-            if (!memento.IsEmpty())
+            if (memento != null)
             {
-                if (memento.Snapshot.HasValue)
-                    ApplySnapshot(memento.Snapshot.Value);
+                var m = memento.ToMemento<TIdentifier>();
 
-                ApplyEventsCore(memento.Events);
+                if (m.Snapshot.HasValue)
+                    ApplySnapshot(m.Snapshot.Value);
+
+                ApplyEventsCore(m.Events);
             }
         }
 
-        void IAggregateInternal<TIdentifier>.Initialize(AggregateMemento memento)
+        void IAggregateInternal<TIdentifier>.Initialize(IAggregateMemento memento)
         {
             Initialize(memento.ToMemento<TIdentifier>());
         }
