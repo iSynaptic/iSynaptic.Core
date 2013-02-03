@@ -50,7 +50,6 @@
     <Compile Include="AggregateEvent.cs" />
     <Compile Include="AggregateEventStream.cs" />
     <Compile Include="AggregateMemento.cs" />
-    <Compile Include="AggregateMementoExtensions.cs" />
     <Compile Include="AggregateRepository.cs" />
     <Compile Include="AggregateRepositoryExtensions.cs" />
     <Compile Include="AggregateRepositorySaveBehavior.cs" />

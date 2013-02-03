@@ -36,7 +36,7 @@ namespace iSynaptic
         {
             var memento = await GetMemento(id, maxVersion);
 
-            if (memento.IsEmpty())
+            if (memento == null)
                 return null;
 
             var aggregate = (TAggregate)FormatterServices.GetSafeUninitializedObject(memento.AggregateType);

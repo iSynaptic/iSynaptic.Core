@@ -179,17 +179,13 @@ namespace iSynaptic.TestAggregates
                                 Priority);
         }
 
-        protected override void OnApplySnapshot(IAggregateSnapshot<Guid> snapshot)
+        private void Apply(Snapshot snapshot)
         {
-            var s = snapshot as Snapshot;
-            if(s == null)
-                throw new ArgumentException("Unrecognized snapshot type.", "snapshot");
-
-            _lastThreadId = s.LastThreadId;
-            _threads = s.TheadSnapshots.Select(x => new CommunicationThread(this, x.ThreadId, x.Topic, x.Description)).ToList();
-            Title = s.Title;
-            Description = s.Description;
-            Priority = s.Priority;
+            _lastThreadId = snapshot.LastThreadId;
+            _threads = snapshot.TheadSnapshots.Select(x => new CommunicationThread(this, x.ThreadId, x.Topic, x.Description)).ToList();
+            Title = snapshot.Title;
+            Description = snapshot.Description;
+            Priority = snapshot.Priority;
         }
 
         #region Commands

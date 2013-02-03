@@ -21,7 +21,6 @@
 // THE SOFTWARE.
 
 using System;
-using iSynaptic.Commons;
 
 namespace iSynaptic
 {
