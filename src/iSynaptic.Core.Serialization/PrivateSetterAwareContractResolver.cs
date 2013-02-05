@@ -20,20 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using System.Reflection;
-using System.Runtime.InteropServices;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyCompany("iSynaptic")]
-[assembly: AssemblyTrademark("iSynaptic")]
-[assembly: AssemblyProduct("iSynaptic.Core")]
-[assembly: AssemblyCopyright("Copyright © Jordan Terrell 2011")]
+namespace iSynaptic.Serialization
+{
+    public class PrivateSetterAwareContractResolver : DefaultContractResolver
+    {
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var prop = base.CreateProperty(member, memberSerialization);
 
-[assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
+            if (!prop.Writable)
+            {
+                var property = member as PropertyInfo;
+                if (property != null)
+                {
+                    var hasPrivateSetter = property.GetSetMethod(true) != null;
+                    prop.Writable = hasPrivateSetter;
+                }
+            }
 
-[assembly: AssemblyVersion("0.1.2.0")]
-[assembly: AssemblyFileVersion("0.1.2.0")]
+            return prop;
+        }
+    }
+}

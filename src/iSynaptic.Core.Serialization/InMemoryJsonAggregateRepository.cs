@@ -22,24 +22,43 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
+using iSynaptic.Commons.Linq;
 
-namespace iSynaptic
+namespace iSynaptic.Serialization
 {
-    public class InMemoryAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
+    public class InMemoryJsonAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly Dictionary<TIdentifier, AggregateMemento<TIdentifier>> _state =
-            new Dictionary<TIdentifier, AggregateMemento<TIdentifier>>();
+        private readonly Dictionary<TIdentifier, String> _state =
+            new Dictionary<TIdentifier, String>();
+
+        private readonly Task _completedTask;
+
+        private readonly JsonSerializer _serializer;
+
+        public InMemoryJsonAggregateRepository(JsonSerializer serializer)
+        {
+            _serializer = Guard.NotNull(serializer, "serializer");
+
+            var tcs = new TaskCompletionSource<bool>();
+            tcs.SetResult(true);
+
+            _completedTask = tcs.Task;
+        }
 
         protected override Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id)
         {
             lock (_state)
             {
-                return _state.TryGetValue(id);
+                return _state.TryGetValue(id)
+                             .Select(json => _serializer.Deserialize<AggregateMemento<TIdentifier>>(json));
             }
         }
 
@@ -48,7 +67,7 @@ namespace iSynaptic
             lock (_state)
             {
                 var memento = mementoFactory();
-                _state[memento.Key] = memento.Value;
+                _state[memento.Key] = _serializer.Serialize(memento.Value);
             }
         }
     }

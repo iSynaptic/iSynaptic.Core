@@ -21,19 +21,36 @@
 // THE SOFTWARE.
 
 using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System.IO;
+using Newtonsoft.Json;
+using iSynaptic.Commons;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyCompany("iSynaptic")]
-[assembly: AssemblyTrademark("iSynaptic")]
-[assembly: AssemblyProduct("iSynaptic.Core")]
-[assembly: AssemblyCopyright("Copyright © Jordan Terrell 2011")]
+namespace iSynaptic.Serialization
+{
+    public static class JsonSerializerExtensions
+    {
+        public static String Serialize(this JsonSerializer serializer, object value)
+        {
+            Guard.NotNull(serializer, "serializer");
+            Guard.NotNull(value, "value");
 
-[assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
+            using (var writer = new StringWriter())
+            {
+                serializer.Serialize(writer, value);
+                return writer.GetStringBuilder().ToString();
+            }
+        }
 
-[assembly: AssemblyVersion("0.1.2.0")]
-[assembly: AssemblyFileVersion("0.1.2.0")]
+        public static T Deserialize<T>(this JsonSerializer serializer, String input)
+        {
+            Guard.NotNull(serializer, "serializer");
+            Guard.NotNullOrWhiteSpace(input, "input");
+
+            using(var reader = new StringReader(input))
+            using (var jsonReader = new JsonTextReader(reader))
+            {
+                return serializer.Deserialize<T>(jsonReader);
+            }
+        }
+    }
+}

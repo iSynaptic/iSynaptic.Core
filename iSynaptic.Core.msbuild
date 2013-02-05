@@ -9,13 +9,18 @@
   <Import Project="tools\SolutionBuild.targets" />
 
   <PropertyGroup>
-    <CoreNuspecFile>$(MSBuildProjectDirectory)\$(SolutionName).nuspec</CoreNuspecFile>
-    
     <PackagesPath Condition="$(PackagesPath) == ''">$(RootOutputPath)\$(Configuration)\Packages</PackagesPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).nuspec" />
+    <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).Serialization.nuspec" />
+  </ItemGroup>
   
   <ItemGroup>
     <ApplicationProject Include="src\$(SolutionName)\$(SolutionName).csproj" />
+    <ApplicationProject Include="src\$(SolutionName).Serialization\$(SolutionName).Serialization.csproj" />
+    
     <TestingProject Include="src\$(SolutionName).UnitTests\$(SolutionName).UnitTests.csproj" />
   </ItemGroup>
 
@@ -24,6 +29,6 @@
 
     <Copy SourceFiles="$(SolutionName).ReleaseNotes.txt" DestinationFolder="$(BaseOutputPath)" />
     
-    <Exec Command="$(NugetPath)\nuget.exe pack &quot;$(CoreNuspecFile)&quot; -BasePath &quot;$(BaseOutputPath)&quot; -OutputDirectory &quot;$(PackagesPath)&quot;" />
+    <Exec Command="$(NugetPath)\nuget.exe pack &quot;%(NuspecFile.Identity)&quot; -BasePath &quot;$(BaseOutputPath)&quot; -OutputDirectory &quot;$(PackagesPath)&quot;" />
   </Target>
 </Project>

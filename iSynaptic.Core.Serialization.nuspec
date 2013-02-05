@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <package>
   <metadata>
-    <id>iSynaptic.Core</id>
+    <id>iSynaptic.Core.Serialization</id>
     <version>0.1.2</version>
     <authors>Jordan Terrell</authors>
-    <description>Framework for common application infrastructure.</description>
+    <description>Serialization support for common application infrastructure.</description>
     <language>en-US</language>
     <licenseUrl>https://github.com/iSynaptic/iSynaptic.Core/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/iSynaptic/iSynaptic.Core</projectUrl>
@@ -14,10 +14,12 @@
     </frameworkAssemblies>
     <dependencies>
       <dependency id="iSynaptic.Commons" version="0.4.15" />
+      <dependency id="iSynaptic.Core" version="0.1.2" />
+      <dependency id="Newtonsoft.Json" version="4.5.11" />
     </dependencies>
   </metadata>
   <files>
-    <file src="Binaries\iSynaptic.Core.dll" target="lib" />
+    <file src="Binaries\iSynaptic.Core.Serialization.dll" target="lib" />
     <file src="iSynaptic.Core.ReleaseNotes.txt" target="ReleaseNotes.txt" />
   </files>
 </package>

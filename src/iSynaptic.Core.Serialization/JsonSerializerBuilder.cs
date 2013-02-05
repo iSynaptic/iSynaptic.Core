@@ -20,20 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using iSynaptic.Commons;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyCompany("iSynaptic")]
-[assembly: AssemblyTrademark("iSynaptic")]
-[assembly: AssemblyProduct("iSynaptic.Core")]
-[assembly: AssemblyCopyright("Copyright © Jordan Terrell 2011")]
-
-[assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyVersion("0.1.2.0")]
-[assembly: AssemblyFileVersion("0.1.2.0")]
+namespace iSynaptic.Serialization
+{
+    public static class JsonSerializerBuilder
+    {
+        public static JsonSerializer Build(LogicalTypeRegistry logicalTypeRegistry)
+        {
+            Guard.NotNull(logicalTypeRegistry, "logicalTypeRegistry");
+            return JsonSerializer.Create(new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Error, // fail-fast
+                NullValueHandling = NullValueHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.Objects,
+                Binder = new LogicalTypeSerializationBinder(logicalTypeRegistry),
+                ContractResolver = new PrivateSetterAwareContractResolver(),
+                Converters = new List<JsonConverter>
+                {
+                    new LogicalTypeJsonConverter(logicalTypeRegistry),
+                    new MaybeJsonConverter()
+                }
+            });
+        }
+    }
+}

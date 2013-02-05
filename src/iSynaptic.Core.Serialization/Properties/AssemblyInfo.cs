@@ -20,20 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyCompany("iSynaptic")]
-[assembly: AssemblyTrademark("iSynaptic")]
-[assembly: AssemblyProduct("iSynaptic.Core")]
-[assembly: AssemblyCopyright("Copyright © Jordan Terrell 2011")]
+[assembly: AssemblyTitle("iSynaptic.Core.Serialization")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCulture("")]
 
-[assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyVersion("0.1.2.0")]
-[assembly: AssemblyFileVersion("0.1.2.0")]
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("f2acb9fa-957e-4f1e-a953-7687bf5e00a3")]
