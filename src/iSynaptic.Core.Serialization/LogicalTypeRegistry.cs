@@ -47,7 +47,7 @@ namespace iSynaptic.Serialization
             lock (_logicalToActualMappings)
             {
                 if(!_logicalToActualMappings.TryAdd(logicalType, actualType))
-                    throw new ArgumentException("Unable to add mapping; the mapping already exists for the provided type.", "logicalType");
+                    throw new ArgumentException(String.Format("Unable to add mapping; the mapping already exists for the provided type: {0}.", logicalType), "logicalType");
 
                 _actualToLogicalMappings.TryAdd(actualType, logicalType);
             }

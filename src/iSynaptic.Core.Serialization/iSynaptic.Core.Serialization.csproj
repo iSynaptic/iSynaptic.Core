@@ -30,8 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iSynaptic.Commons">
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.15\lib\iSynaptic.Commons.dll</HintPath>
+    <Reference Include="iSynaptic.Commons, Version=0.4.16.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.16\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -39,6 +40,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
@@ -50,10 +52,12 @@
     <Compile Include="LogicalType.cs" />
     <Compile Include="LogicalTypeRegistry.cs" />
     <Compile Include="MaybeJsonConverter.cs" />
+    <Compile Include="OutcomeJsonConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PrivateSetterAwareContractResolver.cs" />
     <Compile Include="LogicalTypeSerializationBinder.cs" />
     <Compile Include="LogicalTypeJsonConverter.cs" />
+    <Compile Include="ResultJsonConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\iSynaptic.Core\iSynaptic.Core.csproj">

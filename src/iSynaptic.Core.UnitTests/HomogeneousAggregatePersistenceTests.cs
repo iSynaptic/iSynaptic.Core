@@ -23,12 +23,13 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
+using iSynaptic.Serialization;
 using iSynaptic.TestAggregates;
 
 namespace iSynaptic
 {
     [TestFixture]
-    public class HomogeneousAggregateTests
+    public class HomogeneousAggregatePersistenceTests
     {
         private static readonly CustomerRoleIdentifier _cId =
             new CustomerRoleIdentifier("123", "CR456");
@@ -47,7 +48,9 @@ namespace iSynaptic
             var agent = new HomogeneousRole<CustomerAgentRoleIdentifier>(_caId, "Jill Agent");
 
             IAggregateRepository<IHomogeneousRole<RoleIdentifier>, RoleIdentifier> repo
-                = new InMemoryAggregateRepository<IHomogeneousRole<RoleIdentifier>, RoleIdentifier>();
+                = new InMemoryJsonAggregateRepository<IHomogeneousRole<RoleIdentifier>, RoleIdentifier>(
+                    JsonSerializerBuilder.Build(
+                        LogicalTypeRegistryBuilder.Build()));
 
             await SaveAndTest(repo, customer, serviceRep, agent);
         }
@@ -67,7 +70,6 @@ namespace iSynaptic
                 reconstituted.Version.Should().Be(role.Version);
                 reconstituted.Name.Should().Be(role.Name);
                 reconstituted.Status.Should().Be(role.Status);
-
             }
         }
     }

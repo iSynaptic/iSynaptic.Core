@@ -56,7 +56,7 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void WriteJson_WithNoValue_WritesObjectWithHasValueSetToFalse()
+        public void WriteJson_WithNoValue_WritesCorrectly()
         {
             Maybe<String> maybe = Maybe.NoValue;
 
@@ -66,7 +66,7 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void WriteJson_WithValue_WritesObjectWithValue()
+        public void WriteJson_WithValue_WritesCorrectly()
         {
             Maybe<String> maybe = "Hello, World!".ToMaybe();
 

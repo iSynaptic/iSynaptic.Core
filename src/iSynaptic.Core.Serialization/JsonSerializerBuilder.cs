@@ -31,17 +31,18 @@ namespace iSynaptic.Serialization
         public static JsonSerializer Build(LogicalTypeRegistry logicalTypeRegistry)
         {
             Guard.NotNull(logicalTypeRegistry, "logicalTypeRegistry");
+
             return JsonSerializer.Create(new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Error, // fail-fast
-                NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.Objects,
                 Binder = new LogicalTypeSerializationBinder(logicalTypeRegistry),
                 ContractResolver = new PrivateSetterAwareContractResolver(),
                 Converters = new List<JsonConverter>
                 {
                     new LogicalTypeJsonConverter(logicalTypeRegistry),
-                    new MaybeJsonConverter()
+                    new MaybeJsonConverter(),
+                    new OutcomeJsonConverter()
                 }
             });
         }

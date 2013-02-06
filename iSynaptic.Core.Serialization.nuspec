@@ -13,7 +13,7 @@
       <frameworkAssembly assemblyName="System.Core" targetFramework="net45" />
     </frameworkAssemblies>
     <dependencies>
-      <dependency id="iSynaptic.Commons" version="0.4.15" />
+      <dependency id="iSynaptic.Commons" version="0.4.16" />
       <dependency id="iSynaptic.Core" version="0.1.2" />
       <dependency id="Newtonsoft.Json" version="4.5.11" />
     </dependencies>

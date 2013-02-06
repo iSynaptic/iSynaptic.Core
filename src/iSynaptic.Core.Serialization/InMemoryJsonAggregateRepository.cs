@@ -22,13 +22,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
-using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.Serialization
 {
@@ -39,18 +35,11 @@ namespace iSynaptic.Serialization
         private readonly Dictionary<TIdentifier, String> _state =
             new Dictionary<TIdentifier, String>();
 
-        private readonly Task _completedTask;
-
         private readonly JsonSerializer _serializer;
 
         public InMemoryJsonAggregateRepository(JsonSerializer serializer)
         {
             _serializer = Guard.NotNull(serializer, "serializer");
-
-            var tcs = new TaskCompletionSource<bool>();
-            tcs.SetResult(true);
-
-            _completedTask = tcs.Task;
         }
 
         protected override Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id)

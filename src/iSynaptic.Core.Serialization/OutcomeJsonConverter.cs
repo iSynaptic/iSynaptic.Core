@@ -21,60 +21,60 @@
 // THE SOFTWARE.
 
 using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using iSynaptic.Commons;
 
 namespace iSynaptic.Serialization
 {
-    public class MaybeJsonConverter : JsonConverter
+    public class OutcomeJsonConverter : JsonConverter
     {
-        private static readonly Type _maybeTypeDefinition =
-            typeof (Maybe<>);
+        private static readonly Type _outcomeTypeDefinition =
+            typeof(Outcome<>);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var val = (IMaybe) value;
-            
-            if (val.HasValue)
+            var val = (IOutcome) value;
+
+            writer.WriteStartObject();
+            writer.WritePropertyName("wasSuccessful");
+            serializer.Serialize(writer, val.WasSuccessful);
+
+            var observations = val.Observations.ToArray();
+            if (observations.Length > 0)
             {
-                writer.WriteStartObject();
-                writer.WritePropertyName("value");
-                serializer.Serialize(writer, val.Value);
-                writer.WriteEndObject();
+                writer.WritePropertyName("observations");
+                serializer.Serialize(writer, observations);
             }
-            else
-            {
-                writer.WriteStartObject();
-                writer.WritePropertyName("hasValue");
-                writer.WriteValue(false);
-                writer.WriteEndObject();
-            }
+
+            writer.WriteEndObject();
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            Type valueType = objectType.GetGenericArguments()[0];
+            Type observationType = objectType.GetGenericArguments()[0];
+            Type arrayType = observationType.MakeArrayType();
 
             if (reader.TokenType == JsonToken.Null)
                 return FormatterServices.GetSafeUninitializedObject(objectType);
 
             if (reader.TokenType == JsonToken.StartObject)
             {
-                Maybe<Boolean> hasValue = Maybe.NoValue;
-                Maybe<Object> value = Maybe.NoValue;
+                Maybe<Boolean> wasSuccessful = Maybe.NoValue;
+                Object observations = Array.CreateInstance(observationType, 0);
 
-                while(reader.Read() && reader.TokenType == JsonToken.PropertyName)
+                while (reader.Read() && reader.TokenType == JsonToken.PropertyName)
                 {
-                    if (reader.Value.Equals("value"))
+                    if (reader.Value.Equals("wasSuccessful"))
                     {
                         reader.Read();
-                        value = serializer.Deserialize(reader, valueType).ToMaybe();
-                    } 
-                    else if (reader.Value.Equals("hasValue"))
+                        wasSuccessful = ((Boolean)serializer.Deserialize(reader, typeof(Boolean))).ToMaybe();
+                    }
+                    else if (reader.Value.Equals("observations"))
                     {
                         reader.Read();
-                        hasValue = ((Boolean) serializer.Deserialize(reader, typeof (Boolean))).ToMaybe();
+                        observations = serializer.Deserialize(reader, arrayType);
                     }
                     else
                     {
@@ -84,14 +84,10 @@ namespace iSynaptic.Serialization
 
                 if (reader.TokenType == JsonToken.EndObject)
                 {
-                    if (hasValue.HasValue && !hasValue.Value && value.HasValue)
-                        throw new JsonReaderException("hasValue was set to false, which is in conflict with the value being provided.");
+                    if (!wasSuccessful.HasValue)
+                        throw new JsonReaderException("wasSuccessful was not specified.");
 
-                    if (value.HasValue)
-                        return Activator.CreateInstance(objectType, new[] {value.Value});
-
-                    if (hasValue.HasValue)
-                        return Activator.CreateInstance(objectType);
+                    return Activator.CreateInstance(objectType, wasSuccessful.Value, observations);
                 }
             }
 
@@ -102,7 +98,7 @@ namespace iSynaptic.Serialization
         {
             return objectType.IsGenericType &&
                    !objectType.IsGenericTypeDefinition &&
-                   objectType.GetGenericTypeDefinition() == _maybeTypeDefinition;
+                   objectType.GetGenericTypeDefinition() == _outcomeTypeDefinition;
         }
     }
 }

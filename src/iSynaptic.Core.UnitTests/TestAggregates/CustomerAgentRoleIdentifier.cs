@@ -35,14 +35,14 @@ namespace iSynaptic.TestAggregates
             _customerIdentifier = Guard.NotNullOrWhiteSpace(customerIdentifier, "customerIdentifier");
         }
 
-        public string CustomerAgentIdentifier { get { return _customerIdentifier; } }
+        public string CustomerIdentifier { get { return _customerIdentifier; } }
 
         public bool Equals(CustomerAgentRoleIdentifier other)
         {
             if (ReferenceEquals(other, null)) return false;
             if (GetType() != other.GetType()) return false;
 
-            if (!CustomerAgentIdentifier.Equals(other.CustomerAgentIdentifier)) return false;
+            if (!CustomerIdentifier.Equals(other.CustomerIdentifier)) return false;
 
             return Equals((RoleIdentifier)other);
         }
@@ -56,7 +56,7 @@ namespace iSynaptic.TestAggregates
         public override int GetHashCode()
         {
             int hash = base.GetHashCode();
-            hash = HashCode.MixJenkins32(hash + CustomerAgentIdentifier.GetHashCode());
+            hash = HashCode.MixJenkins32(hash + CustomerIdentifier.GetHashCode());
             return hash;
         }
 

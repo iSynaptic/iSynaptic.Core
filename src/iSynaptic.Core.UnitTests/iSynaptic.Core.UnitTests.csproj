@@ -60,9 +60,9 @@
     <Reference Include="FluentAssertions">
       <HintPath>..\..\packages\FluentAssertions.2.0.0.1\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
-    <Reference Include="iSynaptic.Commons, Version=0.4.15.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="iSynaptic.Commons, Version=0.4.16.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.15\lib\iSynaptic.Commons.dll</HintPath>
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.16\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -83,10 +83,14 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AggregateEventStreamTests.cs" />
+    <Compile Include="AggregateMementoTests.cs" />
     <Compile Include="AggregateTests.cs" />
-    <Compile Include="HomogeneousAggregateTests.cs" />
+    <Compile Include="HomogeneousAggregatePersistenceTests.cs" />
+    <Compile Include="LogicalTypeRegistryBuilder.cs" />
     <Compile Include="Serialization\LogicalTypeTests.cs" />
     <Compile Include="Serialization\MaybeJsonConverterTests.cs" />
+    <Compile Include="Serialization\OutcomeJsonConverterTests.cs" />
+    <Compile Include="Serialization\ResultJsonConverterTests.cs" />
     <Compile Include="TestAggregates\CustomerAgentRoleIdentifier.cs" />
     <Compile Include="TestAggregates\CustomerRoleIdentifier.cs" />
     <Compile Include="TestAggregates\CustomerServiceRepresentativeRoleIdentifier.cs" />

@@ -27,22 +27,22 @@ namespace iSynaptic.TestAggregates
 {
     public class CustomerServiceRepresentativeRoleIdentifier : RoleIdentifier, IEquatable<CustomerServiceRepresentativeRoleIdentifier>
     {
-        private readonly string _customerServiceRepresentativeIdentifier;
+        private readonly string _customerIdentifier;
 
-        public CustomerServiceRepresentativeRoleIdentifier(string baseIdentifier, string customerServiceRepresentativeIdentifier)
+        public CustomerServiceRepresentativeRoleIdentifier(string baseIdentifier, string customerIdentifier)
             : base("CSR", baseIdentifier)
         {
-            _customerServiceRepresentativeIdentifier = Guard.NotNullOrWhiteSpace(customerServiceRepresentativeIdentifier, "customerServiceRepresentativeIdentifier");
+            _customerIdentifier = Guard.NotNullOrWhiteSpace(customerIdentifier, "customerIdentifier");
         }
 
-        public string CustomerServiceRepresentativeIdentifier { get { return _customerServiceRepresentativeIdentifier; } }
+        public string CustomerIdentifier { get { return _customerIdentifier; } }
 
         public bool Equals(CustomerServiceRepresentativeRoleIdentifier other)
         {
             if (ReferenceEquals(other, null)) return false;
             if (GetType() != other.GetType()) return false;
 
-            if (!CustomerServiceRepresentativeIdentifier.Equals(other.CustomerServiceRepresentativeIdentifier)) return false;
+            if (!CustomerIdentifier.Equals(other.CustomerIdentifier)) return false;
 
             return Equals((RoleIdentifier)other);
         }
@@ -56,7 +56,7 @@ namespace iSynaptic.TestAggregates
         public override int GetHashCode()
         {
             int hash = base.GetHashCode();
-            hash = HashCode.MixJenkins32(hash + CustomerServiceRepresentativeIdentifier.GetHashCode());
+            hash = HashCode.MixJenkins32(hash + CustomerIdentifier.GetHashCode());
             return hash;
         }
 

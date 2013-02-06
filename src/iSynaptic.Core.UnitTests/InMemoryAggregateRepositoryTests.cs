@@ -39,20 +39,12 @@ namespace iSynaptic
 
         public InMemoryAggregateRepositoryTests(Type repoType)
         {
-            var logicalTypeRegistry = new LogicalTypeRegistry();
-            logicalTypeRegistry.AddMapping(new LogicalType("tst", "AggregateMementoGuid"), typeof(AggregateMemento<Guid>));
-            logicalTypeRegistry.AddMapping(new LogicalType("tst", "ServiceCase"), typeof(ServiceCase));
-            logicalTypeRegistry.AddMapping(new LogicalType("tst", "ServiceCase.Opened"), typeof(ServiceCase.Opened));
-            logicalTypeRegistry.AddMapping(new LogicalType("tst", "ServiceCase.Snapshot"), typeof(ServiceCase.Snapshot));
-            logicalTypeRegistry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationThreadStarted"), typeof(ServiceCase.CommunicationThreadStarted));
-            logicalTypeRegistry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationThreadSnapshot"), typeof(ServiceCase.CommunicationThreadSnapshot));
-            logicalTypeRegistry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationRecorded"), typeof(ServiceCase.CommunicationRecorded));
 
             var ctor = repoType.GetConstructors().Single();
 
             var parameters = new object[0];
             if (ctor.GetParameters().Length == 1)
-                parameters = new object[] {JsonSerializerBuilder.Build(logicalTypeRegistry)};
+                parameters = new object[] {JsonSerializerBuilder.Build(LogicalTypeRegistryBuilder.Build())};
 
             _repo = (IAggregateRepository<ServiceCase, Guid>)Activator.CreateInstance(repoType, parameters);
         }
