@@ -23,12 +23,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration
 {
     public interface IVisitor
     {
-        TState Dispatch<TState>(IVisitable subject, TState state);
+        void Dispatch(IVisitable subject);
     }
     
     public interface IVisitor<TState> : IVisitor
@@ -38,12 +39,12 @@ namespace iSynaptic.CodeGeneration
 
     public static class VisitorExtensions
     {
-        public static TState Dispatch<TState>(this IVisitor @this, IEnumerable<IVisitable> subjects, TState state)
+        public static void Dispatch(this IVisitor @this, IEnumerable<IVisitable> subjects)
         {
             Guard.NotNull(@this, "this");
             Guard.NotNull(subjects, "subjects");
 
-            return subjects.Aggregate(state, (current, subject) => @this.Dispatch(subject, current));
+            subjects.Run(@this.Dispatch);
         }
 
         public static TState Dispatch<TState>(this IVisitor<TState> @this, IEnumerable<IVisitable> subjects, TState state)

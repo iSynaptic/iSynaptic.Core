@@ -30,17 +30,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iSynaptic.Commons">
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.16\lib\iSynaptic.Commons.dll</HintPath>
+    <Reference Include="iSynaptic.Commons, Version=0.4.18.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.18\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="BaseVisitor.cs" />
     <Compile Include="ICodeGenerator.cs" />
     <Compile Include="IVisitable.cs" />
     <Compile Include="IVisitor.cs" />

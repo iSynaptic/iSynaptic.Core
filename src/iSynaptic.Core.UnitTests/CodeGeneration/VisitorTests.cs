@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 
@@ -43,9 +44,9 @@ namespace iSynaptic.CodeGeneration
                 Children = children ?? Enumerable.Empty<TestSubject>();
             }
 
-            public TState AcceptChildren<TState>(IVisitor visitor, TState state)
+            public void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
             {
-                return visitor.Dispatch(Children, state);
+                dispatch(Children);
             }
 
             public Int32 Value { get; private set; }
@@ -54,9 +55,14 @@ namespace iSynaptic.CodeGeneration
 
         private class StatefulTestVisitor : Visitor<Int32>
         {
+            protected void Visit(TestSubject subject)
+            {
+                throw new InvalidOperationException("This should never be invoked.");
+            }
+
             protected Int32 Visit(TestSubject subject, Int32 value)
             {
-                return subject.AcceptChildren(this, value + subject.Value);
+                return DispatchChildren(subject, value + subject.Value);
             }
         }
 
@@ -67,7 +73,16 @@ namespace iSynaptic.CodeGeneration
             protected void Visit(TestSubject subject)
             {
                 Result += subject.Value;
-                subject.AcceptChildren<Object>(this, null);
+                DispatchChildren(subject);
+            }
+        }
+
+        private class WriterVisitor : Visitor<TextWriter>
+        {
+            protected void Visit(TestSubject subject, TextWriter writer)
+            {
+                writer.Write(subject.Value);
+                DispatchChildren(subject, writer);
             }
         }
 
@@ -82,7 +97,7 @@ namespace iSynaptic.CodeGeneration
 
             var visitor = new StatefulTestVisitor();
             var result = visitor.Dispatch(subject, 0);
-
+            
             Assert.AreEqual(15, result);
         }
 
@@ -99,6 +114,22 @@ namespace iSynaptic.CodeGeneration
             visitor.Dispatch(subject);
 
             Assert.AreEqual(15, visitor.Result);
+        }
+
+        [Test]
+        public void Visitor_WhenNotReturningState_ThreadsPreviousStateThrough()
+        {
+            var subject = new TestSubject(1,
+                    new TestSubject(2),
+                    new TestSubject(3,
+                        new TestSubject(4),
+                        new TestSubject(5)));
+
+            var writer = new StringWriter();
+            var visitor = new WriterVisitor();
+            visitor.Dispatch(subject, writer);
+
+            Assert.AreEqual("12345", writer.GetStringBuilder().ToString());
         }
     }
 }

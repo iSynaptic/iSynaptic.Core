@@ -21,165 +21,37 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using iSynaptic.Commons;
-using iSynaptic.Commons.Reflection;
 
 namespace iSynaptic.CodeGeneration
 {
-    public delegate Object VisitorDispatcher(IVisitor visitor, IVisitable subject, Object state);
-
-    public abstract class BaseVisitor : IVisitor
+    public abstract class Visitor : BaseVisitor<Object>
     {
-        private static readonly TypeHierarchyComparer _typeHierarchyComparer
-            = new TypeHierarchyComparer();
-
-        private static readonly ConcurrentDictionary<Type, Delegate> _dispatchers
-            = new ConcurrentDictionary<Type, Delegate>();
-
-
-        private readonly VisitorDispatcher _dispatcher;
-
-        protected BaseVisitor()
+        public virtual void Dispatch(IVisitable subject)
         {
-            _dispatcher = GetDispatcher(GetType());
+            DispatchCore(subject, null);
         }
 
-        internal static VisitorDispatcher GetDispatcher(Type visitorType)
+        public void DispatchChildren(IVisitable subject)
         {
-            var baseVisitorType = typeof(IVisitor);
-
-            return (VisitorDispatcher)_dispatchers.GetOrAdd(visitorType, t =>
-            {
-                var subjectType = typeof(IVisitable);
-                var stateType = typeof (Object);
-
-                var baseDispatcher = baseVisitorType.IsAssignableFrom(t.BaseType)
-                    ? GetDispatcher(t.BaseType)
-                    : null;
-
-                var visitorParam = Expression.Parameter(baseVisitorType, "visitor");
-                var subjectParam = Expression.Parameter(subjectType, "subject");
-                var stateParam = Expression.Parameter(stateType, "state");
-
-                var returnLabel = Expression.Label(stateType);
-
-                var applicators = t
-                    .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Where(x => x.DeclaringType == t)
-                    .Select(m => new { Method = m, Parameters = m.GetParameters() })
-                    .Select(x => new { x.Method, x.Parameters, ParameterCount = x.Parameters.Length})
-                    .Where(x => x.Method.Name.StartsWith("Visit") && (x.ParameterCount == 1 || x.ParameterCount == 2))
-                    .Select(x => new
-                    {
-                        x.Method, 
-                        SubjectType = x.Parameters[0].ParameterType, 
-                        StateType = x.ParameterCount == 2
-                            ? x.Parameters[1].ParameterType
-                            : null
-                    })
-                    .Where(x => subjectType.IsAssignableFrom(x.SubjectType))
-                    .Where(x => x.StateType == null || stateType.IsAssignableFrom(x.StateType))
-                    .Where(x => (x.StateType == null && x.Method.ReturnType == typeof(void)) ||
-                                 x.StateType != null && stateType.IsAssignableFrom(x.Method.ReturnType))
-                    .OrderByDescending(x => x.SubjectType, _typeHierarchyComparer)
-                    .ThenByDescending(x => x.StateType, _typeHierarchyComparer)
-                    .Select(x =>
-                    {
-                        var subjectTypeTest = Expression.TypeIs(subjectParam, x.SubjectType);
-                        
-                        var typeTest = x.StateType != null
-                            ? (Expression)Expression.And(subjectTypeTest, 
-                                Expression.Or(
-                                    Expression.TypeIs(stateParam, x.StateType),
-                                    Expression.Equal(stateParam, Expression.Constant(null))
-                                ))
-                            : subjectTypeTest;
-
-                        var subjectArgument = Expression.Convert(subjectParam, x.SubjectType);
-                        var arguments = x.StateType != null
-                                            ? new[] {subjectArgument, Expression.Convert(stateParam, x.StateType)}
-                                            : new[] {subjectArgument};
-
-                        var callMethod = Expression.Call(
-                            Expression.Convert(visitorParam, t),
-                            x.Method,
-                            arguments);
-
-                        if (x.Method.ReturnType == typeof (void))
-                        {
-                            return Expression.IfThen(
-                                typeTest,
-                                Expression.Block(callMethod, Expression.Return(returnLabel, stateParam, stateType)));
-                        }
-                        return  
-                            Expression.IfThen(
-                                typeTest,
-                                Expression.Return(returnLabel,
-                                    Expression.Convert(
-                                        callMethod,
-                                        stateType),
-                                    stateType));
-                    })
-                    .OfType<Expression>()
-                    .ToArray();
-
-                if (applicators.Length <= 0)
-                    return baseDispatcher ?? (Delegate)(VisitorDispatcher)((v, s, st) => { throw new InvalidOperationException("Could not find method to dispatch to."); });
-
-                if (baseDispatcher != null)
-                    applicators = applicators.Concat(new[]
-                    {
-                        Expression.Return(returnLabel, 
-                            Expression.Call(baseDispatcher.GetMethodInfo(), visitorParam, subjectParam, stateParam),
-                            stateType)
-                    }).ToArray();
-
-                return Expression.Lambda<VisitorDispatcher>(
-                        Expression.Label(returnLabel, Expression.Block(stateType, applicators)), visitorParam, subjectParam, stateParam)
-                    .Compile();
-            });
+            DispatchChildrenCore(subject, null);
         }
-
-        public virtual TState Dispatch<TState>(IVisitable subject, TState state)
-        {
-            Guard.NotNull(subject, "subject");
-            return (TState)Dispatcher(this, subject, state);
-        }
-
-        protected VisitorDispatcher Dispatcher { get { return _dispatcher; } }
     }
 
-    public abstract class Visitor : BaseVisitor
+    public abstract class Visitor<TState> : BaseVisitor<TState>, IVisitor<TState>
     {
+        public virtual TState Dispatch(IVisitable subject, TState state)
+        {
+            return DispatchCore(subject, state);
+        }
+
+        public TState DispatchChildren(IVisitable subject, TState state)
+        {
+            return DispatchChildrenCore(subject, state);
+        }
+
         public void Dispatch(IVisitable subject)
         {
-            Dispatch<Object>(subject, null);
-        }
-    }
-
-    public abstract class Visitor<TState> : Visitor, IVisitor<TState>
-    {
-        public override TActualState Dispatch<TActualState>(IVisitable subject, TActualState state)
-        {
-            if(!(state is TState))
-                throw new ArgumentException(String.Format("State must inherit from '{0}'.", typeof(TState).FullName), "state");
-
-            return base.Dispatch(subject, state);
-        }
-
-        public TState Dispatch(IVisitable subject, TState state)
-        {
-            return base.Dispatch(subject, state);
-        }
-
-        public TState Dispatch(IEnumerable<IVisitable> subjects, TState state)
-        {
-            return subjects.Aggregate(state, (current, subject) => Dispatch(subject, current));
+            Dispatch(subject, default(TState));
         }
     }
 }

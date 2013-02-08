@@ -21,11 +21,12 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 
 namespace iSynaptic.CodeGeneration
 {
     public interface IVisitable
     {
-        TState AcceptChildren<TState>(IVisitor visitor, TState state);
+        void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch);
     }
 }
