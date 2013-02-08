@@ -27,7 +27,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using iSynaptic.Commons;
-using iSynaptic.Commons.Linq;
 using iSynaptic.Commons.Reflection;
 
 namespace iSynaptic.CodeGeneration
@@ -79,11 +78,14 @@ namespace iSynaptic.CodeGeneration
                     {
                         x.Method, 
                         SubjectType = x.Parameters[0].ParameterType, 
-                        StateType = x.ParameterCount == 2 
+                        StateType = x.ParameterCount == 2
                             ? x.Parameters[1].ParameterType
                             : null
                     })
                     .Where(x => subjectType.IsAssignableFrom(x.SubjectType))
+                    .Where(x => x.StateType == null || stateType.IsAssignableFrom(x.StateType))
+                    .Where(x => (x.StateType == null && x.Method.ReturnType == typeof(void)) ||
+                                 x.StateType != null && stateType.IsAssignableFrom(x.Method.ReturnType))
                     .OrderByDescending(x => x.SubjectType, _typeHierarchyComparer)
                     .ThenByDescending(x => x.StateType, _typeHierarchyComparer)
                     .Select(x =>
@@ -92,10 +94,10 @@ namespace iSynaptic.CodeGeneration
                         
                         var typeTest = x.StateType != null
                             ? (Expression)Expression.And(subjectTypeTest, 
-                                                         Expression.Or(
-                                                            Expression.TypeIs(stateParam, x.StateType),
-                                                            Expression.Equal(stateParam, Expression.Constant(null))
-                                                         ))
+                                Expression.Or(
+                                    Expression.TypeIs(stateParam, x.StateType),
+                                    Expression.Equal(stateParam, Expression.Constant(null))
+                                ))
                             : subjectTypeTest;
 
                         var subjectArgument = Expression.Convert(subjectParam, x.SubjectType);
@@ -103,15 +105,23 @@ namespace iSynaptic.CodeGeneration
                                             ? new[] {subjectArgument, Expression.Convert(stateParam, x.StateType)}
                                             : new[] {subjectArgument};
 
+                        var callMethod = Expression.Call(
+                            Expression.Convert(visitorParam, t),
+                            x.Method,
+                            arguments);
+
+                        if (x.Method.ReturnType == typeof (void))
+                        {
+                            return Expression.IfThen(
+                                typeTest,
+                                Expression.Block(callMethod, Expression.Return(returnLabel, stateParam, stateType)));
+                        }
                         return  
                             Expression.IfThen(
                                 typeTest,
                                 Expression.Return(returnLabel,
                                     Expression.Convert(
-                                        Expression.Call(
-                                            Expression.Convert(visitorParam, t),
-                                            x.Method,
-                                            arguments),
+                                        callMethod,
                                         stateType),
                                     stateType));
                     })
@@ -164,7 +174,7 @@ namespace iSynaptic.CodeGeneration
 
         public TState Dispatch(IVisitable subject, TState state)
         {
-            return (TState) base.Dispatch(subject, state);
+            return base.Dispatch(subject, state);
         }
 
         public TState Dispatch(IEnumerable<IVisitable> subjects, TState state)

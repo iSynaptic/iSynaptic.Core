@@ -64,10 +64,10 @@ namespace iSynaptic.CodeGeneration
         {
             public Int32 Result { get; private set; }
 
-            protected Object Visit(TestSubject subject, Object state)
+            protected void Visit(TestSubject subject)
             {
                 Result += subject.Value;
-                return subject.AcceptChildren(this, state);
+                subject.AcceptChildren<Object>(this, null);
             }
         }
 
