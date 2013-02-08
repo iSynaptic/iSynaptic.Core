@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.Serialization", "src\iSynaptic.Core.Serialization\iSynaptic.Core.Serialization.csproj", "{C38A9D4E-653E-4F4A-9CDA-3C4EC03B58F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.CodeGeneration", "src\iSynaptic.Core.CodeGeneration\iSynaptic.Core.CodeGeneration.csproj", "{C43E38C7-BC55-463D-B592-6B35683C1FDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,10 @@ Global
 		{C38A9D4E-653E-4F4A-9CDA-3C4EC03B58F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C38A9D4E-653E-4F4A-9CDA-3C4EC03B58F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C38A9D4E-653E-4F4A-9CDA-3C4EC03B58F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C43E38C7-BC55-463D-B592-6B35683C1FDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C43E38C7-BC55-463D-B592-6B35683C1FDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C43E38C7-BC55-463D-B592-6B35683C1FDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C43E38C7-BC55-463D-B592-6B35683C1FDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
