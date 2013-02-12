@@ -30,7 +30,7 @@ using iSynaptic.TestAggregates;
 namespace iSynaptic.Persistence
 {
     [TestFixture]
-    [Explicit]
+    [Explicit("Integration tests - requires EventStore to be running locally.")]
     public class EventStoreAggregateRepositoryTests : AggregateRepositoryTests
     {
         public EventStoreAggregateRepositoryTests()

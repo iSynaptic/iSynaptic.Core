@@ -180,27 +180,26 @@ namespace iSynaptic.Core.Persistence
             String streamId = BuildStreamIdentifier(id);
             using (var cn = _connectionFactory())
             {
-                foreach (var evt in evts)
-                {
-                    int expectedVersion = evt.Version == 1
-                        ? ExpectedVersion.NoStream
-                        : evt.Version - 1;
+                int expectedVersion = evts[0].Version == 1
+                    ? ExpectedVersion.NoStream
+                    : evts[0].Version - 1;
 
-                    await cn.AppendToStreamAsync(
-                        streamId,
-                        expectedVersion,
-                        BuildEventData(
-                            evt.EventId,
-                            evt,
-                            aggregateType, BuildMetadata(
-                                KeyValuePair.Create<String, Object>(
-                                    "aggregateType", 
-                                    _logicalTypeRegistry.LookupLogicalType(aggregateType).ToString()
-                                )
-                            )
+                var metadata = BuildMetadata(
+                    KeyValuePair.Create<String, Object>(
+                        "aggregateType",
+                        _logicalTypeRegistry.LookupLogicalType(aggregateType).ToString()
                         )
                     );
-                }
+
+                await cn.AppendToStreamAsync(
+                    streamId,
+                    expectedVersion,
+                    evts.Select(e => BuildEventData(
+                            e.EventId,
+                            e,
+                            aggregateType, 
+                            metadata
+                        )));
             }
         }
 
