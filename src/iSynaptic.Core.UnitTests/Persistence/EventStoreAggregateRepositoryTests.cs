@@ -21,30 +21,28 @@
 // THE SOFTWARE.
 
 using System;
+using System.Net;
+using EventStore.ClientAPI;
+using NUnit.Framework;
+using iSynaptic.Core.Persistence;
+using iSynaptic.TestAggregates;
 
-namespace iSynaptic
+namespace iSynaptic.Persistence
 {
-    [Serializable]
-    public abstract class AggregateSnapshot<TIdentifier> : IAggregateSnapshot<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    [TestFixture]
+    [Explicit]
+    public class EventStoreAggregateRepositoryTests : AggregateRepositoryTests
     {
-        protected AggregateSnapshot(TIdentifier id, Int32 version, DateTime takenAt)
+        public EventStoreAggregateRepositoryTests()
         {
-            if (version <= 0)
-                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
+            var ltr = LogicalTypeRegistryBuilder.Build();
 
-            if (takenAt.Kind != DateTimeKind.Utc)
-                throw new ArgumentException("DateTime must be of UTC kind.", "takenAt");
-
-            SnapshotId = Guid.NewGuid();
-            Id = id;
-            Version = version;
-            TakenAt = takenAt;
+            Repo = new EventStoreAggregateRepository<ServiceCase, Guid>(ltr, () => 
+            {
+                var cn = EventStoreConnection.Create();
+                cn.Connect(new IPEndPoint(IPAddress.Loopback, 1113));
+                return cn;
+            });
         }
-
-        public Guid SnapshotId { get; private set; }
-        public TIdentifier Id { get; private set; }
-        public Int32 Version { get; private set; }
-        public DateTime TakenAt { get; private set; }
     }
 }

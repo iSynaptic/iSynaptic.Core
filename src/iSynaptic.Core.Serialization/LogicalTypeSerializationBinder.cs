@@ -38,7 +38,7 @@ namespace iSynaptic.Serialization
         public override Type BindToType(string assemblyName, string typeName)
         {
             var type = LogicalType.TryParse(typeName)
-                                  .SelectMaybe(_logicalTypeRegistry.LookupActualType);
+                                  .SelectMaybe(_logicalTypeRegistry.TryLookupActualType);
 
             if (!type.HasValue)
             {
@@ -56,7 +56,7 @@ namespace iSynaptic.Serialization
         public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
             assemblyName = null;
-            typeName = _logicalTypeRegistry.LookupLogicalType(serializedType)
+            typeName = _logicalTypeRegistry.TryLookupLogicalType(serializedType)
                                            .Select(x => x.ToString())
                                            .ValueOrDefault();
 

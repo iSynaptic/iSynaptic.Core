@@ -22,32 +22,23 @@
 
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
 
-namespace iSynaptic.Serialization
+namespace iSynaptic.Core.Persistence
 {
-    public class InMemoryJsonAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
+    public class InMemoryAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly Dictionary<TIdentifier, String> _state =
-            new Dictionary<TIdentifier, String>();
-
-        private readonly JsonSerializer _serializer;
-
-        public InMemoryJsonAggregateRepository(JsonSerializer serializer)
-        {
-            _serializer = Guard.NotNull(serializer, "serializer");
-        }
+        private readonly Dictionary<TIdentifier, AggregateMemento<TIdentifier>> _state =
+            new Dictionary<TIdentifier, AggregateMemento<TIdentifier>>();
 
         protected override Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id)
         {
             lock (_state)
             {
-                return _state.TryGetValue(id)
-                             .Select(json => _serializer.Deserialize<AggregateMemento<TIdentifier>>(json));
+                return _state.TryGetValue(id);
             }
         }
 
@@ -56,7 +47,7 @@ namespace iSynaptic.Serialization
             lock (_state)
             {
                 var memento = mementoFactory();
-                _state[memento.Key] = _serializer.Serialize(memento.Value);
+                _state[memento.Key] = memento.Value;
             }
         }
     }

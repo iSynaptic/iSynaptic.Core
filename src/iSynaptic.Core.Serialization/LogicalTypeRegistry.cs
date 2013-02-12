@@ -53,14 +53,32 @@ namespace iSynaptic.Serialization
             }
         }
 
-        public Maybe<Type> LookupActualType(LogicalType logicalType)
+        public Maybe<Type> TryLookupActualType(LogicalType logicalType)
         {
             return _logicalToActualMappings.TryGetValue(logicalType);
         }
 
-        public Maybe<LogicalType> LookupLogicalType(Type type)
+        public Type LookupActualType(LogicalType logicalType)
+        {
+            var result = TryLookupActualType(logicalType);
+            if(!result.HasValue)
+                throw new InvalidOperationException(String.Format("Unable to find actual type for logical type: '{0}'.", logicalType));
+
+            return result.Value;
+        }
+
+        public Maybe<LogicalType> TryLookupLogicalType(Type type)
         {
             return _actualToLogicalMappings.TryGetValue(type);
+        }
+
+        public LogicalType LookupLogicalType(Type type)
+        {
+            var result = TryLookupLogicalType(type);
+            if(!result.HasValue)
+                throw new InvalidOperationException(String.Format("Unable to find logical type for actual type: '{0}'.", type.FullName));
+
+            return result.Value;
         }
     }
 }

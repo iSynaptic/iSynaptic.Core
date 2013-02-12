@@ -20,35 +20,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Collections.Generic;
+using iSynaptic.Serialization;
 
-namespace iSynaptic.Serialization
+namespace iSynaptic.Core.Persistence
 {
-    public static class JsonSerializerBuilder
+    public class InMemoryJsonAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
+        where TAggregate : class, IAggregate<TIdentifier>
+        where TIdentifier : IEquatable<TIdentifier>
     {
-        public static JsonSerializer Build(LogicalTypeRegistry logicalTypeRegistry)
+        private readonly Dictionary<TIdentifier, String> _state =
+            new Dictionary<TIdentifier, String>();
+
+        private readonly JsonSerializer _serializer;
+
+        public InMemoryJsonAggregateRepository(JsonSerializer serializer)
         {
-            return JsonSerializer.Create(BuildSettings(logicalTypeRegistry));
+            _serializer = Guard.NotNull(serializer, "serializer");
         }
 
-        public static JsonSerializerSettings BuildSettings(LogicalTypeRegistry logicalTypeRegistry)
+        protected override Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id)
         {
-            Guard.NotNull(logicalTypeRegistry, "logicalTypeRegistry");
-            return new JsonSerializerSettings
+            lock (_state)
             {
-                MissingMemberHandling = MissingMemberHandling.Error, // fail-fast
-                TypeNameHandling = TypeNameHandling.Objects,
-                Binder = new LogicalTypeSerializationBinder(logicalTypeRegistry),
-                ContractResolver = new PrivateSetterAwareContractResolver(),
-                Converters = new List<JsonConverter>
-                {
-                    new LogicalTypeJsonConverter(logicalTypeRegistry),
-                    new MaybeJsonConverter(),
-                    new OutcomeJsonConverter()
-                }
-            };
+                return _state.TryGetValue(id)
+                             .Select(json => _serializer.Deserialize<AggregateMemento<TIdentifier>>(json));
+            }
+        }
+
+        protected override void StoreMemento(Func<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>> mementoFactory)
+        {
+            lock (_state)
+            {
+                var memento = mementoFactory();
+                _state[memento.Key] = _serializer.Serialize(memento.Value);
+            }
         }
     }
 }

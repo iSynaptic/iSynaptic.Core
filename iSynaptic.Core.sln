@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.Serializatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.CodeGeneration", "src\iSynaptic.Core.CodeGeneration\iSynaptic.Core.CodeGeneration.csproj", "{C43E38C7-BC55-463D-B592-6B35683C1FDD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSynaptic.Core.Persistence", "src\iSynaptic.Core.Persistence\iSynaptic.Core.Persistence.csproj", "{E797416C-5AF9-46F6-B3F2-8393853DC746}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 		{C43E38C7-BC55-463D-B592-6B35683C1FDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C43E38C7-BC55-463D-B592-6B35683C1FDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C43E38C7-BC55-463D-B592-6B35683C1FDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E797416C-5AF9-46F6-B3F2-8393853DC746}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E797416C-5AF9-46F6-B3F2-8393853DC746}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E797416C-5AF9-46F6-B3F2-8393853DC746}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E797416C-5AF9-46F6-B3F2-8393853DC746}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

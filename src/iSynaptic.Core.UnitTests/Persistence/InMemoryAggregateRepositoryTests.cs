@@ -21,35 +21,18 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using iSynaptic.Commons;
-using iSynaptic.Commons.Collections.Generic;
+using NUnit.Framework;
+using iSynaptic.Core.Persistence;
+using iSynaptic.TestAggregates;
 
-namespace iSynaptic
+namespace iSynaptic.Persistence
 {
-    public class InMemoryAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
-        where TAggregate : class, IAggregate<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    [TestFixture]
+    public class InMemoryAggregateRepositoryTests : AggregateRepositoryTests
     {
-        private readonly Dictionary<TIdentifier, AggregateMemento<TIdentifier>> _state =
-            new Dictionary<TIdentifier, AggregateMemento<TIdentifier>>();
-
-        protected override Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id)
+        public InMemoryAggregateRepositoryTests()
         {
-            lock (_state)
-            {
-                return _state.TryGetValue(id);
-            }
-        }
-
-        protected override void StoreMemento(Func<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>> mementoFactory)
-        {
-            lock (_state)
-            {
-                var memento = mementoFactory();
-                _state[memento.Key] = memento.Value;
-            }
+            Repo = new InMemoryAggregateRepository<ServiceCase, Guid>();
         }
     }
 }

@@ -20,31 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
-namespace iSynaptic
-{
-    [Serializable]
-    public abstract class AggregateSnapshot<TIdentifier> : IAggregateSnapshot<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
-    {
-        protected AggregateSnapshot(TIdentifier id, Int32 version, DateTime takenAt)
-        {
-            if (version <= 0)
-                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("iSynaptic.Core.Persistence")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCulture("")]
 
-            if (takenAt.Kind != DateTimeKind.Utc)
-                throw new ArgumentException("DateTime must be of UTC kind.", "takenAt");
-
-            SnapshotId = Guid.NewGuid();
-            Id = id;
-            Version = version;
-            TakenAt = takenAt;
-        }
-
-        public Guid SnapshotId { get; private set; }
-        public TIdentifier Id { get; private set; }
-        public Int32 Version { get; private set; }
-        public DateTime TakenAt { get; private set; }
-    }
-}
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("2a5d147e-075d-4102-94df-841f01c92ae8")]

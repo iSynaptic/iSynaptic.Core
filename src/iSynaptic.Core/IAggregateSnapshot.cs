@@ -27,6 +27,8 @@ namespace iSynaptic
     public interface IAggregateSnapshot<out TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
+        Guid SnapshotId { get; }
+
         TIdentifier Id { get; }
         Int32 Version { get; }
 

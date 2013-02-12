@@ -38,7 +38,7 @@ namespace iSynaptic.Serialization
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var typeString = _logicalTypeRegistry
-                .LookupLogicalType((Type) value)
+                .TryLookupLogicalType((Type) value)
                 .Select(x => x.ToString())
                 .ValueOrDefault();
 
@@ -52,7 +52,7 @@ namespace iSynaptic.Serialization
         {
             var type = reader.Value.ToMaybe<String>()
                              .SelectMaybe(LogicalType.TryParse)
-                             .SelectMaybe(_logicalTypeRegistry.LookupActualType);
+                             .SelectMaybe(_logicalTypeRegistry.TryLookupActualType);
 
             if(!type.HasValue)
                 throw new InvalidOperationException(String.Format("Unable to find type in logical type registry: {0}.", reader.Value));

@@ -6,7 +6,7 @@ using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
 using iSynaptic.Commons.Linq;
 
-namespace iSynaptic
+namespace iSynaptic.Core.Persistence
 {
     public abstract class MementoBasedAggregateRepository<TAggregate, TIdentifier> : AggregateRepository<TAggregate, TIdentifier>
         where TAggregate : class, IAggregate<TIdentifier>
@@ -46,9 +46,6 @@ namespace iSynaptic
             StoreMemento(() =>
             {
                 var state = TryLoadMemento(snapshot.Id).ValueOrDefault();
-
-                if (state != null && state.Snapshot.Where(x => x.Version >= snapshot.Version).HasValue)
-                    throw new InvalidOperationException("Snapshot already exists that covers this aggregate version.");
 
                 return KeyValuePair.Create(snapshot.Id, new AggregateMemento<TIdentifier>(aggregateType, snapshot.ToMaybe(), state != null ? state.Events : null));
             });

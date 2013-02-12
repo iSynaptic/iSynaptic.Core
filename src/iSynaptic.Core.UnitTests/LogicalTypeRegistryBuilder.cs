@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using iSynaptic.Serialization;
 using iSynaptic.TestAggregates;
 
@@ -31,6 +32,9 @@ namespace iSynaptic
         public static LogicalTypeRegistry Build()
         {
             var registry = new LogicalTypeRegistry();
+
+            registry.AddMapping(new LogicalType("sys", "Guid"), typeof(Guid));
+            registry.AddMapping(new LogicalType("sys", "StringToStringDictionary"), typeof(Dictionary<String, String>));
 
             registry.AddMapping(new LogicalType("tst", "AggregateMemento.Guid"), typeof(AggregateMemento<Guid>));
             registry.AddMapping(new LogicalType("tst", "AggregateMemento.RoleIdentifier"), typeof(AggregateMemento<RoleIdentifier>));

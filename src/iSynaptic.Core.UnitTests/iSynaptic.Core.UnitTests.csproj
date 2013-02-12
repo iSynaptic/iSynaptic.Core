@@ -57,6 +57,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EventStore.ClientAPI">
+      <HintPath>..\..\packages\EventStore.Client.1.0.1\lib\net40\EventStore.ClientAPI.dll</HintPath>
+    </Reference>
     <Reference Include="FluentAssertions">
       <HintPath>..\..\packages\FluentAssertions.2.0.0.1\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
@@ -84,9 +87,12 @@
     </Compile>
     <Compile Include="AggregateEventStreamTests.cs" />
     <Compile Include="AggregateMementoTests.cs" />
+    <Compile Include="AggregateRepositoryTests.cs" />
     <Compile Include="AggregateTests.cs" />
     <Compile Include="CodeGeneration\VisitorTests.cs" />
+    <Compile Include="Persistence\EventStoreAggregateRepositoryTests.cs" />
     <Compile Include="HomogeneousAggregatePersistenceTests.cs" />
+    <Compile Include="Persistence\InMemoryJsonAggregateRepositoryTests.cs" />
     <Compile Include="LogicalTypeRegistryBuilder.cs" />
     <Compile Include="Serialization\LogicalTypeTests.cs" />
     <Compile Include="Serialization\MaybeJsonConverterTests.cs" />
@@ -98,7 +104,7 @@
     <Compile Include="TestAggregates\HomogeneousRole.cs" />
     <Compile Include="TestAggregates\RoleIdentifier.cs" />
     <Compile Include="TestAggregates\ServiceCase.cs" />
-    <Compile Include="InMemoryAggregateRepositoryTests.cs" />
+    <Compile Include="Persistence\InMemoryAggregateRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +128,10 @@
     <ProjectReference Include="..\iSynaptic.Core.CodeGeneration\iSynaptic.Core.CodeGeneration.csproj">
       <Project>{C43E38C7-BC55-463D-B592-6B35683C1FDD}</Project>
       <Name>iSynaptic.Core.CodeGeneration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\iSynaptic.Core.Persistence\iSynaptic.Core.Persistence.csproj">
+      <Project>{E797416C-5AF9-46F6-B3F2-8393853DC746}</Project>
+      <Name>iSynaptic.Core.Persistence</Name>
     </ProjectReference>
     <ProjectReference Include="..\iSynaptic.Core.Serialization\iSynaptic.Core.Serialization.csproj">
       <Project>{c38a9d4e-653e-4f4a-9cda-3c4ec03b58f5}</Project>

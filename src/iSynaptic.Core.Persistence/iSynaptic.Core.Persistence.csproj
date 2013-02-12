@@ -1,19 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E249B9CC-0867-4BC2-AF95-AAC079C696B2}</ProjectGuid>
+    <ProjectGuid>{E797416C-5AF9-46F6-B3F2-8393853DC746}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>iSynaptic</RootNamespace>
-    <AssemblyName>iSynaptic.Core</AssemblyName>
+    <RootNamespace>iSynaptic.Core.Persistence</RootNamespace>
+    <AssemblyName>iSynaptic.Core.Persistence</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,7 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,40 +28,40 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iSynaptic.Commons, Version=0.4.18.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="EventStore.ClientAPI">
+      <HintPath>..\..\packages\EventStore.Client.1.0.1\lib\net40\EventStore.ClientAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="iSynaptic.Commons">
       <HintPath>..\..\packages\iSynaptic.Commons.0.4.18\lib\iSynaptic.Commons.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="Aggregate.cs" />
-    <Compile Include="AggregateEvent.cs" />
-    <Compile Include="AggregateEventStream.cs" />
-    <Compile Include="AggregateMemento.cs" />
-    <Compile Include="AggregateRepository.cs" />
-    <Compile Include="AggregateRepositoryExtensions.cs" />
-    <Compile Include="AggregateRepositorySaveBehavior.cs" />
-    <Compile Include="AggregateSnapshot.cs" />
-    <Compile Include="HashCode.cs" />
-    <Compile Include="IAggregate.cs" />
-    <Compile Include="IAggregateEvent.cs" />
-    <Compile Include="IAggregateMemento.cs" />
-    <Compile Include="IAggregateRepository.cs" />
-    <Compile Include="IAggregateSnapshot.cs" />
+    <Compile Include="EventStoreAggregateRepository.cs" />
+    <Compile Include="InMemoryAggregateRepository.cs" />
+    <Compile Include="InMemoryJsonAggregateRepository.cs" />
+    <Compile Include="MementoBasedAggregateRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\iSynaptic.Core.Serialization\iSynaptic.Core.Serialization.csproj">
+      <Project>{C38A9D4E-653E-4F4A-9CDA-3C4EC03B58F5}</Project>
+      <Name>iSynaptic.Core.Serialization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\iSynaptic.Core\iSynaptic.Core.csproj">
+      <Project>{E249B9CC-0867-4BC2-AF95-AAC079C696B2}</Project>
+      <Name>iSynaptic.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -23,6 +23,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
+using iSynaptic.Core.Persistence;
 using iSynaptic.Serialization;
 using iSynaptic.TestAggregates;
 

@@ -35,26 +35,5 @@ namespace iSynaptic
             Guard.NotNull(@this, "this");
             return @this.Get(id, Int32.MaxValue);
         }
-
-        public static Task SaveSnapshot<TAggregate, TIdentifier>(this IAggregateRepository<TAggregate, TIdentifier> @this, TIdentifier id)
-            where TAggregate : IAggregate<TIdentifier>
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            Guard.NotNull(@this, "this");
-            return @this.SaveSnapshot(id, Int32.MaxValue);
-        }
-
-        public static async Task SaveSnapshot<TAggregate, TIdentifier>(this IAggregateRepository<TAggregate, TIdentifier> @this, TIdentifier id, Int32 maxVersion)
-            where TAggregate : IAggregate<TIdentifier>
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            Guard.NotNull(@this, "this");
-
-            var aggregate = await @this.Get(id, maxVersion);
-            if (aggregate == null)
-                throw new InvalidOperationException("Unable to find aggregate.");
-
-            await @this.SaveSnapshot(aggregate);
-        }
     }
 }
