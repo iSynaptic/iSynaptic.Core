@@ -89,6 +89,7 @@
     <Compile Include="AggregateMementoTests.cs" />
     <Compile Include="AggregateRepositoryTests.cs" />
     <Compile Include="AggregateTests.cs" />
+    <Compile Include="Base50EncodedUInt64Tests.cs" />
     <Compile Include="CodeGeneration\VisitorTests.cs" />
     <Compile Include="Persistence\EventStoreAggregateRepositoryTests.cs" />
     <Compile Include="HomogeneousAggregatePersistenceTests.cs" />

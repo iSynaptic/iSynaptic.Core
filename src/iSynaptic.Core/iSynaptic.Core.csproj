@@ -56,6 +56,7 @@
     <Compile Include="AggregateRepositoryExtensions.cs" />
     <Compile Include="AggregateRepositorySaveBehavior.cs" />
     <Compile Include="AggregateSnapshot.cs" />
+    <Compile Include="Base50EncodedUInt64.cs" />
     <Compile Include="HashCode.cs" />
     <Compile Include="IAggregate.cs" />
     <Compile Include="IAggregateEvent.cs" />
