@@ -26,7 +26,7 @@ using System.Linq;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
 
-namespace iSynaptic
+namespace iSynaptic.Modeling
 {
     public class AggregateEventStream<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>

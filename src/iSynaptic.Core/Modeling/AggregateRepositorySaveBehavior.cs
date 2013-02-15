@@ -19,18 +19,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-using System;
-
-namespace iSynaptic
+namespace iSynaptic.Modeling
 {
-    public interface IAggregateEvent<out TIdentifier> 
-        where TIdentifier : IEquatable<TIdentifier>
+    public enum AggregateRepositorySaveBehavior
     {
-        Guid EventId { get; }
-        DateTime RecordedAt { get; }
-
-        TIdentifier Id { get; }
-        Int32 Version { get; }
+        SaveEventsOnly,
+        SaveSnapshotOnly,
+        SaveBothEventsAndSnapshot
     }
 }

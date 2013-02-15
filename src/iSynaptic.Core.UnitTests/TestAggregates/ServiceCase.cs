@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using iSynaptic.Commons;
+using iSynaptic.Modeling;
 
 namespace iSynaptic.TestAggregates
 {

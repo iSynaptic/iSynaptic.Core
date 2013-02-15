@@ -21,30 +21,30 @@
 // THE SOFTWARE.
 
 using System;
-using iSynaptic.Commons;
 
-namespace iSynaptic
+namespace iSynaptic.Modeling
 {
     [Serializable]
-    public abstract class AggregateEvent<TIdentifier> : IAggregateEvent<TIdentifier>
+    public abstract class AggregateSnapshot<TIdentifier> : IAggregateSnapshot<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        protected AggregateEvent(TIdentifier id, Int32 version)
+        protected AggregateSnapshot(TIdentifier id, Int32 version, DateTime takenAt)
         {
             if (version <= 0)
                 throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
 
-            EventId = Guid.NewGuid();
-            RecordedAt = SystemClock.UtcNow;
+            if (takenAt.Kind != DateTimeKind.Utc)
+                throw new ArgumentException("DateTime must be of UTC kind.", "takenAt");
 
+            SnapshotId = Guid.NewGuid();
             Id = id;
             Version = version;
+            TakenAt = takenAt;
         }
 
-        public Guid EventId { get; private set; }
-        public DateTime RecordedAt { get; private set; }
-
+        public Guid SnapshotId { get; private set; }
         public TIdentifier Id { get; private set; }
         public Int32 Version { get; private set; }
+        public DateTime TakenAt { get; private set; }
     }
 }

@@ -29,14 +29,30 @@ namespace iSynaptic
     public struct Base50EncodedUInt64
     {
         private static readonly Char[] Alphabet = "0123456789BCDFGHJKMNPQRSTVWXYZbcdfghjkmnpqrstvwxyz".ToCharArray();
+        private static readonly Char AlphabetZero = Alphabet.First();
+
         private static readonly UInt64 AlphabetLength = (UInt64)Alphabet.Length;
 
+        private static readonly UInt64[] AlphabetMap = 
+            Enumerable.Range(0, 123)
+                .Select(i => Array.IndexOf(Alphabet, (Char) i))
+                .Select(i => i == -1 ? UInt64.MaxValue : (UInt64)i)
+                .ToArray();
+
+        private static readonly Int32 MaxTextLenth = (Int32)Math.Ceiling(Math.Log(UInt64.MaxValue) / Math.Log(AlphabetLength));
+        private static readonly UInt64[] Multiplier =
+            Enumerable.Range(0, MaxTextLenth)
+                .Select(i => (UInt64)Math.Pow(AlphabetLength, i))
+                .ToArray();
+
         private readonly UInt64 _value;
+        private readonly String _text;
 
         [CLSCompliant(false)]
         public Base50EncodedUInt64(UInt64 value)
         {
             _value = value;
+            _text = ToString(value);
         }
 
         public Base50EncodedUInt64(String value)
@@ -46,6 +62,7 @@ namespace iSynaptic
                 throw new ArgumentException("Not a valid base 50 encoded 64-bit integer.", "value");
 
             _value = result.Value;
+            _text = result.Value;
         }
 
         public static Maybe<Base50EncodedUInt64> TryParse(String value)
@@ -53,7 +70,7 @@ namespace iSynaptic
             if (value == null)
                 return Maybe<Base50EncodedUInt64>.NoValue;
 
-            if (value.Length > 12)
+            if (value.Length > MaxTextLenth)
                 return Maybe<Base50EncodedUInt64>.NoValue;
 
             var result = FromString(value);
@@ -68,7 +85,10 @@ namespace iSynaptic
             for (UInt64 i = 0; i < length; i++)
             {
                 Char ch = value[(Int32)(length - i - 1)];
-                result += (UInt64) IndexOf(ch)*(UInt64)Math.Pow(AlphabetLength, i);
+                if (ch == '0')
+                    continue;
+
+                result += IndexOf(ch) * Multiplier[i];
             }
 
             return result;
@@ -76,28 +96,37 @@ namespace iSynaptic
 
         private static String ToString(UInt64 value)
         {
-            Char[] result = new String(Alphabet[0], 12).ToCharArray();
+            Char[] result = new String(Alphabet[0], MaxTextLenth).ToCharArray();
             UInt64 remaining = value;
 
-            Int32 index = 11;
+            Int32 index = MaxTextLenth -1;
+            Int32 indexOfLastNonZeroChar = index;
+
             while (remaining > 0)
             {
                 result[index] = Alphabet[remaining % AlphabetLength];
                 remaining /= AlphabetLength;
+                if (result[index] != AlphabetZero)
+                    indexOfLastNonZeroChar = index;
+
                 index--;
             }
 
-            return new String(result);
+            return new String(result, indexOfLastNonZeroChar, MaxTextLenth - indexOfLastNonZeroChar);
         }
 
         public override string ToString()
         {
-            return ToString(_value);
+            return _text ?? "0";
         }
 
-        private static Int32 IndexOf(Char value)
+        private static UInt64 IndexOf(Char value)
         {
-            return Array.IndexOf(Alphabet, value);
+            Int32 index = value;
+            if(index >= AlphabetMap.Length || AlphabetMap[index] == UInt64.MaxValue)
+                throw new ArgumentException("Unrecognized character.");
+
+            return AlphabetMap[index];
         }
 
         public bool Equals(Base50EncodedUInt64 other)
@@ -133,6 +162,18 @@ namespace iSynaptic
 
         [CLSCompliant(false)]
         public static implicit operator Base50EncodedUInt64(UInt64 value)
+        {
+            return new Base50EncodedUInt64(value);
+        }
+
+        [CLSCompliant(false)]
+        public static implicit operator String(Base50EncodedUInt64 value)
+        {
+            return value.ToString();
+        }
+
+        [CLSCompliant(false)]
+        public static explicit operator Base50EncodedUInt64(String value)
         {
             return new Base50EncodedUInt64(value);
         }

@@ -21,12 +21,16 @@
 // THE SOFTWARE.
 
 using System;
+using System.Threading.Tasks;
 
-namespace iSynaptic
+namespace iSynaptic.Modeling
 {
-    internal interface IAggregateMemento
+    public interface IAggregateRepository<TAggregate, in TIdentifier>
+        where TAggregate : IAggregate<TIdentifier> 
+        where TIdentifier : IEquatable<TIdentifier>
     {
-        AggregateMemento<TIdentifier> ToMemento<TIdentifier>()
-            where TIdentifier : IEquatable<TIdentifier>;
+        Task<TAggregate> Get(TIdentifier id, Int32 maxVersion);
+        Task Save(TAggregate aggregate);
+        Task SaveSnapshot(TAggregate aggregate);
     }
 }

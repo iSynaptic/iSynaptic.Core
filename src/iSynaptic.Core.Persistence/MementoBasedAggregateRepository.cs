@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
 using iSynaptic.Commons.Linq;
+using iSynaptic.Modeling;
 
 namespace iSynaptic.Core.Persistence
 {

@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 using System;
+using iSynaptic.Modeling;
 
 namespace iSynaptic.TestAggregates
 {

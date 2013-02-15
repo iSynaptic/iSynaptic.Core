@@ -85,14 +85,15 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AggregateEventStreamTests.cs" />
-    <Compile Include="AggregateMementoTests.cs" />
-    <Compile Include="AggregateRepositoryTests.cs" />
-    <Compile Include="AggregateTests.cs" />
+    <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
+    <Compile Include="Modeling\AggregateEventStreamTests.cs" />
+    <Compile Include="Modeling\AggregateMementoTests.cs" />
+    <Compile Include="Modeling\AggregateRepositoryTests.cs" />
+    <Compile Include="Modeling\AggregateTests.cs" />
     <Compile Include="Base50EncodedUInt64Tests.cs" />
     <Compile Include="CodeGeneration\VisitorTests.cs" />
     <Compile Include="Persistence\EventStoreAggregateRepositoryTests.cs" />
-    <Compile Include="HomogeneousAggregatePersistenceTests.cs" />
+    <Compile Include="Modeling\HomogeneousAggregatePersistenceTests.cs" />
     <Compile Include="Persistence\InMemoryJsonAggregateRepositoryTests.cs" />
     <Compile Include="LogicalTypeRegistryBuilder.cs" />
     <Compile Include="Serialization\LogicalTypeTests.cs" />

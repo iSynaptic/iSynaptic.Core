@@ -21,34 +21,30 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using iSynaptic.Commons;
 
-namespace iSynaptic
+namespace iSynaptic.Modeling
 {
-    public sealed class AggregateMemento<TIdentifier> : IAggregateMemento
+    [Serializable]
+    public abstract class AggregateEvent<TIdentifier> : IAggregateEvent<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        public AggregateMemento(Type aggregateType, Maybe<IAggregateSnapshot<TIdentifier>> snapshot, IEnumerable<IAggregateEvent<TIdentifier>> events)
+        protected AggregateEvent(TIdentifier id, Int32 version)
         {
-            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
-            Snapshot = snapshot;
-            Events = events ?? Enumerable.Empty<IAggregateEvent<TIdentifier>>();
+            if (version <= 0)
+                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
+
+            EventId = Guid.NewGuid();
+            RecordedAt = SystemClock.UtcNow;
+
+            Id = id;
+            Version = version;
         }
 
-        AggregateMemento<TDesiredIdentifier> IAggregateMemento.ToMemento<TDesiredIdentifier>()
-        {
-            var m = this as AggregateMemento<TDesiredIdentifier>;
+        public Guid EventId { get; private set; }
+        public DateTime RecordedAt { get; private set; }
 
-            return m ?? new AggregateMemento<TDesiredIdentifier>(AggregateType,
-                Snapshot.Cast<IAggregateSnapshot<TDesiredIdentifier>>(),
-                Events.Cast<IAggregateEvent<TDesiredIdentifier>>()
-            );
-        }
-
-        public Type AggregateType { get; private set; }
-        public Maybe<IAggregateSnapshot<TIdentifier>> Snapshot { get; private set; }
-        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
+        public TIdentifier Id { get; private set; }
+        public Int32 Version { get; private set; }
     }
 }

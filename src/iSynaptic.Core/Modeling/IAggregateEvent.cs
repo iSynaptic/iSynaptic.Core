@@ -21,19 +21,16 @@
 // THE SOFTWARE.
 
 using System;
-using System.Threading.Tasks;
-using iSynaptic.Commons;
 
-namespace iSynaptic
+namespace iSynaptic.Modeling
 {
-    public static class AggregateRepositoryExtensions
+    public interface IAggregateEvent<out TIdentifier> 
+        where TIdentifier : IEquatable<TIdentifier>
     {
-        public static Task<TAggregate> Get<TAggregate, TIdentifier>(this IAggregateRepository<TAggregate, TIdentifier> @this, TIdentifier id)
-            where TAggregate : IAggregate<TIdentifier>
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            Guard.NotNull(@this, "this");
-            return @this.Get(id, Int32.MaxValue);
-        }
+        Guid EventId { get; }
+        DateTime RecordedAt { get; }
+
+        TIdentifier Id { get; }
+        Int32 Version { get; }
     }
 }

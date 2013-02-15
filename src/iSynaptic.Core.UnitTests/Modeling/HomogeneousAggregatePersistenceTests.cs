@@ -27,7 +27,7 @@ using iSynaptic.Core.Persistence;
 using iSynaptic.Serialization;
 using iSynaptic.TestAggregates;
 
-namespace iSynaptic
+namespace iSynaptic.Modeling
 {
     [TestFixture]
     public class HomogeneousAggregatePersistenceTests

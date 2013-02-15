@@ -48,26 +48,29 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Aggregate.cs" />
-    <Compile Include="AggregateEvent.cs" />
-    <Compile Include="AggregateEventStream.cs" />
-    <Compile Include="AggregateMemento.cs" />
-    <Compile Include="AggregateRepository.cs" />
-    <Compile Include="AggregateRepositoryExtensions.cs" />
-    <Compile Include="AggregateRepositorySaveBehavior.cs" />
-    <Compile Include="AggregateSnapshot.cs" />
+    <Compile Include="InterleavingUniqueNumberGenerator.cs" />
+    <Compile Include="IUniqueNumberGenerator.cs" />
+    <Compile Include="Modeling\Aggregate.cs" />
+    <Compile Include="Modeling\AggregateEvent.cs" />
+    <Compile Include="Modeling\AggregateEventStream.cs" />
+    <Compile Include="Modeling\AggregateMemento.cs" />
+    <Compile Include="Modeling\AggregateRepository.cs" />
+    <Compile Include="Modeling\AggregateRepositoryExtensions.cs" />
+    <Compile Include="Modeling\AggregateRepositorySaveBehavior.cs" />
+    <Compile Include="Modeling\AggregateSnapshot.cs" />
     <Compile Include="Base50EncodedUInt64.cs" />
     <Compile Include="HashCode.cs" />
-    <Compile Include="IAggregate.cs" />
-    <Compile Include="IAggregateEvent.cs" />
-    <Compile Include="IAggregateMemento.cs" />
-    <Compile Include="IAggregateRepository.cs" />
-    <Compile Include="IAggregateSnapshot.cs" />
+    <Compile Include="Modeling\IAggregate.cs" />
+    <Compile Include="Modeling\IAggregateEvent.cs" />
+    <Compile Include="Modeling\IAggregateMemento.cs" />
+    <Compile Include="Modeling\IAggregateRepository.cs" />
+    <Compile Include="Modeling\IAggregateSnapshot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

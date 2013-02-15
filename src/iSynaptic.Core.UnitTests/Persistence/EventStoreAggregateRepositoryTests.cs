@@ -25,6 +25,7 @@ using System.Net;
 using EventStore.ClientAPI;
 using NUnit.Framework;
 using iSynaptic.Core.Persistence;
+using iSynaptic.Modeling;
 using iSynaptic.TestAggregates;
 
 namespace iSynaptic.Persistence

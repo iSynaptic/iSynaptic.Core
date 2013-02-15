@@ -21,16 +21,12 @@
 // THE SOFTWARE.
 
 using System;
-using System.Threading.Tasks;
 
 namespace iSynaptic
 {
-    public interface IAggregateRepository<TAggregate, in TIdentifier>
-        where TAggregate : IAggregate<TIdentifier> 
-        where TIdentifier : IEquatable<TIdentifier>
+    [CLSCompliant(false)]
+    public interface IUniqueNumberGenerator
     {
-        Task<TAggregate> Get(TIdentifier id, Int32 maxVersion);
-        Task Save(TAggregate aggregate);
-        Task SaveSnapshot(TAggregate aggregate);
+        UInt64[] Generate(Byte count);
     }
 }

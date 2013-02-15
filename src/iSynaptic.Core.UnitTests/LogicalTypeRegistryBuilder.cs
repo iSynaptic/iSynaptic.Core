@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using iSynaptic.Modeling;
 using iSynaptic.Serialization;
 using iSynaptic.TestAggregates;
 
