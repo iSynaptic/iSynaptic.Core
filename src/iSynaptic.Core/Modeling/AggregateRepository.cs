@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using iSynaptic.Commons;
@@ -53,8 +54,13 @@ namespace iSynaptic.Modeling
 
             var ag = AsInternal(aggregate);
 
-            await SaveEventStream(aggregate.GetType(), aggregate.Id, ag.GetUncommittedEvents());
+            var aggregateType = aggregate.GetType();
+            var events = ag.GetUncommittedEvents().ToArray();
+
+            await SaveEventStream(aggregateType, aggregate.Id, events);
             ag.CommitEvents();
+
+            OnEventStreamSaved(aggregateType, aggregate.Id, events);
         }
 
         public async Task SaveSnapshot(TAggregate aggregate)
@@ -65,7 +71,10 @@ namespace iSynaptic.Modeling
             if (snapshot == null)
                 throw new ArgumentException("Aggregate doesn't support snapshots.", "aggregate");
 
-            await SaveSnapshot(aggregate.GetType(), snapshot);
+            var aggregateType = aggregate.GetType();
+            await SaveSnapshot(aggregateType, snapshot);
+
+            OnSnapshotSaved(aggregateType, snapshot);
         }
 
         private IAggregateInternal<TIdentifier> AsInternal(TAggregate aggregate)
@@ -75,6 +84,9 @@ namespace iSynaptic.Modeling
             if(ag == null) throw new InvalidOperationException("Aggregate must inherit from Aggregate<TIdentifier>.");
             return ag;
         }
+
+        protected virtual void OnEventStreamSaved(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events) { }
+        protected virtual void OnSnapshotSaved(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot) { }
 
         public abstract Task<AggregateMemento<TIdentifier>> GetMemento(TIdentifier id, Int32 maxVersion);
 

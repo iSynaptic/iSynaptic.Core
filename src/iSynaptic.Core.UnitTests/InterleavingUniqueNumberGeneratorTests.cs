@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using iSynaptic.Commons.Collections.Generic;
-using iSynaptic.Commons.Linq;
 
 namespace iSynaptic
 {
@@ -69,7 +68,6 @@ namespace iSynaptic
 
             var distinctIds = ids.Select(x => x.Value).Distinct().ToArray();
             Assert.AreEqual(10000, distinctIds.Length);
-
 
             var distinctThreadIds = ids.Select(x => x.Key).Distinct().ToArray();
             Assert.IsTrue(distinctThreadIds.Length > 1);
