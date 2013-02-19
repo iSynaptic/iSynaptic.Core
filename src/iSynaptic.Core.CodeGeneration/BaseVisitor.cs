@@ -143,20 +143,45 @@ namespace iSynaptic.CodeGeneration
             });
         }
 
-        protected TState DispatchCore(IVisitable subject, TState state)
+        protected TState DispatchCore(IEnumerable<IVisitable> subjects, TState state)
         {
-            Guard.NotNull(subject, "subject");
-            return _dispatcher(this, subject, state);
+            return DispatchCore(subjects, state, (n, st, f) => f(n.Value, st));
         }
 
-        protected TState DispatchChildrenCore(IVisitable subject, TState state)
+        protected TState DispatchCore(IEnumerable<IVisitable> subjects, TState state, Func<Neighbors<IVisitable>, TState, Func<IVisitable, TState, TState>, TState> selector)
+        {
+            Guard.NotNull(subjects, "subjects");
+            Guard.NotNull(selector, "selector");
+
+            Func<IVisitable, TState, TState> dispatch =
+                (sub, st) => _dispatcher(this, sub, st);
+
+            return subjects
+                .Unless(sub => NotInterestedIn(sub, state))
+                .WithNeighbors()
+                .Aggregate(state, (st, n) => selector(n, st, dispatch));
+        }
+
+        protected TState DispatchChildren(IVisitable subject)
+        {
+            return DispatchChildren(subject, default(TState));
+        }
+
+        protected TState DispatchChildren(IVisitable subject, TState state)
+        {
+            return DispatchChildren(subject, state, (n, st, selector) => selector(n.Value, st));
+        }
+
+        protected TState DispatchChildren(IVisitable subject, TState state, Func<Neighbors<IVisitable>, TState, Func<IVisitable, TState, TState>, TState> selector)
         {
             Guard.NotNull(subject, "subject");
 
             TState result = default(TState);
 
-            subject.AcceptChildren(children => result = children.Aggregate(state, (current, child) => DispatchCore(child, current)));
+            subject.AcceptChildren(children => result = DispatchCore(children, state, selector));
             return result;
         }
+
+        protected virtual Boolean NotInterestedIn(IVisitable subject, TState state) { return false; }
     }
 }

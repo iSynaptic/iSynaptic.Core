@@ -111,6 +111,7 @@ namespace iSynaptic.CodeGeneration
                         new TestSubject(5)));
 
             var visitor = new StatelessTestVisitor();
+
             visitor.Dispatch(subject);
 
             Assert.AreEqual(15, visitor.Result);

@@ -23,26 +23,19 @@
 using System;
 using System.Collections.Generic;
 
-namespace iSynaptic.CodeGeneration
+namespace iSynaptic.CodeGeneration.Modeling
 {
-    public abstract class Visitor : BaseVisitor<Object>, IVisitor
+    public abstract class AstNode : IVisitable
     {
-        public virtual void Dispatch(IEnumerable<IVisitable> subjects)
+        protected AstNode(String name, String type)
         {
-            DispatchCore(subjects, null);
-        }
-    }
-
-    public abstract class Visitor<TState> : BaseVisitor<TState>, IVisitor<TState>
-    {
-        public void Dispatch(IEnumerable<IVisitable> subjects)
-        {
-            Dispatch(subjects, default(TState));
+            Name = name;
+            Type = type;
         }
 
-        public virtual TState Dispatch(IEnumerable<IVisitable> subjects, TState state)
-        {
-            return DispatchCore(subjects, state);
-        }
+        public String Name { get; private set; }
+        public String Type { get; private set; }
+
+        public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch) { }
     }
 }

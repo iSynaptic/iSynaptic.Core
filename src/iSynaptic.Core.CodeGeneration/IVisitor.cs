@@ -21,38 +21,36 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
-using System.Linq;
 using iSynaptic.Commons;
-using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration
 {
     public interface IVisitor
     {
-        void Dispatch(IVisitable subject);
+        void Dispatch(IEnumerable<IVisitable> subjects);
     }
     
     public interface IVisitor<TState> : IVisitor
     {
-        TState Dispatch(IVisitable subject, TState state);
+        TState Dispatch(IEnumerable<IVisitable> subjects, TState state);
     }
 
     public static class VisitorExtensions
     {
-        public static void Dispatch(this IVisitor @this, IEnumerable<IVisitable> subjects)
+        public static void Dispatch(this IVisitor @this, IVisitable subject)
         {
             Guard.NotNull(@this, "this");
-            Guard.NotNull(subjects, "subjects");
+            Guard.NotNull(subject, "subject");
 
-            subjects.Run(@this.Dispatch);
+            @this.Dispatch(new[]{subject});
         }
 
-        public static TState Dispatch<TState>(this IVisitor<TState> @this, IEnumerable<IVisitable> subjects, TState state)
+        public static TState Dispatch<TState>(this IVisitor<TState> @this, IVisitable subject, TState state)
         {
             Guard.NotNull(@this, "this");
-            Guard.NotNull(subjects, "subjects");
+            Guard.NotNull(subject, "subject");
 
-            return subjects.Aggregate(state, (current, subject) => @this.Dispatch(subject, current));
+            return @this.Dispatch(new[] { subject }, state);
         }
     }
 }

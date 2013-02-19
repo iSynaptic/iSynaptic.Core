@@ -22,27 +22,23 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace iSynaptic.CodeGeneration
+namespace iSynaptic.CodeGeneration.Modeling
 {
-    public abstract class Visitor : BaseVisitor<Object>, IVisitor
+    public class AstNodeBranch : AstNode
     {
-        public virtual void Dispatch(IEnumerable<IVisitable> subjects)
+        public AstNodeBranch(String name, String type, IEnumerable<AstNode> children)
+            : base(name, type)
         {
-            DispatchCore(subjects, null);
-        }
-    }
-
-    public abstract class Visitor<TState> : BaseVisitor<TState>, IVisitor<TState>
-    {
-        public void Dispatch(IEnumerable<IVisitable> subjects)
-        {
-            Dispatch(subjects, default(TState));
+            Children = children.ToArray();
         }
 
-        public virtual TState Dispatch(IEnumerable<IVisitable> subjects, TState state)
+        public IEnumerable<AstNode> Children { get; private set; }
+        
+        public override void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
-            return DispatchCore(subjects, state);
+            dispatch(Children);
         }
     }
 }

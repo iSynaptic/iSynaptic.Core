@@ -21,28 +21,14 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 
-namespace iSynaptic.CodeGeneration
+namespace iSynaptic.CodeGeneration.Modeling
 {
-    public abstract class Visitor : BaseVisitor<Object>, IVisitor
+    public class AstNodeLeaf : AstNode
     {
-        public virtual void Dispatch(IEnumerable<IVisitable> subjects)
+        public AstNodeLeaf(String name, String type)
+            : base(name, type)
         {
-            DispatchCore(subjects, null);
-        }
-    }
-
-    public abstract class Visitor<TState> : BaseVisitor<TState>, IVisitor<TState>
-    {
-        public void Dispatch(IEnumerable<IVisitable> subjects)
-        {
-            Dispatch(subjects, default(TState));
-        }
-
-        public virtual TState Dispatch(IEnumerable<IVisitable> subjects, TState state)
-        {
-            return DispatchCore(subjects, state);
         }
     }
 }
