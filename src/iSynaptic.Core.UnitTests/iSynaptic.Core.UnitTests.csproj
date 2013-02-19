@@ -73,6 +73,10 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Sprache, Version=1.10.0.22, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Sprache.1.10.0.22\lib\net40\Sprache.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -86,7 +90,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\AstGeneratingVisitorTests.cs" />
-    <Compile Include="CodeGeneration\Modeling\AstGeneratingVisitorTests.cs" />
+    <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\ParserTests.cs" />
     <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
     <Compile Include="Modeling\AggregateEventStreamTests.cs" />
     <Compile Include="Modeling\AggregateMementoTests.cs" />

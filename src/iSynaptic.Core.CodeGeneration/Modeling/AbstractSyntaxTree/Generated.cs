@@ -9,56 +9,25 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
     public static class Syntax
     {
+        public static AstNode Node(String name, String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+        {
+            return new AstNode(null, new SyntacticModel.Internal.AstNode(name, typeName, parentType, baseTypes, properties.Select(x => x.GetUnderlying())));
+        }
+
         public static AstNodeFamily Family(String @namespace, IEnumerable<AstNode> nodes)
         {
             return new AstNodeFamily(new SyntacticModel.Internal.AstNodeFamily(@namespace, nodes.Select(x => x.GetUnderlying())));
         }
 
-        public static AstNode Node(String name, String typeName, Boolean isVisitable, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+        public static AstNodeProperty Property(String name, String type, Boolean isNode, AstNodePropertyCardinality cardinality)
         {
-            return new AstNode(null, new SyntacticModel.Internal.AstNode(name, typeName, isVisitable, parentType, baseTypes, properties.Select(x => x.GetUnderlying())));
-        }
-
-        public static AstNodeProperty Property(String name, String type, Boolean isNode, Boolean isMany)
-        {
-            return new AstNodeProperty(null, new SyntacticModel.Internal.AstNodeProperty(name, type, isNode, isMany));
+            return new AstNodeProperty(null, new SyntacticModel.Internal.AstNodeProperty(name, type, isNode, cardinality));
         }
     }
 }
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
 {
-    public partial class AstNodeFamily : IVisitable
-    {
-        private readonly Internal.AstNodeFamily _underlying;
-
-        internal AstNodeFamily(Internal.AstNodeFamily underlying)
-        {
-            _underlying = underlying;
-        }
-
-        internal Internal.AstNodeFamily GetUnderlying() { return _underlying; }
-
-        public void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
-        {
-            dispatch(Nodes);
-        }
-        public String Namespace
-        {
-            get
-            {
-                return _underlying.Namespace;
-            }
-        }
-        public IEnumerable<AstNode> Nodes
-        {
-            get
-            {
-                return _underlying.Nodes.Select(x => new AstNode(this, x));
-            }
-        }
-    }
-
     public partial class AstNode : IVisitable
     {
         private readonly AstNodeFamily _parent;
@@ -91,13 +60,6 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
                 return _underlying.TypeName;
             }
         }
-        public Boolean IsVisitable
-        {
-            get
-            {
-                return _underlying.IsVisitable;
-            }
-        }
         public Maybe<String> ParentType
         {
             get
@@ -117,6 +79,37 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
             get
             {
                 return _underlying.Properties.Select(x => new AstNodeProperty(this, x));
+            }
+        }
+    }
+
+    public partial class AstNodeFamily : IVisitable
+    {
+        private readonly Internal.AstNodeFamily _underlying;
+
+        internal AstNodeFamily(Internal.AstNodeFamily underlying)
+        {
+            _underlying = underlying;
+        }
+
+        internal Internal.AstNodeFamily GetUnderlying() { return _underlying; }
+
+        public void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+        {
+            dispatch(Nodes);
+        }
+        public String Namespace
+        {
+            get
+            {
+                return _underlying.Namespace;
+            }
+        }
+        public IEnumerable<AstNode> Nodes
+        {
+            get
+            {
+                return _underlying.Nodes.Select(x => new AstNode(this, x));
             }
         }
     }
@@ -159,17 +152,41 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
                 return _underlying.IsNode;
             }
         }
-        public Boolean IsMany
+        public AstNodePropertyCardinality Cardinality
         {
             get
             {
-                return _underlying.IsMany;
+                return _underlying.Cardinality;
             }
         }
     }
 
     namespace Internal
     {
+        internal class AstNode
+        {
+            private readonly String _name;
+            private readonly String _typeName;
+            private readonly Maybe<String> _parentType;
+            private readonly IEnumerable<String> _baseTypes;
+            private readonly IEnumerable<AstNodeProperty> _properties;
+
+            public AstNode(String name, String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+            {
+                _name = name;
+                _typeName = typeName;
+                _parentType = parentType;
+                _baseTypes = baseTypes;
+                _properties = properties;
+            }
+
+            public String Name { get { return _name; } }
+            public String TypeName { get { return _typeName; } }
+            public Maybe<String> ParentType { get { return _parentType; } }
+            public IEnumerable<String> BaseTypes { get { return _baseTypes; } }
+            public IEnumerable<AstNodeProperty> Properties { get { return _properties; } }
+        }
+
         internal class AstNodeFamily
         {
             private readonly String _namespace;
@@ -185,52 +202,25 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
             public IEnumerable<AstNode> Nodes { get { return _nodes; } }
         }
 
-        internal class AstNode
-        {
-            private readonly String _name;
-            private readonly String _typeName;
-            private readonly Boolean _isVisitable;
-            private readonly Maybe<String> _parentType;
-            private readonly IEnumerable<String> _baseTypes;
-            private readonly IEnumerable<AstNodeProperty> _properties;
-
-            public AstNode(String name, String typeName, Boolean isVisitable, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
-            {
-                _name = name;
-                _typeName = typeName;
-                _isVisitable = isVisitable;
-                _parentType = parentType;
-                _baseTypes = baseTypes;
-                _properties = properties;
-            }
-
-            public String Name { get { return _name; } }
-            public String TypeName { get { return _typeName; } }
-            public Boolean IsVisitable { get { return _isVisitable; } }
-            public Maybe<String> ParentType { get { return _parentType; } }
-            public IEnumerable<String> BaseTypes { get { return _baseTypes; } }
-            public IEnumerable<AstNodeProperty> Properties { get { return _properties; } }
-        }
-
         internal class AstNodeProperty
         {
             private readonly String _name;
             private readonly String _type;
             private readonly Boolean _isNode;
-            private readonly Boolean _isMany;
+            private readonly AstNodePropertyCardinality _cardinality;
 
-            public AstNodeProperty(String name, String type, Boolean isNode, Boolean isMany)
+            public AstNodeProperty(String name, String type, Boolean isNode, AstNodePropertyCardinality cardinality)
             {
                 _name = name;
                 _type = type;
                 _isNode = isNode;
-                _isMany = isMany;
+                _cardinality = cardinality;
             }
 
             public String Name { get { return _name; } }
             public String Type { get { return _type; } }
             public Boolean IsNode { get { return _isNode; } }
-            public Boolean IsMany { get { return _isMany; } }
+            public AstNodePropertyCardinality Cardinality { get { return _cardinality; } }
         }
     }
 }

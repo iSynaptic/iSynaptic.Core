@@ -84,13 +84,8 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         {
             if (mode == "public")
             {
-                var baseTypes = node.BaseTypes;
-                if (node.IsVisitable)
-                    baseTypes = baseTypes.Concat(new[] {"IVisitable"});
-
-                string baseTypesSuffix = baseTypes.Any()
-                    ? String.Format(" : {0}", baseTypes.Delimit(", "))
-                    : "";
+                var baseTypes = node.BaseTypes.Concat(new[] { "IVisitable" });
+                string baseTypesSuffix = String.Format(" : {0}", baseTypes.Delimit(", "));
 
                 using (WriteBlock("public partial class {0}{1}", node.TypeName, baseTypesSuffix))
                 {
@@ -173,19 +168,15 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         {
             if (mode == "field")
             {
-                WriteLine(property.IsMany 
-                            ? "private readonly IEnumerable<{0}> _{1};" 
-                            : "private readonly {0} _{1};",
-                          property.Type,
+                WriteLine("private readonly {0} _{1};",
+                          GetPropertyType(property),
                           Camelize(property.Name));
             }
 
             if (mode == "parameter")
             {
-                Write(property.IsMany 
-                        ? "IEnumerable<{0}> {1}"
-                        : "{0} {1}", 
-                      property.Type, 
+                Write("{0} {1}", 
+                      GetPropertyType(property), 
                       SafeIdentifier(Camelize(property.Name)));
             }
 
@@ -201,27 +192,20 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "property")
             {
-                WriteLine(property.IsMany
-                            ? "public IEnumerable<{0}> {1} {{ get {{ return _{2}; }} }}"
-                            : "public {0} {1} {{ get {{ return _{2}; }} }}",
-                          property.Type, 
+                WriteLine("public {0} {1} {{ get {{ return _{2}; }} }}",
+                          GetPropertyType(property), 
                           property.Name, 
                           Camelize(property.Name));
             }
 
             if (mode == "publicSelector")
             {
-                String type = String.Format(property.IsMany
-                                                ? "IEnumerable<{0}>"
-                                                : "{0}",
-                                            property.Type);
-
-                using (WriteBlock("public {0} {1}", type, property.Name))
+                using (WriteBlock("public {0} {1}", GetPropertyType(property), property.Name))
                 using (WriteBlock("get"))
                 {
                     if (property.IsNode)
                     {
-                        WriteLine(property.IsMany
+                        WriteLine(property.Cardinality != AstNodePropertyCardinality.One
                                     ? "return _underlying.{0}.Select(x => new {1}(this, x));"
                                     : "return new {1}(this, _underlying.{0});",
                                   property.Name, property.Type);
@@ -237,7 +221,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             {
                 if (property.IsNode)
                 {
-                    Write(property.IsMany
+                    Write(property.Cardinality != AstNodePropertyCardinality.One
                               ? "{0}.Select(x => x.GetUnderlying())"
                               : "{0}.GetUnderlying()",
                           SafeIdentifier(Camelize(property.Name)));
@@ -248,13 +232,31 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "dispatchInvoke" && property.IsNode)
             {
-                WriteLine(property.IsMany
-                            ? "dispatch({0});"
-                            : "dispatch(new[]{{ {0} }})", 
-                          property.Name);
+                if(property.Cardinality == AstNodePropertyCardinality.One)
+                    WriteLine("dispatch(new[]{{ {0} }});");
+
+                if (property.Cardinality == AstNodePropertyCardinality.ZeroOrOne)
+                    WriteLine("dispatch({0}.ToEnumerable());");
+
+                if(property.Cardinality == AstNodePropertyCardinality.Many)
+                    WriteLine("dispatch({0});", property.Name);
             }
 
             return mode;
+        }
+
+        private String GetPropertyType(AstNodeProperty property)
+        {
+            if (property.Cardinality == AstNodePropertyCardinality.One)
+                return property.Type;
+
+            if (property.Cardinality == AstNodePropertyCardinality.ZeroOrOne)
+                return String.Format("Maybe<{0}>", property.Type);
+
+            if(property.Cardinality == AstNodePropertyCardinality.Many)
+                return String.Format("IEnumerable<{0}>", property.Type);
+
+            throw new InvalidOperationException("Unrecognized cardinality.");
         }
     }
 }

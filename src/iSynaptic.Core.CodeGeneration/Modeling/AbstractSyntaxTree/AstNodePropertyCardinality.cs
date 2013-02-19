@@ -20,50 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Linq;
-using NUnit.Framework;
-using Sprache;
-using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
-using iSynaptic.Commons;
-
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
-    [TestFixture]
-    public class AstGeneratingVisitorTests
+    public enum AstNodePropertyCardinality
     {
-        [Test]
-        public void CanGenerateAst()
-        {
-            var visitor = new AstGeneratingVisitor(Console.Out);
-            var parser = Parser.Family();
-
-            AstNodeFamily family = parser.Parse(@"ast iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
-{
-  node AstNode(""Node"", AstNodeFamily)
-  {
-    String Name;
-    String TypeName;
-    String? ParentType;
-    String* BaseTypes;
-    node AstNodeProperty* Properties;
-  }
-
-  node AstNodeFamily(""Family"")
-  {
-    String Namespace;
-    node AstNode* Nodes;
-  }
-
-  node AstNodeProperty(""Property"", AstNode)
-  {
-    String Name;
-    String Type;
-    Boolean IsNode;
-    AstNodePropertyCardinality Cardinality;
-  }
-}");
-            visitor.Dispatch(family);
-        }
+        One,
+        ZeroOrOne,
+        Many
     }
 }
