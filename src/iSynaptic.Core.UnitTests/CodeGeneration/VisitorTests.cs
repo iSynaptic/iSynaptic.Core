@@ -77,7 +77,7 @@ namespace iSynaptic.CodeGeneration
             }
         }
 
-        private class WriterVisitor : Visitor<TextWriter>
+        private class WriterVisitor : Visitor
         {
             protected void Visit(TestSubject subject, TextWriter writer)
             {

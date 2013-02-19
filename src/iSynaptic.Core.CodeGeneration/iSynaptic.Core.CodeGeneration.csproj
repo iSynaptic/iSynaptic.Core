@@ -43,8 +43,8 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BaseVisitor.cs" />
     <Compile Include="CodeAuthoringVisitor.cs" />
+    <Compile Include="CSharpCodeAuthoringVisitor.cs" />
     <Compile Include="ICodeGenerator.cs" />
     <Compile Include="IVisitable.cs" />
     <Compile Include="IVisitor.cs" />
