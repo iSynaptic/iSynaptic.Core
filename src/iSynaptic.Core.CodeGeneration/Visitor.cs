@@ -139,7 +139,7 @@ namespace iSynaptic.CodeGeneration
                     .ToArray();
 
                 if (applicators.Length <= 0)
-                    return baseDispatcher ?? (VisitorDispatcher)((v, s, st) => { throw new InvalidOperationException("Could not find method to dispatch to."); });
+                    return baseDispatcher ?? (VisitorDispatcher)((v, s, st) => v.DispatchChildren(s, st) );
 
                 if (baseDispatcher != null)
                     applicators = applicators.Concat(new[]

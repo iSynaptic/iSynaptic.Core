@@ -92,6 +92,7 @@
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\AstGeneratingVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\ParserTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\AstGeneration.cs" />
+    <Compile Include="CodeGeneration\Modeling\Domain\DomainCodeAuthoringVisitorTests.cs" />
     <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
     <Compile Include="Modeling\Domain\AggregateEventStreamTests.cs" />
     <Compile Include="Modeling\Domain\AggregateMementoTests.cs" />

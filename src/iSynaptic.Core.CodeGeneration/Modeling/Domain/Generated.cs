@@ -14,9 +14,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return new SyntaxTree(new SyntacticModel.Internal.SyntaxTree(usingStatements.Select(x => x.GetUnderlying()), namespaces.Select(x => x.GetUnderlying())));
         }
 
-        public static NamespaceSyntax Namespace(IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces, IEnumerable<AggregateSyntax> aggregates, IEnumerable<ValueSyntax> values)
+        public static NamespaceSyntax Namespace(String name, IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces, IEnumerable<AggregateSyntax> aggregates, IEnumerable<ValueSyntax> values)
         {
-            return new NamespaceSyntax(null, new SyntacticModel.Internal.NamespaceSyntax(usingStatements.Select(x => x.GetUnderlying()), namespaces.Select(x => x.GetUnderlying()), aggregates.Select(x => x.GetUnderlying()), values.Select(x => x.GetUnderlying())));
+            return new NamespaceSyntax(null, new SyntacticModel.Internal.NamespaceSyntax(name, usingStatements.Select(x => x.GetUnderlying()), namespaces.Select(x => x.GetUnderlying()), aggregates.Select(x => x.GetUnderlying()), values.Select(x => x.GetUnderlying())));
         }
 
         public static AggregateSyntax Aggregate(String name, IEnumerable<AggregateEventSyntax> events)
@@ -105,6 +105,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             dispatch(Namespaces);
             dispatch(Aggregates);
             dispatch(Values);
+        }
+        public String Name
+        {
+            get
+            {
+                return _underlying.Name;
+            }
         }
         public IEnumerable<UsingStatementSyntax> UsingStatements
         {
@@ -349,19 +356,22 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         internal class NamespaceSyntax
         {
+            private readonly String _name;
             private readonly IEnumerable<UsingStatementSyntax> _usingStatements;
             private readonly IEnumerable<NamespaceSyntax> _namespaces;
             private readonly IEnumerable<AggregateSyntax> _aggregates;
             private readonly IEnumerable<ValueSyntax> _values;
 
-            public NamespaceSyntax(IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces, IEnumerable<AggregateSyntax> aggregates, IEnumerable<ValueSyntax> values)
+            public NamespaceSyntax(String name, IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces, IEnumerable<AggregateSyntax> aggregates, IEnumerable<ValueSyntax> values)
             {
+                _name = name;
                 _usingStatements = usingStatements;
                 _namespaces = namespaces;
                 _aggregates = aggregates;
                 _values = values;
             }
 
+            public String Name { get { return _name; } }
             public IEnumerable<UsingStatementSyntax> UsingStatements { get { return _usingStatements; } }
             public IEnumerable<NamespaceSyntax> Namespaces { get { return _namespaces; } }
             public IEnumerable<AggregateSyntax> Aggregates { get { return _aggregates; } }

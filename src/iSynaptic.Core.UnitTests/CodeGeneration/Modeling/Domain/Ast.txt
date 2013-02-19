@@ -8,6 +8,8 @@
 
 	node NamespaceSyntax("Namespace", INamespaceParent) : INamespaceParent
 	{
+		String Name;
+
 		node UsingStatementSyntax* UsingStatements;
 		node NamespaceSyntax* Namespaces;
 		node AggregateSyntax* Aggregates;
