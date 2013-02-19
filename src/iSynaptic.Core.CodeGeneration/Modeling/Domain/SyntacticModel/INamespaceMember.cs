@@ -22,11 +22,10 @@
 
 using System;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    internal interface IAggregateMemento
+    public interface INamespaceMember
     {
-        AggregateMemento<TIdentifier> ToMemento<TIdentifier>()
-            where TIdentifier : IEquatable<TIdentifier>;
+        String Name { get;  }
     }
 }

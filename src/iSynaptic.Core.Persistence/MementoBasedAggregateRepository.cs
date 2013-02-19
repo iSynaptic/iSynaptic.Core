@@ -6,6 +6,7 @@ using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
 using iSynaptic.Commons.Linq;
 using iSynaptic.Modeling;
+using iSynaptic.Modeling.Domain;
 
 namespace iSynaptic.Core.Persistence
 {

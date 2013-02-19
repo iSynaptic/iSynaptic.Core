@@ -22,16 +22,15 @@
 
 using System;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
-    public interface IAggregateSnapshot<out TIdentifier>
+    public interface IAggregateEvent<out TIdentifier> 
         where TIdentifier : IEquatable<TIdentifier>
     {
-        Guid SnapshotId { get; }
+        Guid EventId { get; }
+        DateTime RecordedAt { get; }
 
         TIdentifier Id { get; }
         Int32 Version { get; }
-
-        DateTime TakenAt { get; }
     }
 }

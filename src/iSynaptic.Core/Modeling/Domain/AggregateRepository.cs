@@ -27,7 +27,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using iSynaptic.Commons;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
     public abstract class AggregateRepository<TAggregate, TIdentifier> : IAggregateRepository<TAggregate, TIdentifier> 
         where TAggregate : class, IAggregate<TIdentifier>

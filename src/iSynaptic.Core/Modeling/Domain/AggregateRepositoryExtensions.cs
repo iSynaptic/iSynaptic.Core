@@ -21,30 +21,19 @@
 // THE SOFTWARE.
 
 using System;
-using System.Net;
-using EventStore.ClientAPI;
-using NUnit.Framework;
-using iSynaptic.Core.Persistence;
-using iSynaptic.Modeling;
-using iSynaptic.Modeling.Domain;
-using iSynaptic.TestAggregates;
+using System.Threading.Tasks;
+using iSynaptic.Commons;
 
-namespace iSynaptic.Persistence
+namespace iSynaptic.Modeling.Domain
 {
-    [TestFixture]
-    [Explicit("Integration tests - requires EventStore to be running locally.")]
-    public class EventStoreAggregateRepositoryTests : AggregateRepositoryTests
+    public static class AggregateRepositoryExtensions
     {
-        public EventStoreAggregateRepositoryTests()
+        public static Task<TAggregate> Get<TAggregate, TIdentifier>(this IAggregateRepository<TAggregate, TIdentifier> @this, TIdentifier id)
+            where TAggregate : IAggregate<TIdentifier>
+            where TIdentifier : IEquatable<TIdentifier>
         {
-            var ltr = LogicalTypeRegistryBuilder.Build();
-
-            Repo = new EventStoreAggregateRepository<ServiceCase, Guid>(ltr, () => 
-            {
-                var cn = EventStoreConnection.Create();
-                cn.Connect(new IPEndPoint(IPAddress.Loopback, 1113));
-                return cn;
-            });
+            Guard.NotNull(@this, "this");
+            return @this.Get(id, Int32.MaxValue);
         }
     }
 }

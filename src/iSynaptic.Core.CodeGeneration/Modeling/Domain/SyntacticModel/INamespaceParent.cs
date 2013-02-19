@@ -20,31 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using iSynaptic.Commons;
+using System.Collections.Generic;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    [Serializable]
-    public abstract class AggregateEvent<TIdentifier> : IAggregateEvent<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    public interface INamespaceParent
     {
-        protected AggregateEvent(TIdentifier id, Int32 version)
-        {
-            if (version <= 0)
-                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
-
-            EventId = Guid.NewGuid();
-            RecordedAt = SystemClock.UtcNow;
-
-            Id = id;
-            Version = version;
-        }
-
-        public Guid EventId { get; private set; }
-        public DateTime RecordedAt { get; private set; }
-
-        public TIdentifier Id { get; private set; }
-        public Int32 Version { get; private set; }
+        IEnumerable<NamespaceSyntax> Namespaces { get; }
     }
 }

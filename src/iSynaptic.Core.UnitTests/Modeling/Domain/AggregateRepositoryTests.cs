@@ -5,7 +5,7 @@ using NUnit.Framework;
 using iSynaptic.Commons;
 using iSynaptic.TestAggregates;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
     public abstract class AggregateRepositoryTests
     {

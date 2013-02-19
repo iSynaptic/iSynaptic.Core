@@ -21,30 +21,30 @@
 // THE SOFTWARE.
 
 using System;
-using System.Net;
-using EventStore.ClientAPI;
-using NUnit.Framework;
-using iSynaptic.Core.Persistence;
-using iSynaptic.Modeling;
-using iSynaptic.Modeling.Domain;
-using iSynaptic.TestAggregates;
+using iSynaptic.Commons;
 
-namespace iSynaptic.Persistence
+namespace iSynaptic.Modeling.Domain
 {
-    [TestFixture]
-    [Explicit("Integration tests - requires EventStore to be running locally.")]
-    public class EventStoreAggregateRepositoryTests : AggregateRepositoryTests
+    [Serializable]
+    public abstract class AggregateEvent<TIdentifier> : IAggregateEvent<TIdentifier>
+        where TIdentifier : IEquatable<TIdentifier>
     {
-        public EventStoreAggregateRepositoryTests()
+        protected AggregateEvent(TIdentifier id, Int32 version)
         {
-            var ltr = LogicalTypeRegistryBuilder.Build();
+            if (version <= 0)
+                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
 
-            Repo = new EventStoreAggregateRepository<ServiceCase, Guid>(ltr, () => 
-            {
-                var cn = EventStoreConnection.Create();
-                cn.Connect(new IPEndPoint(IPAddress.Loopback, 1113));
-                return cn;
-            });
+            EventId = Guid.NewGuid();
+            RecordedAt = SystemClock.UtcNow;
+
+            Id = id;
+            Version = version;
         }
+
+        public Guid EventId { get; private set; }
+        public DateTime RecordedAt { get; private set; }
+
+        public TIdentifier Id { get; private set; }
+        public Int32 Version { get; private set; }
     }
 }

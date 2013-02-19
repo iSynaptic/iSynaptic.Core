@@ -21,16 +21,30 @@
 // THE SOFTWARE.
 
 using System;
-using System.Threading.Tasks;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
-    public interface IAggregateRepository<TAggregate, in TIdentifier>
-        where TAggregate : IAggregate<TIdentifier> 
+    [Serializable]
+    public abstract class AggregateSnapshot<TIdentifier> : IAggregateSnapshot<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        Task<TAggregate> Get(TIdentifier id, Int32 maxVersion);
-        Task Save(TAggregate aggregate);
-        Task SaveSnapshot(TAggregate aggregate);
+        protected AggregateSnapshot(TIdentifier id, Int32 version, DateTime takenAt)
+        {
+            if (version <= 0)
+                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
+
+            if (takenAt.Kind != DateTimeKind.Utc)
+                throw new ArgumentException("DateTime must be of UTC kind.", "takenAt");
+
+            SnapshotId = Guid.NewGuid();
+            Id = id;
+            Version = version;
+            TakenAt = takenAt;
+        }
+
+        public Guid SnapshotId { get; private set; }
+        public TIdentifier Id { get; private set; }
+        public Int32 Version { get; private set; }
+        public DateTime TakenAt { get; private set; }
     }
 }

@@ -32,6 +32,7 @@ using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
 using iSynaptic.Commons.Linq;
 using iSynaptic.Modeling;
+using iSynaptic.Modeling.Domain;
 using iSynaptic.Serialization;
 
 namespace iSynaptic.Core.Persistence

@@ -21,34 +21,16 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using iSynaptic.Commons;
+using System.Threading.Tasks;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
-    public sealed class AggregateMemento<TIdentifier> : IAggregateMemento
+    public interface IAggregateRepository<TAggregate, in TIdentifier>
+        where TAggregate : IAggregate<TIdentifier> 
         where TIdentifier : IEquatable<TIdentifier>
     {
-        public AggregateMemento(Type aggregateType, Maybe<IAggregateSnapshot<TIdentifier>> snapshot, IEnumerable<IAggregateEvent<TIdentifier>> events)
-        {
-            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
-            Snapshot = snapshot;
-            Events = events ?? Enumerable.Empty<IAggregateEvent<TIdentifier>>();
-        }
-
-        AggregateMemento<TDesiredIdentifier> IAggregateMemento.ToMemento<TDesiredIdentifier>()
-        {
-            var m = this as AggregateMemento<TDesiredIdentifier>;
-
-            return m ?? new AggregateMemento<TDesiredIdentifier>(AggregateType,
-                Snapshot.Cast<IAggregateSnapshot<TDesiredIdentifier>>(),
-                Events.Cast<IAggregateEvent<TDesiredIdentifier>>()
-            );
-        }
-
-        public Type AggregateType { get; private set; }
-        public Maybe<IAggregateSnapshot<TIdentifier>> Snapshot { get; private set; }
-        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
+        Task<TAggregate> Get(TIdentifier id, Int32 maxVersion);
+        Task Save(TAggregate aggregate);
+        Task SaveSnapshot(TAggregate aggregate);
     }
 }

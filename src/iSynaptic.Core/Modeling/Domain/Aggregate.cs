@@ -29,7 +29,7 @@ using System.Reflection;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Reflection;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
     internal interface IAggregateInternal<out TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>

@@ -27,7 +27,7 @@ using iSynaptic.Commons;
 using iSynaptic.Serialization;
 using iSynaptic.TestAggregates;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
     [TestFixture]
     public class AggregateMementoTests

@@ -22,45 +22,33 @@
 
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Linq;
 using iSynaptic.Commons;
-using iSynaptic.Commons.Collections.Generic;
-using iSynaptic.Modeling;
-using iSynaptic.Modeling.Domain;
-using iSynaptic.Serialization;
 
-namespace iSynaptic.Core.Persistence
+namespace iSynaptic.Modeling.Domain
 {
-    public class InMemoryJsonAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
-        where TAggregate : class, IAggregate<TIdentifier>
+    public sealed class AggregateMemento<TIdentifier> : IAggregateMemento
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly Dictionary<TIdentifier, String> _state =
-            new Dictionary<TIdentifier, String>();
-
-        private readonly JsonSerializer _serializer;
-
-        public InMemoryJsonAggregateRepository(JsonSerializer serializer)
+        public AggregateMemento(Type aggregateType, Maybe<IAggregateSnapshot<TIdentifier>> snapshot, IEnumerable<IAggregateEvent<TIdentifier>> events)
         {
-            _serializer = Guard.NotNull(serializer, "serializer");
+            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
+            Snapshot = snapshot;
+            Events = events ?? Enumerable.Empty<IAggregateEvent<TIdentifier>>();
         }
 
-        protected override Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id)
+        AggregateMemento<TDesiredIdentifier> IAggregateMemento.ToMemento<TDesiredIdentifier>()
         {
-            lock (_state)
-            {
-                return _state.TryGetValue(id)
-                             .Select(json => _serializer.Deserialize<AggregateMemento<TIdentifier>>(json));
-            }
+            var m = this as AggregateMemento<TDesiredIdentifier>;
+
+            return m ?? new AggregateMemento<TDesiredIdentifier>(AggregateType,
+                Snapshot.Cast<IAggregateSnapshot<TDesiredIdentifier>>(),
+                Events.Cast<IAggregateEvent<TDesiredIdentifier>>()
+            );
         }
 
-        protected override void StoreMemento(Func<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>> mementoFactory)
-        {
-            lock (_state)
-            {
-                var memento = mementoFactory();
-                _state[memento.Key] = _serializer.Serialize(memento.Value);
-            }
-        }
+        public Type AggregateType { get; private set; }
+        public Maybe<IAggregateSnapshot<TIdentifier>> Snapshot { get; private set; }
+        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
     }
 }

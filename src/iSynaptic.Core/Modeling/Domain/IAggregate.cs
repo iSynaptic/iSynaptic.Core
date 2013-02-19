@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
     public interface IAggregate<out TIdentifier> 
         where TIdentifier : IEquatable<TIdentifier>

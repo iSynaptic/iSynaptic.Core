@@ -32,9 +32,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         [Test]
         public void Parse_AstFamily()
         {
-            var parser = Parser.Family();
-
-            var results = parser.Parse(@"ast iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
+            Parser.ParseString(@"ast iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
   node AstNode(""Node"", AstNodeFamily)
   {
@@ -66,7 +64,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         {
             var parser = Parser.Node();
 
-            var results = parser.Parse(@"node AstNode(""Node"", AstNodeFamily)
+            parser.Parse(@"node AstNode(""Node"", AstNodeFamily)
   {
     String Name;
     String TypeName;

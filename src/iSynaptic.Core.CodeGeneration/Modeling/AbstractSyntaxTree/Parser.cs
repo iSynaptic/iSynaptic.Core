@@ -46,6 +46,11 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             public AstNodePropertyCardinality Cardinality { get; private set; }
         }
 
+        public static AstNodeFamily ParseString(String input)
+        {
+            return Family().Parse(input);
+        }
+
         public static Parser<AstNodeFamily> Family()
         {
             return from keyword in Parse.String("ast")

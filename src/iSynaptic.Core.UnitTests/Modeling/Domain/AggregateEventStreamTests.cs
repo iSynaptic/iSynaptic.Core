@@ -27,7 +27,7 @@ using NUnit.Framework;
 using iSynaptic.Commons;
 using iSynaptic.TestAggregates;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
     [TestFixture]
     public class AggregateEventStreamTests

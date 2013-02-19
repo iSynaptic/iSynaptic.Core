@@ -22,29 +22,16 @@
 
 using System;
 
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
-    [Serializable]
-    public abstract class AggregateSnapshot<TIdentifier> : IAggregateSnapshot<TIdentifier>
+    public interface IAggregateSnapshot<out TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        protected AggregateSnapshot(TIdentifier id, Int32 version, DateTime takenAt)
-        {
-            if (version <= 0)
-                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
+        Guid SnapshotId { get; }
 
-            if (takenAt.Kind != DateTimeKind.Utc)
-                throw new ArgumentException("DateTime must be of UTC kind.", "takenAt");
+        TIdentifier Id { get; }
+        Int32 Version { get; }
 
-            SnapshotId = Guid.NewGuid();
-            Id = id;
-            Version = version;
-            TakenAt = takenAt;
-        }
-
-        public Guid SnapshotId { get; private set; }
-        public TIdentifier Id { get; private set; }
-        public Int32 Version { get; private set; }
-        public DateTime TakenAt { get; private set; }
+        DateTime TakenAt { get; }
     }
 }

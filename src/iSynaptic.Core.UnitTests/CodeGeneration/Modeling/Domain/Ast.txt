@@ -1,0 +1,51 @@
+﻿ast iSynaptic.CodeGeneration.Modeling.Domain
+{
+	node SyntaxTree("SyntaxTree") : INamespaceParent
+	{
+		node UsingStatementSyntax* UsingStatements;
+		node NamespaceSyntax* Namespaces;
+	}
+
+	node NamespaceSyntax("Namespace", INamespaceParent) : INamespaceParent
+	{
+		node UsingStatementSyntax* UsingStatements;
+		node NamespaceSyntax* Namespaces;
+		node AggregateSyntax* Aggregates;
+		node ValueSyntax* Values;
+	}
+
+	node AggregateSyntax("Aggregate", NamespaceSyntax)
+	{
+		String Name;
+		node AggregateEventSyntax* Events;
+	}
+
+	node AggregateEventSyntax("AggregateEvent", AggregateSyntax)
+	{
+		String Name;
+		node AggregateEventPropertySyntax* Properties;
+	}
+
+	node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax)
+	{
+		String Name;
+		String Type;
+	}
+
+	node ValueSyntax("Value", NamespaceSyntax)
+	{
+		String Name;
+		node ValuePropertySyntax* Properties;
+	}
+
+	node ValuePropertySyntax("ValueProperty", ValueSyntax)
+	{
+		String Name;
+		String Type;
+	}
+
+	node UsingStatementSyntax("UsingStatement", INamespaceParent)
+	{
+		String Namespace;
+	}
+}

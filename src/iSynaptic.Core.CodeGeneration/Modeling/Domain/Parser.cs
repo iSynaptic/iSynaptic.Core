@@ -20,31 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Net;
-using EventStore.ClientAPI;
-using NUnit.Framework;
-using iSynaptic.Core.Persistence;
-using iSynaptic.Modeling;
-using iSynaptic.Modeling.Domain;
-using iSynaptic.TestAggregates;
-
-namespace iSynaptic.Persistence
+namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
-    [TestFixture]
-    [Explicit("Integration tests - requires EventStore to be running locally.")]
-    public class EventStoreAggregateRepositoryTests : AggregateRepositoryTests
+    public static class Parser
     {
-        public EventStoreAggregateRepositoryTests()
-        {
-            var ltr = LogicalTypeRegistryBuilder.Build();
-
-            Repo = new EventStoreAggregateRepository<ServiceCase, Guid>(ltr, () => 
-            {
-                var cn = EventStoreConnection.Create();
-                cn.Connect(new IPEndPoint(IPAddress.Loopback, 1113));
-                return cn;
-            });
-        }
     }
 }

@@ -50,21 +50,21 @@
     </Compile>
     <Compile Include="InterleavingUniqueNumberGenerator.cs" />
     <Compile Include="IUniqueNumberGenerator.cs" />
-    <Compile Include="Modeling\Aggregate.cs" />
-    <Compile Include="Modeling\AggregateEvent.cs" />
-    <Compile Include="Modeling\AggregateEventStream.cs" />
-    <Compile Include="Modeling\AggregateMemento.cs" />
-    <Compile Include="Modeling\AggregateRepository.cs" />
-    <Compile Include="Modeling\AggregateRepositoryExtensions.cs" />
-    <Compile Include="Modeling\AggregateRepositorySaveBehavior.cs" />
-    <Compile Include="Modeling\AggregateSnapshot.cs" />
+    <Compile Include="Modeling\Domain\Aggregate.cs" />
+    <Compile Include="Modeling\Domain\AggregateEvent.cs" />
+    <Compile Include="Modeling\Domain\AggregateEventStream.cs" />
+    <Compile Include="Modeling\Domain\AggregateMemento.cs" />
+    <Compile Include="Modeling\Domain\AggregateRepository.cs" />
+    <Compile Include="Modeling\Domain\AggregateRepositoryExtensions.cs" />
+    <Compile Include="Modeling\Domain\AggregateRepositorySaveBehavior.cs" />
+    <Compile Include="Modeling\Domain\AggregateSnapshot.cs" />
     <Compile Include="Base50EncodedUInt64.cs" />
     <Compile Include="HashCode.cs" />
-    <Compile Include="Modeling\IAggregate.cs" />
-    <Compile Include="Modeling\IAggregateEvent.cs" />
-    <Compile Include="Modeling\IAggregateMemento.cs" />
-    <Compile Include="Modeling\IAggregateRepository.cs" />
-    <Compile Include="Modeling\IAggregateSnapshot.cs" />
+    <Compile Include="Modeling\Domain\IAggregate.cs" />
+    <Compile Include="Modeling\Domain\IAggregateEvent.cs" />
+    <Compile Include="Modeling\Domain\IAggregateMemento.cs" />
+    <Compile Include="Modeling\Domain\IAggregateRepository.cs" />
+    <Compile Include="Modeling\Domain\IAggregateSnapshot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

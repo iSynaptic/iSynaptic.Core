@@ -91,15 +91,16 @@
     </Compile>
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\AstGeneratingVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\ParserTests.cs" />
+    <Compile Include="CodeGeneration\Modeling\Domain\AstGeneration.cs" />
     <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
-    <Compile Include="Modeling\AggregateEventStreamTests.cs" />
-    <Compile Include="Modeling\AggregateMementoTests.cs" />
-    <Compile Include="Modeling\AggregateRepositoryTests.cs" />
-    <Compile Include="Modeling\AggregateTests.cs" />
+    <Compile Include="Modeling\Domain\AggregateEventStreamTests.cs" />
+    <Compile Include="Modeling\Domain\AggregateMementoTests.cs" />
+    <Compile Include="Modeling\Domain\AggregateRepositoryTests.cs" />
+    <Compile Include="Modeling\Domain\AggregateTests.cs" />
     <Compile Include="Base50EncodedUInt64Tests.cs" />
     <Compile Include="CodeGeneration\VisitorTests.cs" />
     <Compile Include="Persistence\EventStoreAggregateRepositoryTests.cs" />
-    <Compile Include="Modeling\HomogeneousAggregatePersistenceTests.cs" />
+    <Compile Include="Modeling\Domain\HomogeneousAggregatePersistenceTests.cs" />
     <Compile Include="Persistence\InMemoryJsonAggregateRepositoryTests.cs" />
     <Compile Include="LogicalTypeRegistryBuilder.cs" />
     <Compile Include="Serialization\LogicalTypeTests.cs" />
@@ -153,7 +154,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\Ast.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

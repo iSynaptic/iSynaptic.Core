@@ -22,6 +22,7 @@
 
 using System;
 using iSynaptic.Modeling;
+using iSynaptic.Modeling.Domain;
 
 namespace iSynaptic.TestAggregates
 {

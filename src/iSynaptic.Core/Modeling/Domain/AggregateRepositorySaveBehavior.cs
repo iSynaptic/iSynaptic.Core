@@ -19,21 +19,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-using System;
-using System.Threading.Tasks;
-using iSynaptic.Commons;
-
-namespace iSynaptic.Modeling
+namespace iSynaptic.Modeling.Domain
 {
-    public static class AggregateRepositoryExtensions
+    public enum AggregateRepositorySaveBehavior
     {
-        public static Task<TAggregate> Get<TAggregate, TIdentifier>(this IAggregateRepository<TAggregate, TIdentifier> @this, TIdentifier id)
-            where TAggregate : IAggregate<TIdentifier>
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            Guard.NotNull(@this, "this");
-            return @this.Get(id, Int32.MaxValue);
-        }
+        SaveEventsOnly,
+        SaveSnapshotOnly,
+        SaveBothEventsAndSnapshot
     }
 }

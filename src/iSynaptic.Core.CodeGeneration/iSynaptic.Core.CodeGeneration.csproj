@@ -55,6 +55,10 @@
     <Compile Include="Modeling\AbstractSyntaxTree\AstNodePropertyCardinality.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\Generated.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\Parser.cs" />
+    <Compile Include="Modeling\Domain\Generated.cs" />
+    <Compile Include="Modeling\Domain\Parser.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\INamespaceMember.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\INamespaceParent.cs" />
     <Compile Include="Modeling\StandardLanguageParsers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visitor.cs" />

@@ -24,6 +24,7 @@ using System;
 using NUnit.Framework;
 using iSynaptic.Core.Persistence;
 using iSynaptic.Modeling;
+using iSynaptic.Modeling.Domain;
 using iSynaptic.TestAggregates;
 
 namespace iSynaptic.Persistence
