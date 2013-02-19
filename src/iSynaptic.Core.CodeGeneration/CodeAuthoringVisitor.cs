@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Text;
 
@@ -108,7 +109,28 @@ namespace iSynaptic.CodeGeneration
         protected TState Delimit<T>(IEnumerable<T> subjects, TState state, Func<TState, T, T, String> delimiter)
             where T : IVisitable
         {
-            return Dispatch<T>(subjects, state, (st, t1, t2) => { Write(delimiter(st, t1, t2)); return st; });
+            return Dispatch(subjects, state, (st, t1, t2) => { Write(delimiter(st, t1, t2)); return st; });
+        }
+
+        protected static string Pascalize(string lowercaseAndUnderscoredWord)
+        {
+            return Regex.Replace(lowercaseAndUnderscoredWord, "(?:^|_)(.)",
+                                 match => match.Groups[1].Value.ToUpper());
+        }
+
+        protected static string Camelize(string lowercaseAndUnderscoredWord)
+        {
+            return Uncapitalize(Pascalize(lowercaseAndUnderscoredWord));
+        }
+
+        protected static string Uncapitalize(string word)
+        {
+            return word.Substring(0, 1).ToLower() + word.Substring(1);
+        }
+
+        protected static string Capitalize(string word)
+        {
+            return word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower();
         }
 
         protected IndentingTextWriter Writer { get; private set; }

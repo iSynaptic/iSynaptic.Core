@@ -192,6 +192,8 @@ namespace iSynaptic.CodeGeneration
                     state = interleave(state, previous.Value, subject);
 
                 state = _dispatcher(this, subject, state);
+
+                previous = subject.ToMaybe();
             }
 
             return state;

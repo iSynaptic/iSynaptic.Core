@@ -23,16 +23,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration
 {
     public abstract class CSharpCodeAuthoringVisitor<TState> : CodeAuthoringVisitor<TState>
     {
+        private static readonly Regex SafeIdentifierRegex = new Regex("^(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while)$");
+
         private readonly List<String> _usings = new List<String>();
 
         protected CSharpCodeAuthoringVisitor(TextWriter writer) 
-            : this(writer, "  ")
+            : this(writer, "    ")
         {
         }
 
@@ -46,7 +49,6 @@ namespace iSynaptic.CodeGeneration
         {
             AddUsing("System");
             AddUsing("System.Collections.Generic");
-            AddUsing("System.ComponentModel");
             AddUsing("System.Linq");
         }
 
@@ -63,18 +65,31 @@ namespace iSynaptic.CodeGeneration
 
         protected virtual IDisposable WithBlock()
         {
-            return WithBlock(false);
+            return WithBlock("{", "}");
         }
 
-        protected virtual IDisposable WithBlock(Boolean withTrailingSemicolun)
+        protected virtual IDisposable WithStatementBlock()
         {
-            return WithBlock("{", withTrailingSemicolun ? "};" : "}");
+            return WithBlock("{", "}");
         }
 
-        protected virtual IDisposable WriteBlock(Boolean withTrailingSemicolun, String formatString, params object[] args)
+        protected virtual IDisposable WriteBlock(String formatString, params object[] args)
         {
             WriteLine(formatString, args);
-            return WithBlock(withTrailingSemicolun);
+            return WithBlock();
+        }
+
+        protected virtual IDisposable WriteStatementBlock(String formatString, params object[] args)
+        {
+            WriteLine(formatString, args);
+            return WithStatementBlock();
+        }
+
+        protected static String SafeIdentifier(String identifier)
+        {
+            return SafeIdentifierRegex.IsMatch(identifier) 
+                ? String.Format("@{0}", identifier) 
+                : identifier;
         }
     }
 }

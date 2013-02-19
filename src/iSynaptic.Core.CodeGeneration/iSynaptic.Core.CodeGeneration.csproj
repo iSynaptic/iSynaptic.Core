@@ -48,11 +48,8 @@
     <Compile Include="ICodeGenerator.cs" />
     <Compile Include="IVisitable.cs" />
     <Compile Include="IVisitor.cs" />
-    <Compile Include="Modeling\AstNode.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Modeling\AstNodeBranch.cs" />
-    <Compile Include="Modeling\AstNodeLeaf.cs" />
+    <Compile Include="Modeling\AbstractSyntaxTree\AstGeneratingVisitor.cs" />
+    <Compile Include="Modeling\AbstractSyntaxTree\Generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visitor.cs" />
   </ItemGroup>
