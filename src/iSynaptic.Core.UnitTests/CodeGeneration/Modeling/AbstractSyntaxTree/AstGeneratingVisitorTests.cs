@@ -42,35 +42,45 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
   node AstNodeFamily(""Family"")
   {
     String Namespace;
-    AstMolecule* Molecules;
+    IAstConcept* Concepts;
   }
 
-  contract IAstConcept
+  contract IAstConcept(AstNodeFamily)
   {
     String TypeName;
     String* BaseTypes;
+    String? ParentType;
     AstNodeProperty* Properties;
   }
 
-  abstract node AstMolecule(""Molecule"", AstNodeFamily)
+  /*abstract node AstMolecule(""Molecule"", AstNodeFamily)
   {
     String TypeName;
+    String? ParentType;
     String* BaseTypes;
     AstNodeProperty* Properties;
-  }
+  }*/
 
-  node AstNode(""Node"") : AstMolecule, IAstConcept
+  node AstNode(""Node"", AstNodeFamily) : IAstConcept
   {
     Boolean IsAbstract;
     String Name;
+    String TypeName;
     String? ParentType;
-  }
+    String* BaseTypes;
+    AstNodeProperty* Properties;
 
-  node AstNodeContract(""Contract"") : AstMolecule, IAstConcept
+}
+
+  node AstNodeContract(""Contract"", AstNodeFamily) : IAstConcept
   {
+    String TypeName;
+    String? ParentType;
+    String* BaseTypes;
+    AstNodeProperty* Properties;
   }
 
-  node AstNodeProperty(""Property"", AstMolecule)
+  node AstNodeProperty(""Property"", IAstConcept)
   {
     String Name;
     String Type;

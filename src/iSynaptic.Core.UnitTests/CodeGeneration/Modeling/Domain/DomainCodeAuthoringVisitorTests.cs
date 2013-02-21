@@ -35,12 +35,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
             var visitor = new DomainCodeAuthoringVisitor(Console.Out);
 
-            var tree = Syntax.SyntaxTree(//Enumerable.Empty<UsingStatementSyntax>(),
-                                         new[]{Syntax.Namespace("Test",
+            var tree = Syntax.SyntaxTree(Enumerable.Empty<UsingStatementSyntax>(),
+                                         new[]{Syntax.Namespace("Test", 
                                                                 Enumerable.Empty<UsingStatementSyntax>(),
-                                                                //Enumerable.Empty<NamespaceSyntax>(),
-                                                                Enumerable.Empty<AggregateSyntax>(),
-                                                                Enumerable.Empty<ValueSyntax>())});
+                                                                Enumerable.Empty<INamespaceMember>())});
 
             visitor.Dispatch(tree);
         }

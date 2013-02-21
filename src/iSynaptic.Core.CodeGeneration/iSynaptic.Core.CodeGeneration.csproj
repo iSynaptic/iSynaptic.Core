@@ -59,8 +59,6 @@
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
     <Compile Include="Modeling\Domain\Parser.cs" />
-    <Compile Include="Modeling\Domain\SyntacticModel\INamespaceMember.cs" />
-    <Compile Include="Modeling\Domain\SyntacticModel\INamespaceParent.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\ISymbol.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\IType.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\TypeReference.cs" />

@@ -9,24 +9,26 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
     public static class Syntax
     {
-        public static SyntaxTree SyntaxTree(IEnumerable<NamespaceSyntax> namespaces)
+
+
+        public static SyntaxTree SyntaxTree(IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces)
         {
-            return new SyntaxTree(new SyntacticModel.Internal.SyntaxTree(namespaces.Select(x => x.GetUnderlying())));
+            return new SyntaxTree(new SyntacticModel.Internal.SyntaxTree(usingStatements.Select(x => ((IAstNode<SyntacticModel.Internal.UsingStatementSyntax>)x).GetUnderlying()), namespaces.Select(x => ((IAstNode<SyntacticModel.Internal.NamespaceSyntax>)x).GetUnderlying())));
         }
 
-        public static NamespaceSyntax Namespace(String name, IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<AggregateSyntax> aggregates, IEnumerable<ValueSyntax> values)
+        public static NamespaceSyntax Namespace(String name, IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<INamespaceMember> members)
         {
-            return new NamespaceSyntax(null, new SyntacticModel.Internal.NamespaceSyntax(name, usingStatements.Select(x => x.GetUnderlying()), aggregates.Select(x => x.GetUnderlying()), values.Select(x => x.GetUnderlying())));
+            return new NamespaceSyntax(null, new SyntacticModel.Internal.NamespaceSyntax(name, usingStatements.Select(x => ((IAstNode<SyntacticModel.Internal.UsingStatementSyntax>)x).GetUnderlying()), members.Select(x => ((IAstNode<SyntacticModel.Internal.INamespaceMember>)x).GetUnderlying())));
         }
 
         public static AggregateSyntax Aggregate(String name, IEnumerable<AggregateEventSyntax> events)
         {
-            return new AggregateSyntax(null, new SyntacticModel.Internal.AggregateSyntax(name, events.Select(x => x.GetUnderlying())));
+            return new AggregateSyntax(null, new SyntacticModel.Internal.AggregateSyntax(name, events.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateEventSyntax>)x).GetUnderlying())));
         }
 
         public static AggregateEventSyntax AggregateEvent(String name, IEnumerable<AggregateEventPropertySyntax> properties)
         {
-            return new AggregateEventSyntax(null, new SyntacticModel.Internal.AggregateEventSyntax(name, properties.Select(x => x.GetUnderlying())));
+            return new AggregateEventSyntax(null, new SyntacticModel.Internal.AggregateEventSyntax(name, properties.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateEventPropertySyntax>)x).GetUnderlying())));
         }
 
         public static AggregateEventPropertySyntax AggregateEventProperty(String name, String type)
@@ -36,7 +38,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         public static ValueSyntax Value(String name, IEnumerable<ValuePropertySyntax> properties)
         {
-            return new ValueSyntax(null, new SyntacticModel.Internal.ValueSyntax(name, properties.Select(x => x.GetUnderlying())));
+            return new ValueSyntax(null, new SyntacticModel.Internal.ValueSyntax(name, properties.Select(x => ((IAstNode<SyntacticModel.Internal.ValuePropertySyntax>)x).GetUnderlying())));
         }
 
         public static ValuePropertySyntax ValueProperty(String name, String type)
@@ -58,19 +60,32 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         public static GenericNameSyntax GenericName(IEnumerable<NameSyntax> typeArguments, String identifier)
         {
-            return new GenericNameSyntax(new SyntacticModel.Internal.GenericNameSyntax(typeArguments.Select(x => x.GetUnderlying()), identifier));
+            return new GenericNameSyntax(new SyntacticModel.Internal.GenericNameSyntax(typeArguments.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), identifier));
         }
 
         public static QualifiedNameSyntax QualifiedName(NameSyntax left, SimpleNameSyntax right)
         {
-            return new QualifiedNameSyntax(new SyntacticModel.Internal.QualifiedNameSyntax(left.GetUnderlying(), right.GetUnderlying()));
+            return new QualifiedNameSyntax(new SyntacticModel.Internal.QualifiedNameSyntax(((IAstNode<SyntacticModel.Internal.NameSyntax>)left).GetUnderlying(), ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)right).GetUnderlying()));
         }
     }
 }
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    public class SyntaxTree : INamespaceParent, IVisitable
+    internal interface IAstNode<out T> : IVisitable { T GetUnderlying(); }
+
+    internal interface IAstUnderlyingNode<out T, in TParent> { T MakePublic(TParent parent); }
+
+    public interface INamespaceParent : IVisitable
+    {
+    }
+
+    public interface INamespaceMember : IVisitable
+    {
+        INamespaceParent Parent { get; }
+    }
+
+    public class SyntaxTree : INamespaceParent, IAstNode<Internal.SyntaxTree>
     {
         private readonly Internal.SyntaxTree _underlying;
 
@@ -79,74 +94,74 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             _underlying = underlying;
         }
 
-        internal Internal.SyntaxTree GetUnderlying() { return _underlying; }
+        Internal.SyntaxTree IAstNode<Internal.SyntaxTree>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
+            dispatch(UsingStatements);
             dispatch(Namespaces);
         }
 
+        public IEnumerable<UsingStatementSyntax> UsingStatements
+        {
+            get
+            {
+                return ((IAstNode<Internal.SyntaxTree>)this).GetUnderlying().UsingStatements.Select(x => ((IAstUnderlyingNode<UsingStatementSyntax, SyntaxTree>)x).MakePublic(this));
+            }
+        }
         public IEnumerable<NamespaceSyntax> Namespaces
         {
             get
             {
-                return GetUnderlying().Namespaces.Select(x => x.MakePublic(this));
+                return ((IAstNode<Internal.SyntaxTree>)this).GetUnderlying().Namespaces.Select(x => ((IAstUnderlyingNode<NamespaceSyntax, SyntaxTree>)x).MakePublic(this));
             }
         }
     }
 
-    public class NamespaceSyntax : IVisitable
+    public class NamespaceSyntax : INamespaceParent, INamespaceMember, IAstNode<Internal.NamespaceSyntax>
     {
-        private readonly SyntaxTree _parent;
+        private readonly INamespaceParent _parent;
         private readonly Internal.NamespaceSyntax _underlying;
 
-        internal NamespaceSyntax(SyntaxTree parent, Internal.NamespaceSyntax underlying)
+        internal NamespaceSyntax(INamespaceParent parent, Internal.NamespaceSyntax underlying)
         {
             _parent = parent;
             _underlying = underlying;
         }
 
-        public SyntaxTree Parent { get { return _parent; } }
-        internal Internal.NamespaceSyntax GetUnderlying() { return _underlying; }
+        public INamespaceParent Parent { get { return _parent; } }
+        Internal.NamespaceSyntax IAstNode<Internal.NamespaceSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
             dispatch(UsingStatements);
-            dispatch(Aggregates);
-            dispatch(Values);
+            dispatch(Members);
         }
 
         public String Name
         {
             get
             {
-                return GetUnderlying().Name;
+                return ((IAstNode<Internal.NamespaceSyntax>)this).GetUnderlying().Name;
             }
         }
         public IEnumerable<UsingStatementSyntax> UsingStatements
         {
             get
             {
-                return GetUnderlying().UsingStatements.Select(x => x.MakePublic(this));
+                return ((IAstNode<Internal.NamespaceSyntax>)this).GetUnderlying().UsingStatements.Select(x => ((IAstUnderlyingNode<UsingStatementSyntax, NamespaceSyntax>)x).MakePublic(this));
             }
         }
-        public IEnumerable<AggregateSyntax> Aggregates
+        public IEnumerable<INamespaceMember> Members
         {
             get
             {
-                return GetUnderlying().Aggregates.Select(x => x.MakePublic(this));
-            }
-        }
-        public IEnumerable<ValueSyntax> Values
-        {
-            get
-            {
-                return GetUnderlying().Values.Select(x => x.MakePublic(this));
+                return ((IAstNode<Internal.NamespaceSyntax>)this).GetUnderlying().Members.Select(x => ((IAstUnderlyingNode<INamespaceMember, NamespaceSyntax>)x).MakePublic(this));
             }
         }
     }
 
-    public class AggregateSyntax : IVisitable
+    public class AggregateSyntax : IAstNode<Internal.AggregateSyntax>
     {
         private readonly NamespaceSyntax _parent;
         private readonly Internal.AggregateSyntax _underlying;
@@ -158,7 +173,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public NamespaceSyntax Parent { get { return _parent; } }
-        internal Internal.AggregateSyntax GetUnderlying() { return _underlying; }
+        Internal.AggregateSyntax IAstNode<Internal.AggregateSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -169,19 +184,19 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                return GetUnderlying().Name;
+                return ((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().Name;
             }
         }
         public IEnumerable<AggregateEventSyntax> Events
         {
             get
             {
-                return GetUnderlying().Events.Select(x => x.MakePublic(this));
+                return ((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().Events.Select(x => ((IAstUnderlyingNode<AggregateEventSyntax, AggregateSyntax>)x).MakePublic(this));
             }
         }
     }
 
-    public class AggregateEventSyntax : IVisitable
+    public class AggregateEventSyntax : IAstNode<Internal.AggregateEventSyntax>
     {
         private readonly AggregateSyntax _parent;
         private readonly Internal.AggregateEventSyntax _underlying;
@@ -193,7 +208,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public AggregateSyntax Parent { get { return _parent; } }
-        internal Internal.AggregateEventSyntax GetUnderlying() { return _underlying; }
+        Internal.AggregateEventSyntax IAstNode<Internal.AggregateEventSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -204,19 +219,19 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                return GetUnderlying().Name;
+                return ((IAstNode<Internal.AggregateEventSyntax>)this).GetUnderlying().Name;
             }
         }
         public IEnumerable<AggregateEventPropertySyntax> Properties
         {
             get
             {
-                return GetUnderlying().Properties.Select(x => x.MakePublic(this));
+                return ((IAstNode<Internal.AggregateEventSyntax>)this).GetUnderlying().Properties.Select(x => ((IAstUnderlyingNode<AggregateEventPropertySyntax, AggregateEventSyntax>)x).MakePublic(this));
             }
         }
     }
 
-    public class AggregateEventPropertySyntax : IVisitable
+    public class AggregateEventPropertySyntax : IAstNode<Internal.AggregateEventPropertySyntax>
     {
         private readonly AggregateEventSyntax _parent;
         private readonly Internal.AggregateEventPropertySyntax _underlying;
@@ -228,7 +243,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public AggregateEventSyntax Parent { get { return _parent; } }
-        internal Internal.AggregateEventPropertySyntax GetUnderlying() { return _underlying; }
+        Internal.AggregateEventPropertySyntax IAstNode<Internal.AggregateEventPropertySyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -238,19 +253,19 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                return GetUnderlying().Name;
+                return ((IAstNode<Internal.AggregateEventPropertySyntax>)this).GetUnderlying().Name;
             }
         }
         public String Type
         {
             get
             {
-                return GetUnderlying().Type;
+                return ((IAstNode<Internal.AggregateEventPropertySyntax>)this).GetUnderlying().Type;
             }
         }
     }
 
-    public class ValueSyntax : IVisitable
+    public class ValueSyntax : IAstNode<Internal.ValueSyntax>
     {
         private readonly NamespaceSyntax _parent;
         private readonly Internal.ValueSyntax _underlying;
@@ -262,7 +277,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public NamespaceSyntax Parent { get { return _parent; } }
-        internal Internal.ValueSyntax GetUnderlying() { return _underlying; }
+        Internal.ValueSyntax IAstNode<Internal.ValueSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -273,19 +288,19 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                return GetUnderlying().Name;
+                return ((IAstNode<Internal.ValueSyntax>)this).GetUnderlying().Name;
             }
         }
         public IEnumerable<ValuePropertySyntax> Properties
         {
             get
             {
-                return GetUnderlying().Properties.Select(x => x.MakePublic(this));
+                return ((IAstNode<Internal.ValueSyntax>)this).GetUnderlying().Properties.Select(x => ((IAstUnderlyingNode<ValuePropertySyntax, ValueSyntax>)x).MakePublic(this));
             }
         }
     }
 
-    public class ValuePropertySyntax : IVisitable
+    public class ValuePropertySyntax : IAstNode<Internal.ValuePropertySyntax>
     {
         private readonly ValueSyntax _parent;
         private readonly Internal.ValuePropertySyntax _underlying;
@@ -297,7 +312,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public ValueSyntax Parent { get { return _parent; } }
-        internal Internal.ValuePropertySyntax GetUnderlying() { return _underlying; }
+        Internal.ValuePropertySyntax IAstNode<Internal.ValuePropertySyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -307,19 +322,19 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                return GetUnderlying().Name;
+                return ((IAstNode<Internal.ValuePropertySyntax>)this).GetUnderlying().Name;
             }
         }
         public String Type
         {
             get
             {
-                return GetUnderlying().Type;
+                return ((IAstNode<Internal.ValuePropertySyntax>)this).GetUnderlying().Type;
             }
         }
     }
 
-    public class UsingStatementSyntax : IVisitable
+    public class UsingStatementSyntax : IAstNode<Internal.UsingStatementSyntax>
     {
         private readonly NamespaceSyntax _parent;
         private readonly Internal.UsingStatementSyntax _underlying;
@@ -331,7 +346,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public NamespaceSyntax Parent { get { return _parent; } }
-        internal Internal.UsingStatementSyntax GetUnderlying() { return _underlying; }
+        Internal.UsingStatementSyntax IAstNode<Internal.UsingStatementSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -341,12 +356,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                return GetUnderlying().Namespace;
+                return ((IAstNode<Internal.UsingStatementSyntax>)this).GetUnderlying().Namespace;
             }
         }
     }
 
-    public abstract class NameSyntax : IVisitable
+    public abstract class NameSyntax : IAstNode<Internal.NameSyntax>
     {
         private readonly Internal.NameSyntax _underlying;
 
@@ -355,7 +370,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             _underlying = underlying;
         }
 
-        internal Internal.NameSyntax GetUnderlying() { return _underlying; }
+        Internal.NameSyntax IAstNode<Internal.NameSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -363,46 +378,52 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
     }
 
-    public abstract class SimpleNameSyntax : NameSyntax
+    public abstract class SimpleNameSyntax : NameSyntax, IAstNode<Internal.SimpleNameSyntax>
     {
+        private readonly Internal.SimpleNameSyntax _underlying;
 
         internal SimpleNameSyntax(Internal.SimpleNameSyntax underlying)
             : base(underlying)
         {
+            _underlying = underlying;
         }
 
-        new internal Internal.SimpleNameSyntax GetUnderlying() { return (Internal.SimpleNameSyntax)base.GetUnderlying(); }
+        Internal.SimpleNameSyntax IAstNode<Internal.SimpleNameSyntax>.GetUnderlying() { return _underlying; }
 
         public String Identifier
         {
             get
             {
-                return GetUnderlying().Identifier;
+                return ((IAstNode<Internal.SimpleNameSyntax>)this).GetUnderlying().Identifier;
             }
         }
     }
 
-    public class IdentifierNameSyntax : SimpleNameSyntax
+    public class IdentifierNameSyntax : SimpleNameSyntax, IAstNode<Internal.IdentifierNameSyntax>
     {
+        private readonly Internal.IdentifierNameSyntax _underlying;
 
         internal IdentifierNameSyntax(Internal.IdentifierNameSyntax underlying)
             : base(underlying)
         {
+            _underlying = underlying;
         }
 
-        new internal Internal.IdentifierNameSyntax GetUnderlying() { return (Internal.IdentifierNameSyntax)base.GetUnderlying(); }
+        Internal.IdentifierNameSyntax IAstNode<Internal.IdentifierNameSyntax>.GetUnderlying() { return _underlying; }
 
     }
 
-    public class GenericNameSyntax : SimpleNameSyntax
+    public class GenericNameSyntax : SimpleNameSyntax, IAstNode<Internal.GenericNameSyntax>
     {
+        private readonly Internal.GenericNameSyntax _underlying;
 
         internal GenericNameSyntax(Internal.GenericNameSyntax underlying)
             : base(underlying)
         {
+            _underlying = underlying;
         }
 
-        new internal Internal.GenericNameSyntax GetUnderlying() { return (Internal.GenericNameSyntax)base.GetUnderlying(); }
+        Internal.GenericNameSyntax IAstNode<Internal.GenericNameSyntax>.GetUnderlying() { return _underlying; }
 
         public override void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -414,20 +435,22 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                return GetUnderlying().TypeArguments.Select(x => x.MakePublic(this));
+                return ((IAstNode<Internal.GenericNameSyntax>)this).GetUnderlying().TypeArguments.Select(x => ((IAstUnderlyingNode<NameSyntax, GenericNameSyntax>)x).MakePublic(this));
             }
         }
     }
 
-    public class QualifiedNameSyntax : NameSyntax
+    public class QualifiedNameSyntax : NameSyntax, IAstNode<Internal.QualifiedNameSyntax>
     {
+        private readonly Internal.QualifiedNameSyntax _underlying;
 
         internal QualifiedNameSyntax(Internal.QualifiedNameSyntax underlying)
             : base(underlying)
         {
+            _underlying = underlying;
         }
 
-        new internal Internal.QualifiedNameSyntax GetUnderlying() { return (Internal.QualifiedNameSyntax)base.GetUnderlying(); }
+        Internal.QualifiedNameSyntax IAstNode<Internal.QualifiedNameSyntax>.GetUnderlying() { return _underlying; }
 
         public override void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
@@ -440,26 +463,36 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                return GetUnderlying().Left.MakePublic(this);
+                return ((IAstUnderlyingNode<NameSyntax, QualifiedNameSyntax>)((IAstNode<Internal.QualifiedNameSyntax>)this).GetUnderlying().Left).MakePublic(this);
             }
         }
         public SimpleNameSyntax Right
         {
             get
             {
-                return GetUnderlying().Right.MakePublic(this);
+                return ((IAstUnderlyingNode<SimpleNameSyntax, QualifiedNameSyntax>)((IAstNode<Internal.QualifiedNameSyntax>)this).GetUnderlying().Right).MakePublic(this);
             }
         }
     }
 
     namespace Internal
     {
-        internal class SyntaxTree
+        internal interface INamespaceParent
         {
+        }
+
+        internal interface INamespaceMember
+        {
+        }
+
+        internal class SyntaxTree : INamespaceParent, IAstUnderlyingNode<SyntacticModel.SyntaxTree, Object>
+        {
+            private readonly IEnumerable<UsingStatementSyntax> _usingStatements;
             private readonly IEnumerable<NamespaceSyntax> _namespaces;
 
-            public SyntaxTree(IEnumerable<NamespaceSyntax> namespaces)
+            public SyntaxTree(IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces)
             {
+                _usingStatements = usingStatements;
                 _namespaces = namespaces;
             }
 
@@ -473,41 +506,39 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return new SyntacticModel.SyntaxTree(this);
             }
 
+            public IEnumerable<UsingStatementSyntax> UsingStatements { get { return _usingStatements; } }
             public IEnumerable<NamespaceSyntax> Namespaces { get { return _namespaces; } }
         }
 
-        internal class NamespaceSyntax
+        internal class NamespaceSyntax : INamespaceParent, INamespaceMember, IAstUnderlyingNode<SyntacticModel.NamespaceSyntax, SyntacticModel.INamespaceParent>
         {
             private readonly String _name;
             private readonly IEnumerable<UsingStatementSyntax> _usingStatements;
-            private readonly IEnumerable<AggregateSyntax> _aggregates;
-            private readonly IEnumerable<ValueSyntax> _values;
+            private readonly IEnumerable<INamespaceMember> _members;
 
-            public NamespaceSyntax(String name, IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<AggregateSyntax> aggregates, IEnumerable<ValueSyntax> values)
+            public NamespaceSyntax(String name, IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<INamespaceMember> members)
             {
                 _name = name;
                 _usingStatements = usingStatements;
-                _aggregates = aggregates;
-                _values = values;
+                _members = members;
             }
 
-            public SyntacticModel.NamespaceSyntax MakePublic(SyntacticModel.SyntaxTree parent)
+            public SyntacticModel.NamespaceSyntax MakePublic(SyntacticModel.INamespaceParent parent)
             {
                 return BuildPublic(parent);
             }
 
-            protected virtual SyntacticModel.NamespaceSyntax BuildPublic(SyntacticModel.SyntaxTree parent)
+            protected virtual SyntacticModel.NamespaceSyntax BuildPublic(SyntacticModel.INamespaceParent parent)
             {
                 return new SyntacticModel.NamespaceSyntax(parent, this);
             }
 
             public String Name { get { return _name; } }
             public IEnumerable<UsingStatementSyntax> UsingStatements { get { return _usingStatements; } }
-            public IEnumerable<AggregateSyntax> Aggregates { get { return _aggregates; } }
-            public IEnumerable<ValueSyntax> Values { get { return _values; } }
+            public IEnumerable<INamespaceMember> Members { get { return _members; } }
         }
 
-        internal class AggregateSyntax
+        internal class AggregateSyntax : IAstUnderlyingNode<SyntacticModel.AggregateSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly String _name;
             private readonly IEnumerable<AggregateEventSyntax> _events;
@@ -532,7 +563,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IEnumerable<AggregateEventSyntax> Events { get { return _events; } }
         }
 
-        internal class AggregateEventSyntax
+        internal class AggregateEventSyntax : IAstUnderlyingNode<SyntacticModel.AggregateEventSyntax, SyntacticModel.AggregateSyntax>
         {
             private readonly String _name;
             private readonly IEnumerable<AggregateEventPropertySyntax> _properties;
@@ -557,7 +588,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IEnumerable<AggregateEventPropertySyntax> Properties { get { return _properties; } }
         }
 
-        internal class AggregateEventPropertySyntax
+        internal class AggregateEventPropertySyntax : IAstUnderlyingNode<SyntacticModel.AggregateEventPropertySyntax, SyntacticModel.AggregateEventSyntax>
         {
             private readonly String _name;
             private readonly String _type;
@@ -582,7 +613,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public String Type { get { return _type; } }
         }
 
-        internal class ValueSyntax
+        internal class ValueSyntax : IAstUnderlyingNode<SyntacticModel.ValueSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly String _name;
             private readonly IEnumerable<ValuePropertySyntax> _properties;
@@ -607,7 +638,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IEnumerable<ValuePropertySyntax> Properties { get { return _properties; } }
         }
 
-        internal class ValuePropertySyntax
+        internal class ValuePropertySyntax : IAstUnderlyingNode<SyntacticModel.ValuePropertySyntax, SyntacticModel.ValueSyntax>
         {
             private readonly String _name;
             private readonly String _type;
@@ -632,7 +663,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public String Type { get { return _type; } }
         }
 
-        internal class UsingStatementSyntax
+        internal class UsingStatementSyntax : IAstUnderlyingNode<SyntacticModel.UsingStatementSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly String _namespace;
 
@@ -654,7 +685,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public String Namespace { get { return _namespace; } }
         }
 
-        internal abstract class NameSyntax
+        internal abstract class NameSyntax : IAstUnderlyingNode<SyntacticModel.NameSyntax, Object>
         {
 
             public SyntacticModel.NameSyntax MakePublic(Object parent)
@@ -665,7 +696,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             protected abstract SyntacticModel.NameSyntax BuildPublic(Object parent);
         }
 
-        internal abstract class SimpleNameSyntax : NameSyntax
+        internal abstract class SimpleNameSyntax : NameSyntax, IAstUnderlyingNode<SyntacticModel.SimpleNameSyntax, Object>
         {
             private readonly String _identifier;
 
@@ -682,7 +713,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public String Identifier { get { return _identifier; } }
         }
 
-        internal class IdentifierNameSyntax : SimpleNameSyntax
+        internal class IdentifierNameSyntax : SimpleNameSyntax, IAstUnderlyingNode<SyntacticModel.IdentifierNameSyntax, Object>
         {
 
             public IdentifierNameSyntax(String identifier)
@@ -702,7 +733,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         }
 
-        internal class GenericNameSyntax : SimpleNameSyntax
+        internal class GenericNameSyntax : SimpleNameSyntax, IAstUnderlyingNode<SyntacticModel.GenericNameSyntax, Object>
         {
             private readonly IEnumerable<NameSyntax> _typeArguments;
 
@@ -725,7 +756,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IEnumerable<NameSyntax> TypeArguments { get { return _typeArguments; } }
         }
 
-        internal class QualifiedNameSyntax : NameSyntax
+        internal class QualifiedNameSyntax : NameSyntax, IAstUnderlyingNode<SyntacticModel.QualifiedNameSyntax, Object>
         {
             private readonly NameSyntax _left;
             private readonly SimpleNameSyntax _right;

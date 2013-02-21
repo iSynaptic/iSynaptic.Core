@@ -26,17 +26,17 @@ using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
-    public class SymbolTableConstructionVisitor : Visitor<Dictionary<String, AstMolecule>>
+    public class SymbolTableConstructionVisitor : Visitor<Dictionary<String, IAstConcept>>
     {
         private SymbolTableConstructionVisitor() { }
 
-        public static Dictionary<String, AstMolecule> BuildSymbolTable(AstNodeFamily family)
+        public static Dictionary<String, IAstConcept> BuildSymbolTable(AstNodeFamily family)
         {
             return new SymbolTableConstructionVisitor()
-                .Dispatch(family, new Dictionary<String, AstMolecule>());
+                .Dispatch(family, new Dictionary<String, IAstConcept>());
         }
 
-        protected void Visit(AstMolecule node, Dictionary<String, AstMolecule> table)
+        protected void Visit(IAstConcept node, Dictionary<String, IAstConcept> table)
         {
             table.Add(String.Format("{0}.{1}", node.Parent.Namespace, node.TypeName), node);
         }

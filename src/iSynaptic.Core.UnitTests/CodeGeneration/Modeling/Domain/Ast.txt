@@ -1,19 +1,20 @@
 ﻿ast iSynaptic.CodeGeneration.Modeling.Domain
 {
+    contract INamespaceParent { }
+    contract INamespaceMember(INamespaceParent) { }
+
     node SyntaxTree("SyntaxTree") : INamespaceParent
     {
-        //UsingStatementSyntax* UsingStatements;
+        UsingStatementSyntax* UsingStatements;
         NamespaceSyntax* Namespaces;
     }
 
-    node NamespaceSyntax("Namespace", SyntaxTree)
+    node NamespaceSyntax("Namespace", INamespaceParent) : INamespaceParent, INamespaceMember
     {
         String Name;
 
         UsingStatementSyntax* UsingStatements;
-        //NamespaceSyntax* Namespaces;
-        AggregateSyntax* Aggregates;
-        ValueSyntax* Values;
+        INamespaceMember* Members;
     }
 
     node AggregateSyntax("Aggregate", NamespaceSyntax)
