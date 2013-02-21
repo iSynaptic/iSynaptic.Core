@@ -11,14 +11,10 @@ namespace iSynaptic.CodeGeneration.Modeling
     {
         private class ParserAccess : StandardLanguageParser
         {
-            private ParserAccess()
-            {
-            }
-
-            public static Parser<String> GetSingleLineComment() { return SingleLineComment(); }
-            public static Parser<String> GetMultiLineComment() { return MultiLineComment(); }
-            public static Parser<String> GetNewLine() { return NewLine(); }
-            public static Parser<String> GetWhitespace() { return Whitespace(); }
+            public static Parser<String> GetSingleLineComment() { return SingleLineComment; }
+            public static Parser<String> GetMultiLineComment() { return MultiLineComment; }
+            public static Parser<String> GetNewLine() { return NewLine; }
+            public static Parser<String> GetWhitespace() { return Whitespace; }
         }
 
         public static Parser<T> Interleave<T>(this Parser<T> body)

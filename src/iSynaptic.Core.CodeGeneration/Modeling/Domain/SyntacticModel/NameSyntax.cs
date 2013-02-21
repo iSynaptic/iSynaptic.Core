@@ -20,9 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
+
 namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    public interface IType : ISymbol
+    public abstract partial class NameSyntax
     {
+        public static QualifiedNameSyntax operator+(NameSyntax left, NameSyntax right)
+        {
+            var simpleName = right as SimpleNameSyntax;
+            if (simpleName != null)
+                return Syntax.QualifiedName(left, simpleName);
+
+            throw new NotImplementedException();
+        }
     }
 }

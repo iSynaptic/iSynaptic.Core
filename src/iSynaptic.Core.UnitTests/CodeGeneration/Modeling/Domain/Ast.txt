@@ -1,55 +1,73 @@
 ﻿ast iSynaptic.CodeGeneration.Modeling.Domain
 {
     contract INamespaceParent { }
-    contract INamespaceMember(INamespaceParent) { }
+    contract INamespaceMember { }
+	
+	contract IUsingsContainer
+	{
+		UsingStatementSyntax* UsingStatements;
+	}
 
-    node SyntaxTree("SyntaxTree") : INamespaceParent
+	contract ISymbol
+	{
+		NameSyntax FullName;
+	}
+
+	contract IType : ISymbol 
+	{
+		SimpleNameSyntax Name;
+	}
+
+    node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer
     {
         UsingStatementSyntax* UsingStatements;
         NamespaceSyntax* Namespaces;
     }
 
-    node NamespaceSyntax("Namespace", INamespaceParent) : INamespaceParent, INamespaceMember
+    node NamespaceSyntax("Namespace", INamespaceParent) : INamespaceParent, INamespaceMember, IUsingsContainer, ISymbol
     {
-        String Name;
+        NameSyntax Name;
 
         UsingStatementSyntax* UsingStatements;
         INamespaceMember* Members;
     }
 
-    node AggregateSyntax("Aggregate", NamespaceSyntax)
+    node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType
     {
-        String Name;
+        SimpleNameSyntax Name;
+		NameSyntax? IdentifierType;
+		NameSyntax? BaseAggregate;
+
         AggregateEventSyntax* Events;
     }
 
-    node AggregateEventSyntax("AggregateEvent", AggregateSyntax)
+    node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : ISymbol
     {
-        String Name;
+        SimpleNameSyntax Name;
         AggregateEventPropertySyntax* Properties;
     }
 
-    node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax)
+    node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax) : ISymbol
     {
-        String Name;
-        String Type;
+        SimpleNameSyntax Name;
+        SimpleNameSyntax Type;
     }
 
-    node ValueSyntax("Value", NamespaceSyntax)
+    node ValueSyntax("Value", NamespaceSyntax) : INamespaceMember, IType
     {
-        String Name;
+        SimpleNameSyntax Name;
         ValuePropertySyntax* Properties;
     }
 
-    node ValuePropertySyntax("ValueProperty", ValueSyntax)
+    node ValuePropertySyntax("ValueProperty", ValueSyntax) : ISymbol
     {
-        String Name;
-        String Type;
+        SimpleNameSyntax Name;
+        SimpleNameSyntax Type;
     }
 
-    node UsingStatementSyntax("UsingStatement", NamespaceSyntax)
+    node UsingStatementSyntax("UsingStatement")
     {
-        String Namespace;
+        NameSyntax Namespace;
     }
 
     abstract node NameSyntax("Name")

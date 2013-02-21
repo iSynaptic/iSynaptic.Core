@@ -93,6 +93,7 @@
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\ParserTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\AstGeneration.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\DomainCodeAuthoringVisitorTests.cs" />
+    <Compile Include="CodeGeneration\Modeling\Domain\ParserTests.cs" />
     <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
     <Compile Include="Modeling\Domain\AggregateEventStreamTests.cs" />
     <Compile Include="Modeling\Domain\AggregateMementoTests.cs" />
@@ -157,6 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="CodeGeneration\Modeling\Domain\Ast.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

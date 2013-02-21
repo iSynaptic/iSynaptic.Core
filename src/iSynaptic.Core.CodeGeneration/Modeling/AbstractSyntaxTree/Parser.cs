@@ -54,7 +54,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         public static Parser<AstNodeFamily> Family()
         {
             return from keyword in Parse.String("ast")
-                   from ns in NamespaceOrTypeName()
+                   from ns in NamespaceOrTypeName
                    from nodes in Blocked(Node().Or<IAstConcept>(Contract()).Many())
                    select Syntax.Family(ns, nodes);
         }
@@ -63,15 +63,15 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         {
             return from isAbstract in Flag("abstract")
                    from keyword in Parse.String("node")
-                   from typeName in IdentifierOrKeyword()
+                   from typeName in IdentifierOrKeyword
                    from startParen in Parse.Char('(')
                    from startQuote in Parse.Char('"')
-                   from name in IdentifierOrKeyword()
+                   from name in IdentifierOrKeyword
                    from endQuote in Parse.Char('"')
                    from parent in
                    (
                         from comma in Parse.Char(',')
-                        from n in IdentifierOrKeyword()
+                        from n in IdentifierOrKeyword
                         select n
                     ).Optional()
 
@@ -97,8 +97,8 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         public static Parser<AstNodeContract> Contract()
         {
             return from keyword in Parse.String("contract")
-                   from typeName in IdentifierOrKeyword()
-                   from parent in IdentifierOrKeyword().Surround('(', ')').Optional()
+                   from typeName in IdentifierOrKeyword
+                   from parent in IdentifierOrKeyword.Surround('(', ')').Optional()
                    from baseTypes in
                        (
                             from colun in Parse.Char(':')
@@ -119,7 +119,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         public static Parser<AstNodeProperty> Property()
         {
             return from type in TypeRef()
-                   from name in IdentifierOrKeyword()
+                   from name in IdentifierOrKeyword
                    from end in Parse.Char(';')
                    select Syntax.Property(name, type.Name, type.Cardinality);
         }
@@ -133,12 +133,12 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
         private static Parser<String> TypeName()
         {
-            return (from outerType in IdentifierOrKeyword()
+            return (from outerType in IdentifierOrKeyword
                    from startAngle in Parse.Char('<')
                    from innerType in TypeName()
                    from endAngle in Parse.Char('>')
                    select String.Format("{0}<{1}>", outerType, innerType))
-                   .Or(IdentifierOrKeyword());
+                   .Or(IdentifierOrKeyword);
         }
 
         private static Parser<AstNodePropertyCardinality> PropertyCardinalityModifier()

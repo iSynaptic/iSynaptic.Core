@@ -1,0 +1,19 @@
+﻿using System;
+
+namespace iSynaptic.Modeling.Domain.Test
+{
+	namespace Inner
+	{
+		value Test
+		{
+		}
+
+		aggregate Base
+		{
+		}
+
+		aggregate<Guid> ServiceCase : Base
+		{
+		}
+	}
+}

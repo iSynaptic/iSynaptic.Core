@@ -21,35 +21,15 @@
 // THE SOFTWARE.
 
 using System;
-using System.IO;
-using System.Reflection;
-using NUnit.Framework;
-using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree;
+using iSynaptic.Commons.Linq;
 
-namespace iSynaptic.CodeGeneration.Modeling.Domain
+namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    // This is temporary until triggering code generation is easier...
-    [TestFixture]
-    public class AstGeneration
+    public partial class GenericNameSyntax
     {
-        [Test]
-        public void Generate()
+        public override string ToString()
         {
-            string input;
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("iSynaptic.CodeGeneration.Modeling.Domain.Ast.txt"))
-            using (var reader = new StreamReader(stream))
-            {
-                input = reader.ReadToEnd();
-            }
-
-            var family = AbstractSyntaxTree.Parser.ParseString(input);
-
-            var visitor = new AstGeneratingVisitor(
-                Console.Out,
-                AbstractSyntaxTree.SymbolTableConstructionVisitor.BuildSymbolTable(family)
-            );
-
-            visitor.Dispatch(family);
+            return String.Format("{0}<{1}>", Identifier, TypeArguments.Delimit(", "));
         }
     }
 }

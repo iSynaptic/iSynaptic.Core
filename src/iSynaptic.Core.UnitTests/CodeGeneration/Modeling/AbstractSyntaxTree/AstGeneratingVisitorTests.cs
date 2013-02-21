@@ -21,11 +21,9 @@
 // THE SOFTWARE.
 
 using System;
-using System.Linq;
 using NUnit.Framework;
 using Sprache;
 using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
-using iSynaptic.Commons;
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {

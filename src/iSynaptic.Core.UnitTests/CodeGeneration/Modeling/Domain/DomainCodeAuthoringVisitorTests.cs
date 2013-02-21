@@ -21,9 +21,11 @@
 // THE SOFTWARE.
 
 using System;
-using System.Linq;
+using System.IO;
+using System.Reflection;
 using NUnit.Framework;
-using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
+
+using Sprache;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
@@ -33,13 +35,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         [Test]
         public void CanGenerateCode()
         {
-            var visitor = new DomainCodeAuthoringVisitor(Console.Out);
+            string input;
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("iSynaptic.CodeGeneration.Modeling.Domain.TestDomain.txt"))
+            using (var reader = new StreamReader(stream))
+            {
+                input = reader.ReadToEnd();
+            }
 
-            var tree = Syntax.SyntaxTree(Enumerable.Empty<UsingStatementSyntax>(),
-                                         new[]{Syntax.Namespace("Test", 
-                                                                Enumerable.Empty<UsingStatementSyntax>(),
-                                                                Enumerable.Empty<INamespaceMember>())});
+            var tree = Parser.SyntaxTree.Parse(input);
+            var symbolTable = SymbolTableConstructionVisitor.BuildSymbolTable(tree);
 
+            var visitor = new DomainCodeAuthoringVisitor(Console.Out, symbolTable);
             visitor.Dispatch(tree);
         }
     }

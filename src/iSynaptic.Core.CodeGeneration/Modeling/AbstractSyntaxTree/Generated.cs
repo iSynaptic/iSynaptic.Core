@@ -38,7 +38,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
 
     internal interface IAstUnderlyingNode<out T, in TParent> { T MakePublic(TParent parent); }
 
-    public class AstNodeFamily : IAstNode<Internal.AstNodeFamily>
+    public partial class AstNodeFamily : IAstNode<Internal.AstNodeFamily>
     {
         private readonly Internal.AstNodeFamily _underlying;
 
@@ -79,7 +79,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         AstNodeFamily Parent { get; }
     }
 
-    public class AstNode : IAstConcept, IAstNode<Internal.AstNode>
+    public partial class AstNode : IAstConcept, IAstNode<Internal.AstNode>
     {
         private readonly AstNodeFamily _parent;
         private readonly Internal.AstNode _underlying;
@@ -142,7 +142,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         }
     }
 
-    public class AstNodeContract : IAstConcept, IAstNode<Internal.AstNodeContract>
+    public partial class AstNodeContract : IAstConcept, IAstNode<Internal.AstNodeContract>
     {
         private readonly AstNodeFamily _parent;
         private readonly Internal.AstNodeContract _underlying;
@@ -191,7 +191,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         }
     }
 
-    public class AstNodeProperty : IAstNode<Internal.AstNodeProperty>
+    public partial class AstNodeProperty : IAstNode<Internal.AstNodeProperty>
     {
         private readonly IAstConcept _parent;
         private readonly Internal.AstNodeProperty _underlying;
@@ -261,10 +261,6 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
 
         internal interface IAstConcept
         {
-            String TypeName { get; }
-            IEnumerable<String> BaseTypes { get; }
-            Maybe<String> ParentType { get; }
-            IEnumerable<AstNodeProperty> Properties { get; }
         }
 
         internal class AstNode : IAstConcept, IAstUnderlyingNode<SyntacticModel.AstNode, SyntacticModel.AstNodeFamily>

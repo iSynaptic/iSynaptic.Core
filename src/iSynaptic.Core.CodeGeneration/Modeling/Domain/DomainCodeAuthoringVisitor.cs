@@ -28,8 +28,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     public class DomainCodeAuthoringVisitor : CSharpCodeAuthoringVisitor<Unit>
     {
-        public DomainCodeAuthoringVisitor(TextWriter writer) : base(writer)
+        private readonly SymbolTable _symbolTable;
+
+        public DomainCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable) : base(writer)
         {
+            _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
         }
 
         protected void Visit(NamespaceSyntax @namespace)
@@ -43,6 +46,22 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         protected void Visit(UsingStatementSyntax @using)
         {
             WriteLine("using {0};", @using.Namespace);
+        }
+
+        protected void Visit(ValueSyntax value)
+        {
+            using (WriteBlock("public class {0} : IEquatable<{0}>", value.Name))
+            {
+                
+            }
+        }
+
+        protected void Visit(AggregateSyntax value)
+        {
+            using (WriteBlock("public class {0} : Aggregate<{1}>", value.Name, value.IdentifierType.ValueOrDefault(Syntax.IdentifierName("T"))))
+            {
+
+            }
         }
     }
 }

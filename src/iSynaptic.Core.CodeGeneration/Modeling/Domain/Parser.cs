@@ -21,14 +21,97 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Sprache;
+
+using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     [CLSCompliant(false)]
-    public class Parser : StandardLanguageParser
+    public abstract class Parser : StandardLanguageParser
     {
-        private Parser() { }
+        public static readonly Parser<IdentifierNameSyntax> IdentifierName
+            = from id in IdentifierOrKeyword
+                   select Syntax.IdentifierName(id);
 
-        
+        public static readonly Parser<GenericNameSyntax> GenericName
+            = from id in IdentifierOrKeyword
+                   from names in Name.Delimit(',').Surround('<', '>')
+                   select Syntax.GenericName(names, id);
+
+        public static readonly Parser<SimpleNameSyntax> SimpleName
+            = GenericName
+            .Or<SimpleNameSyntax>(IdentifierName);
+
+        private static readonly Parser<IEnumerable<SimpleNameSyntax>> NamesParser
+            = SimpleName.Delimit(".");
+
+        public static readonly Parser<NameSyntax> Name = input =>
+        {
+            var names = NamesParser(input);
+            if (names.WasSuccessful)
+            {
+                NameSyntax current = null;
+                foreach (var name in names.Value)
+                {
+                    if (current != null)
+                        current = Syntax.QualifiedName(current, name);
+                    else
+                        current = name;
+                }
+
+                return Result.Success(current, names.Remainder);
+            }
+
+            return Result.Failure<QualifiedNameSyntax>(names.Remainder, names.Message, names.Expectations);
+        };
+
+        public static readonly Parser<UsingStatementSyntax> UsingStatement
+            = from keyword in Parse.String("using")
+              from ns in Name
+              from end in StatementEnd
+              select Syntax.UsingStatement(ns);
+
+        public static readonly Parser<ValueSyntax> Value
+            = from keyword in Parse.String("value")
+              from name in SimpleName
+              from blockStart in BlockStart
+              from blockEnd in BlockEnd
+              select Syntax.Value(name, Enumerable.Empty<ValuePropertySyntax>());
+
+        public static readonly Parser<AggregateSyntax> Aggregate
+            = from keyword in Parse.String("aggregate")
+              from identifierType in Name.Surround('<', '>').Optional()
+              from name in SimpleName
+              from baseAggregate in 
+              (
+                    from op in InheritsOperator
+                    from baseName in Name
+                    select baseName
+              ).Optional()
+              from blockStart in BlockStart
+              from blockEnd in BlockEnd
+              select Syntax.Aggregate(name, identifierType, baseAggregate, Enumerable.Empty<AggregateEventSyntax>());
+
+        public static readonly Parser<NamespaceSyntax> Namespace
+            = from keyword in Parse.String("namespace")
+              from ns in Name
+              from blockStart in BlockStart
+              from usings in UsingStatement.Many()
+              from members in Parse.Ref(() => NamespaceMember).Many()
+              from blockEnd in BlockEnd
+              select Syntax.Namespace(ns, usings, members);
+
+        public static readonly Parser<INamespaceMember> NamespaceMember = ((Parser<INamespaceMember>)
+                    Namespace)
+                .Or(Value)
+                .Or(Aggregate);
+
+        public static readonly Parser<SyntaxTree> SyntaxTree
+            = from usings in UsingStatement.Many()
+              from namespaces in Namespace.Many()
+              select Syntax.SyntaxTree(usings, namespaces);
     }
 }

@@ -99,9 +99,13 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
         protected String Visit(AstNodeContract contract, String mode)
         {
+            var baseTypes = contract.BaseTypes.ToArray();
+
             if (mode == "public")
             {
-                using (WriteBlock("public interface {0} : IVisitable", contract.TypeName))
+                var publicBaseTypes = baseTypes.Concat(new[] {"IVisitable"}).Delimit(", ");
+
+                using (WriteBlock("public interface {0} : {1}", contract.TypeName, publicBaseTypes))
                 {
                     DispatchChildren(contract, "contractProperty");
 
@@ -114,9 +118,12 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "internal")
             {
-                using (WriteBlock("internal interface {0}", contract.TypeName))
+                var internalBaseTypes = baseTypes.Any()
+                    ? String.Format(" : {0}", baseTypes.Delimit(", "))
+                    : "";
+
+                using (WriteBlock("internal interface {0}{1}", contract.TypeName, internalBaseTypes))
                 {
-                    DispatchChildren(contract, "contractProperty");
                 }
             }
 
@@ -146,7 +153,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             {
                 String baseTypesSuffix = String.Format(" : {0}", baseTypes.Delimit(", "));
 
-                using (WriteBlock("public {0}class {1}{2}", node.IsAbstract ? "abstract " : "", node.TypeName, baseTypesSuffix))
+                using (WriteBlock("public {0}partial class {1}{2}", node.IsAbstract ? "abstract " : "", node.TypeName, baseTypesSuffix))
                 {
                     if (parentNode.HasValue)
                         WriteLine("private readonly {0} _parent;", parentNode.Value.TypeName);
