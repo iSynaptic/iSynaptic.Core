@@ -21,17 +21,25 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Sprache;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling
 {
     [CLSCompliant(false)]
-    public static class StandardLanguageParsers
+    public abstract class StandardLanguageParser
     {
-        public static Parser<Char> LetterCharacter()
+        protected static Parser<String> InheritsOperator() { return Parse.String(":").Text(); }
+
+        protected static Parser<String> BlockStart() { return Parse.String("{").Text().Named("block start"); }
+        protected static Parser<String> BlockEnd() { return Parse.String("}").Text().Named("block end"); }
+        protected static Parser<String> StatementEnd() { return Parse.String(";").Text(); }
+
+        protected static Parser<Char> LetterCharacter()
         {
             return CharacterByUnicodeCategory(
                 UnicodeCategory.UppercaseLetter,
@@ -42,32 +50,32 @@ namespace iSynaptic.CodeGeneration.Modeling
                 UnicodeCategory.LetterNumber);
         }
 
-        public static Parser<Char> DecimalDigitCharacter()
+        protected static Parser<Char> DecimalDigitCharacter()
         {
             return CharacterByUnicodeCategory(
                 UnicodeCategory.DecimalDigitNumber);
         }
 
-        public static Parser<Char> ConnectingCharacter()
+        protected static Parser<Char> ConnectingCharacter()
         {
             return CharacterByUnicodeCategory(
                 UnicodeCategory.ConnectorPunctuation);
         }
 
-        public static Parser<Char> CombiningCharacter()
+        protected static Parser<Char> CombiningCharacter()
         {
             return CharacterByUnicodeCategory(
                 UnicodeCategory.NonSpacingMark,
                 UnicodeCategory.SpacingCombiningMark);
         }
 
-        public static Parser<Char> FormattingCharacter()
+        protected static Parser<Char> FormattingCharacter()
         {
             return CharacterByUnicodeCategory(
                 UnicodeCategory.Format);
         }
 
-        public static Parser<Char> IdentifierPartCharacter()
+        protected static Parser<Char> IdentifierPartCharacter()
         {
             return LetterCharacter()
                 .Or(DecimalDigitCharacter())
@@ -76,13 +84,13 @@ namespace iSynaptic.CodeGeneration.Modeling
                 .Or(FormattingCharacter());
         }
 
-        public static Parser<Char> IdentifierStartCharacter()
+        protected static Parser<Char> IdentifierStartCharacter()
         {
             return LetterCharacter()
                 .Or(Parse.Char('_'));
         }
 
-        public static Parser<String> IdentifierOrKeyword()
+        protected static Parser<String> IdentifierOrKeyword()
         {
             var identifier = IdentifierStartCharacter()
                 .Once()
@@ -93,21 +101,43 @@ namespace iSynaptic.CodeGeneration.Modeling
                 .Or(Parse.Char('@').Then(_ => identifier.Select(x => "@" + x)));
         }
 
-        public static Parser<String> SingleLineComment()
+        protected static Parser<Boolean> Flag(String text)
+        {
+            return Parse.String(text)
+                .Text()
+                .Select(x => x.ToMaybe())
+                .Or(Parse.Return(Maybe<String>.NoValue))
+                .Select(x => x.HasValue);
+        }
+
+
+        protected static Parser<String> NamespaceOrTypeName()
+        {
+            return from ids in IdentifierOrKeyword().Delimit('.')
+                   from arguments in TypeArgumentList().Optional().ToArray()
+                   select String.Format(arguments.Length > 0 ? "{0}<{1}>" : "{0}", ids.Delimit("."), arguments.Delimit(", "));
+        }
+
+        protected static Parser<IEnumerable<String>> TypeArgumentList()
+        {
+            return NamespaceOrTypeName().Delimit(',').Surround('<', '>');
+        }
+
+        protected static Parser<String> SingleLineComment()
         {
             return Parse.String("//")
                 .Then(_ => Parse.AnyChar.Except(NewLineCharacter()).Many().Text())
                 .Select(txt => "//" + txt);
         }
 
-        public static Parser<String> MultiLineComment()
+        protected static Parser<String> MultiLineComment()
         {
             return Parse.String("/*")
                 .Then(_ => Parse.AnyChar.Until(Parse.String("*/")).Text())
                 .Select(txt => "/*" + txt + "*/");
         }
 
-        public static Parser<String> NewLine()
+        protected static Parser<String> NewLine()
         {
             return Parse.String("\u000D\u000A") // Carriage return character
                 .Or(Parse.String("\u000A")) // Line feed character
@@ -118,7 +148,7 @@ namespace iSynaptic.CodeGeneration.Modeling
                 .Text();
         }
 
-        public static Parser<Char> NewLineCharacter()
+        protected static Parser<Char> NewLineCharacter()
         {
             return Parse.Char('\u000D') // Carriage return character
                 .Or(Parse.Char('\u000A')) // Line feed character
@@ -127,7 +157,7 @@ namespace iSynaptic.CodeGeneration.Modeling
                 .Or(Parse.Char('\u2029')); // Paragraph separator character
         }
 
-        public static Parser<Char> WhitespaceCharacter()
+        protected static Parser<Char> WhitespaceCharacter()
         {
             return CharacterByUnicodeCategory(UnicodeCategory.SpaceSeparator)
                 .Or(Parse.Char('\u0009')) // Horizontal tab character
@@ -135,30 +165,44 @@ namespace iSynaptic.CodeGeneration.Modeling
                 .Or(Parse.Char('\u000C')); // Form feed character
         }
 
-        public static Parser<String> Whitespace()
+        protected static Parser<String> Whitespace()
         {
             return WhitespaceCharacter().AtLeastOnce().Text();
         }
 
-        private static Parser<Char> CharacterByUnicodeCategory(params UnicodeCategory[] categories)
+        protected static Parser<Char> CharacterByUnicodeCategory(params UnicodeCategory[] categories)
         {
             Guard.NotNull(categories, "categories");
 
             return Parse.Char(c => categories.Contains(Char.GetUnicodeCategory(c)), "characterByUnicodeCategory");
         }
 
-        public static Parser<T> Interleave<T>(Parser<T> body)
+        protected static Parser<T> Concept<T, TDefinition>(String keyword, Parser<TDefinition> definition, Func<String, TDefinition, T> selector)
         {
-            var interleave = (
-                    SingleLineComment()
-                .Or(MultiLineComment())
-                .Or(NewLine())
-                .Or(Whitespace()))
-                .Many();
+            return ConceptCore(keyword, false, definition, (id, @base, def) => selector(id, def));
+        }
 
-            return interleave
-                .SelectMany(_ => body, (_, b) => b)
-                    .SelectMany(b => interleave, (b, _) => b);
+        protected static Parser<T> Concept<T, TDefinition>(String keyword, Parser<TDefinition> definition, Func<String, Maybe<String>, TDefinition, T> selector)
+        {
+            return ConceptCore(keyword, true, definition, selector);
+        }
+
+        private static Parser<T> ConceptCore<T, TDefinition>(String keyword, bool canInherit, Parser<TDefinition> definition, Func<String, Maybe<String>, TDefinition, T> selector)
+        {
+            return from k in Parse.String(keyword)
+                   from id in IdentifierOrKeyword()
+
+                   from @base in canInherit
+                        ? InheritsOperator().Interleave().Then(_ => IdentifierOrKeyword()).Optional()
+                        : Parse.Return(Maybe<String>.NoValue)
+
+                   from def in definition
+                   select selector(id, @base, def);
+        }
+
+        protected static Parser<T> Blocked<T>(Parser<T> body)
+        {
+            return body.Surround(BlockStart(), BlockEnd());
         }
     }
 }

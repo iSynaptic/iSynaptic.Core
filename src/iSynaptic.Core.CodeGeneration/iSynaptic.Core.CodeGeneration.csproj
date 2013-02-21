@@ -55,12 +55,18 @@
     <Compile Include="Modeling\AbstractSyntaxTree\AstNodePropertyCardinality.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\Generated.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\Parser.cs" />
+    <Compile Include="Modeling\AbstractSyntaxTree\SyntacticModel\IAstConcept.cs" />
+    <Compile Include="Modeling\AbstractSyntaxTree\SymbolTableConstructionVisitor.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
     <Compile Include="Modeling\Domain\Parser.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\INamespaceMember.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\INamespaceParent.cs" />
-    <Compile Include="Modeling\StandardLanguageParsers.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\ISymbol.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\IType.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\TypeReference.cs" />
+    <Compile Include="Modeling\ParserExtensions.cs" />
+    <Compile Include="Modeling\StandardLanguageParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visitor.cs" />
   </ItemGroup>

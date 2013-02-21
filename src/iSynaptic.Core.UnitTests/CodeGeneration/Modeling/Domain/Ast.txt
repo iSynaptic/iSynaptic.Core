@@ -1,53 +1,75 @@
 ﻿ast iSynaptic.CodeGeneration.Modeling.Domain
 {
-	node SyntaxTree("SyntaxTree") : INamespaceParent
-	{
-		node UsingStatementSyntax* UsingStatements;
-		node NamespaceSyntax* Namespaces;
-	}
+    node SyntaxTree("SyntaxTree") : INamespaceParent
+    {
+        //UsingStatementSyntax* UsingStatements;
+        NamespaceSyntax* Namespaces;
+    }
 
-	node NamespaceSyntax("Namespace", INamespaceParent) : INamespaceParent
-	{
-		String Name;
+    node NamespaceSyntax("Namespace", SyntaxTree)
+    {
+        String Name;
 
-		node UsingStatementSyntax* UsingStatements;
-		node NamespaceSyntax* Namespaces;
-		node AggregateSyntax* Aggregates;
-		node ValueSyntax* Values;
-	}
+        UsingStatementSyntax* UsingStatements;
+        //NamespaceSyntax* Namespaces;
+        AggregateSyntax* Aggregates;
+        ValueSyntax* Values;
+    }
 
-	node AggregateSyntax("Aggregate", NamespaceSyntax)
-	{
-		String Name;
-		node AggregateEventSyntax* Events;
-	}
+    node AggregateSyntax("Aggregate", NamespaceSyntax)
+    {
+        String Name;
+        AggregateEventSyntax* Events;
+    }
 
-	node AggregateEventSyntax("AggregateEvent", AggregateSyntax)
-	{
-		String Name;
-		node AggregateEventPropertySyntax* Properties;
-	}
+    node AggregateEventSyntax("AggregateEvent", AggregateSyntax)
+    {
+        String Name;
+        AggregateEventPropertySyntax* Properties;
+    }
 
-	node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax)
-	{
-		String Name;
-		String Type;
-	}
+    node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax)
+    {
+        String Name;
+        String Type;
+    }
 
-	node ValueSyntax("Value", NamespaceSyntax)
-	{
-		String Name;
-		node ValuePropertySyntax* Properties;
-	}
+    node ValueSyntax("Value", NamespaceSyntax)
+    {
+        String Name;
+        ValuePropertySyntax* Properties;
+    }
 
-	node ValuePropertySyntax("ValueProperty", ValueSyntax)
-	{
-		String Name;
-		String Type;
-	}
+    node ValuePropertySyntax("ValueProperty", ValueSyntax)
+    {
+        String Name;
+        String Type;
+    }
 
-	node UsingStatementSyntax("UsingStatement", INamespaceParent)
-	{
-		String Namespace;
-	}
+    node UsingStatementSyntax("UsingStatement", NamespaceSyntax)
+    {
+        String Namespace;
+    }
+
+    abstract node NameSyntax("Name")
+    {
+    }
+
+    abstract node SimpleNameSyntax("SimpleName") : NameSyntax
+    {
+        String Identifier;
+    }
+
+    node IdentifierNameSyntax("IdentifierName") : SimpleNameSyntax { }
+
+    node GenericNameSyntax("GenericName") : SimpleNameSyntax
+    {
+        NameSyntax* TypeArguments;
+    }
+
+    node QualifiedNameSyntax("QualifiedName") : NameSyntax
+    {
+        NameSyntax Left;
+        SimpleNameSyntax Right ;
+    }
 }

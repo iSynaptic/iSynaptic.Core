@@ -20,29 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.IO;
-using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
-using iSynaptic.Commons;
+using System;
+using System.Collections.Generic;
+using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
 
-namespace iSynaptic.CodeGeneration.Modeling.Domain
+namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
-    public class DomainCodeAuthoringVisitor : CSharpCodeAuthoringVisitor<Unit>
+    public class SymbolTableConstructionVisitor : Visitor<Dictionary<String, AstNode>>
     {
-        public DomainCodeAuthoringVisitor(TextWriter writer) : base(writer)
+        private SymbolTableConstructionVisitor() { }
+
+        public static Dictionary<String, AstNode> BuildSymbolTable(AstNodeFamily family)
         {
+            return new SymbolTableConstructionVisitor()
+                .Dispatch(family, new Dictionary<String, AstNode>());
         }
 
-        protected void Visit(NamespaceSyntax @namespace)
+        protected void Visit(AstNode node, Dictionary<String, AstNode> table)
         {
-            using (WriteBlock("namespace {0}", @namespace.Name))
-            {
-                DispatchChildren(@namespace);
-            }
-        }
-
-        protected void Visit(UsingStatementSyntax @using)
-        {
-            WriteLine("using {0};", @using.Namespace);
+            table.Add(String.Format("{0}.{1}", node.Parent.Namespace, node.TypeName), node);
         }
     }
 }

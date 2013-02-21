@@ -35,34 +35,38 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         [Test]
         public void CanGenerateAst()
         {
-            var visitor = new AstGeneratingVisitor(Console.Out);
             var parser = Parser.Family();
 
             AstNodeFamily family = parser.Parse(@"ast iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
-  node AstNode(""Node"", AstNodeFamily)
+  node AstNodeFamily(""Family"") : IAstConcept
   {
+    String Namespace;
+    AstNode* Nodes;
+  }
+
+  node AstNode(""Node"", AstNodeFamily) : IAstConcept
+  {
+    Boolean IsAbstract;
     String Name;
     String TypeName;
     String? ParentType;
     String* BaseTypes;
-    node AstNodeProperty* Properties;
+    AstNodeProperty* Properties;
   }
 
-  node AstNodeFamily(""Family"")
-  {
-    String Namespace;
-    node AstNode* Nodes;
-  }
-
-  node AstNodeProperty(""Property"", AstNode)
+  node AstNodeProperty(""Property"", AstNode) : IAstConcept
   {
     String Name;
     String Type;
-    Boolean IsNode;
     AstNodePropertyCardinality Cardinality;
   }
 }");
+            var visitor = new AstGeneratingVisitor(
+                Console.Out, 
+                SymbolTableConstructionVisitor.BuildSymbolTable(family)
+            );
+
             visitor.Dispatch(family);
         }
     }

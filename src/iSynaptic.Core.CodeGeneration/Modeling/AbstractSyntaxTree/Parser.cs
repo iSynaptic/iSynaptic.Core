@@ -21,18 +21,18 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Sprache;
-using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
-using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
+    using SyntacticModel;
+
     [CLSCompliant(false)]
-    public static class Parser
+    public class Parser : StandardLanguageParser
     {
+        private Parser() { }
+
         private struct TypeReference
         {
             public TypeReference(String name, AstNodePropertyCardinality cardinality)
@@ -54,27 +54,26 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         public static Parser<AstNodeFamily> Family()
         {
             return from keyword in Parse.String("ast")
-                   from ns in StandardLanguageParsers.IdentifierOrKeyword().Delimit(Parse.Char('.')).Select(x => x.Delimit("."))
-                   from blockStart in Parse.Char('{')
-                   from nodes in Node().Many()
-                   from blockEnd in Parse.Char('}')
+                   from ns in NamespaceOrTypeName()
+                   from nodes in Blocked(Node().Many())
                    select Syntax.Family(ns, nodes);
         }
 
         public static Parser<AstNode> Node()
         {
-            return from keyword in Parse.String("node")
-                   from typeName in StandardLanguageParsers.IdentifierOrKeyword()
+            return from isAbstract in Flag("abstract")
+                   from keyword in Parse.String("node")
+                   from typeName in IdentifierOrKeyword()
                    from startParen in Parse.Char('(')
                    from startQuote in Parse.Char('"')
-                   from name in StandardLanguageParsers.IdentifierOrKeyword()
+                   from name in IdentifierOrKeyword()
                    from endQuote in Parse.Char('"')
                    from parent in
                    (
                         from comma in Parse.Char(',')
-                        from n in StandardLanguageParsers.IdentifierOrKeyword()
-                        select n.ToMaybe()
-                    ).Or(Parse.Return(Maybe<String>.NoValue))
+                        from n in IdentifierOrKeyword()
+                        select n
+                    ).Optional()
 
                    from endParen in Parse.Char(')')
                    from baseTypes in
@@ -82,11 +81,12 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                         from colun in Parse.Char(':')
                         from types in TypeName().Delimit(Parse.Char(','))
                         select types
-                   ).Or(Parse.Return(Enumerable.Empty<String>()))
+                   ).Optional()
                    from blockStart in Parse.Char('{')
                    from properties in Property().Many()
                    from blockEnd in Parse.Char('}')
                    select Syntax.Node(
+                            isAbstract,
                             name,
                             typeName,
                             parent,
@@ -96,11 +96,10 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
         public static Parser<AstNodeProperty> Property()
         {
-            return from isNode in Parse.String("node").Select(x => true).Or(Parse.Return(false))
-                   from type in TypeRef()
-                   from name in StandardLanguageParsers.IdentifierOrKeyword()
+            return from type in TypeRef()
+                   from name in IdentifierOrKeyword()
                    from end in Parse.Char(';')
-                   select Syntax.Property(name, type.Name, isNode, type.Cardinality);
+                   select Syntax.Property(name, type.Name, type.Cardinality);
         }
 
         private static Parser<TypeReference> TypeRef()
@@ -112,12 +111,12 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
         private static Parser<String> TypeName()
         {
-            return (from outerType in StandardLanguageParsers.IdentifierOrKeyword()
+            return (from outerType in IdentifierOrKeyword()
                    from startAngle in Parse.Char('<')
                    from innerType in TypeName()
                    from endAngle in Parse.Char('>')
                    select String.Format("{0}<{1}>", outerType, innerType))
-                   .Or(StandardLanguageParsers.IdentifierOrKeyword());
+                   .Or(IdentifierOrKeyword());
         }
 
         private static Parser<AstNodePropertyCardinality> PropertyCardinalityModifier()
@@ -125,23 +124,6 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             return Parse.Char('*').Select(x => AstNodePropertyCardinality.Many)
                .Or(Parse.Char('?').Select(x => AstNodePropertyCardinality.ZeroOrOne))
                .Or(Parse.Return(AstNodePropertyCardinality.One));
-        }
-
-        private static Parser<IEnumerable<T>> Delimit<T, TDelimiter>(this Parser<T> parser, Parser<TDelimiter> delimiter)
-        {
-            return from first in parser
-                   from remaining in
-                       (
-                           from d in delimiter
-                           from item in parser
-                           select item
-                       ).Many()
-                   select new[] {first}.Concat(remaining);
-        }
-
-        private static Parser<V> SelectMany<T, U, V>(this Parser<T> source, Func<T, Parser<U>> selector, Func<T, U, V> projector)
-        {
-            return Parse.SelectMany(StandardLanguageParsers.Interleave(source), selector, projector);
         }
     }
 }

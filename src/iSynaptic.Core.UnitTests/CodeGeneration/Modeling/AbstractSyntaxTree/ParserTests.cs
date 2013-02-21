@@ -40,13 +40,13 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
     String TypeName;
     String? ParentType;
     String* BaseTypes;
-    node AstNodeProperty* Properties;
+    AstNodeProperty* Properties;
   }
 
   node AstNodeFamily(""Family"")
   {
     String Namespace;
-    node AstNode* Nodes;
+    AstNode* Nodes;
   }
 
   node AstNodeProperty(""Property"", AstNode)
@@ -70,7 +70,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
     String TypeName;
     String? ParentType;
     String* BaseTypes;
-    node AstNodeProperty* Properties;
+    AstNodeProperty* Properties;
   }");
         }
 
@@ -80,7 +80,6 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             var parser = Parser.Property();
             var results = parser.Parse("String Name;");
 
-            results.IsNode.Should().BeFalse();
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.One);
             results.Name.Should().Be("Name");
@@ -92,7 +91,6 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             var parser = Parser.Property();
             var results = parser.Parse("String? Name;");
 
-            results.IsNode.Should().BeFalse();
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.ZeroOrOne);
             results.Name.Should().Be("Name");
@@ -104,43 +102,6 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             var parser = Parser.Property();
             var results = parser.Parse("String* Name;");
 
-            results.IsNode.Should().BeFalse();
-            results.Type.Should().Be("String");
-            results.Cardinality.Should().Be(AstNodePropertyCardinality.Many);
-            results.Name.Should().Be("Name");
-        }
-
-        [Test]
-        public void Property_NodeWithNoCardinalityModifier_Parsers()
-        {
-            var parser = Parser.Property();
-            var results = parser.Parse("node String Name;");
-
-            results.IsNode.Should().BeTrue();
-            results.Type.Should().Be("String");
-            results.Cardinality.Should().Be(AstNodePropertyCardinality.One);
-            results.Name.Should().Be("Name");
-        }
-
-        [Test]
-        public void Property_NodeWithZeroOrOneModifier_Parsers()
-        {
-            var parser = Parser.Property();
-            var results = parser.Parse("node String? Name;");
-
-            results.IsNode.Should().BeTrue();
-            results.Type.Should().Be("String");
-            results.Cardinality.Should().Be(AstNodePropertyCardinality.ZeroOrOne);
-            results.Name.Should().Be("Name");
-        }
-
-        [Test]
-        public void Property_NodeWithManyModifier_Parsers()
-        {
-            var parser = Parser.Property();
-            var results = parser.Parse("node String* Name;");
-
-            results.IsNode.Should().BeTrue();
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.Many);
             results.Name.Should().Be("Name");

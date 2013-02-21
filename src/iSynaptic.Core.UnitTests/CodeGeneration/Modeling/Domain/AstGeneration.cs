@@ -42,8 +42,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 input = reader.ReadToEnd();
             }
 
-            var visitor = new AstGeneratingVisitor(Console.Out);
             var family = AbstractSyntaxTree.Parser.ParseString(input);
+
+            var visitor = new AstGeneratingVisitor(
+                Console.Out,
+                SymbolTableConstructionVisitor.BuildSymbolTable(family)
+            );
+
             visitor.Dispatch(family);
         }
     }

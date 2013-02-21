@@ -21,32 +21,42 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
+using iSynaptic.Commons.Collections.Generic;
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
     public class AstGeneratingVisitor : CSharpCodeAuthoringVisitor<String>
     {
-        private readonly Func<String, IVisitable, IVisitable, String> lineInterleave;
+        private readonly Dictionary<String, AstNode> _symbolTable;
+        private readonly Func<String, IVisitable, IVisitable, String> _lineInterleave;
 
-        public AstGeneratingVisitor(TextWriter writer) : base(writer)
+        public AstGeneratingVisitor(TextWriter writer, Dictionary<String, AstNode> symbolTable) : base(writer)
         {
-            lineInterleave = (st, l, r) => { WriteLine(); return st; };
+            _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
+            _lineInterleave = (st, l, r) => { WriteLine(); return st; };
         }
 
-        protected override void AddUsings()
+        public Maybe<AstNode> Resolve(AstNode relativeTo, String nodeType)
         {
-            base.AddUsings();
-            AddUsing("iSynaptic.Commons");
+            return nodeType != relativeTo.Name 
+                ? _symbolTable.TryGetValue(String.Format("{0}.{1}", relativeTo.Parent.Namespace, nodeType)) 
+                : relativeTo.ToMaybe();
         }
 
         protected String Visit(AstNodeFamily family, String mode)
         {
-            WriteUsings();
+            WriteLine("using System;");
+            WriteLine("using System.Collections.Generic;");
+            WriteLine("using System.Linq;");
+            WriteLine("using iSynaptic.Commons;");
+
+            WriteLine();
 
             using (WriteBlock("namespace {0}", family.Namespace))
             {
@@ -60,12 +70,12 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             using (WriteBlock("namespace {0}.SyntacticModel", family.Namespace))
             {
-                DispatchChildren(family, "public", lineInterleave);
+                DispatchChildren(family, "public", _lineInterleave);
 
                 WriteLine();
                 using (WriteBlock("namespace Internal"))
                 {
-                    DispatchChildren(family, "internal", lineInterleave);
+                    DispatchChildren(family, "internal", _lineInterleave);
                 }
             }
 
@@ -76,48 +86,92 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         {
             using (WriteBlock("public static class Syntax"))
             {
-                DispatchChildren(family, "syntaxMethod", lineInterleave);
+                DispatchChildren(family, "syntaxMethod", _lineInterleave);
             }
         }
 
         protected String Visit(AstNode node, String mode)
         {
+            var nodeHierarcy = node.Recurse(x => x.BaseTypes.TryFirst().SelectMaybe(y => Resolve(x, y))).ToArray();
+
+            var baseNode = nodeHierarcy.Skip(1).TryFirst();
+            var parentNode = nodeHierarcy
+                .SelectMaybe(x => x.ParentType)
+                .SelectMaybe(x => Resolve(node, x))
+                .TryFirst();
+
+            var lowestBaseNode = nodeHierarcy.Last();
+            var lowestParentNode = nodeHierarcy
+                .SelectMaybe(x => x.ParentType)
+                .SelectMaybe(x => Resolve(node, x))
+                .TryLast();
+
+
+            var baseTypes = node.BaseTypes;
+            if (baseNode.HasValue != true)
+                baseTypes = baseTypes.Concat(new[] { "IVisitable" });
+
             if (mode == "public")
             {
-                var baseTypes = node.BaseTypes.Concat(new[] { "IVisitable" });
-                string baseTypesSuffix = String.Format(" : {0}", baseTypes.Delimit(", "));
+                String baseTypesSuffix = String.Format(" : {0}", baseTypes.Delimit(", "));
 
-                using (WriteBlock("public partial class {0}{1}", node.TypeName, baseTypesSuffix))
+                using (WriteBlock("public {0}class {1}{2}", node.IsAbstract ? "abstract " : "", node.TypeName, baseTypesSuffix))
                 {
                     if (node.ParentType.HasValue)
                         WriteLine("private readonly {0} _parent;", node.ParentType.Value);
 
-                    WriteLine("private readonly Internal.{0} _underlying;", node.TypeName);
+                    if (!baseNode.HasValue)
+                        WriteLine("private readonly Internal.{0} _underlying;", node.TypeName);
+
                     WriteLine();
 
                     string ctor = node.ParentType.HasValue
                         ? "internal {1}({0} parent, Internal.{1} underlying)"
                         : "internal {1}(Internal.{1} underlying)";
 
+                    if (baseNode.HasValue)
+                        ctor = String.Format("{0} : base({1})", ctor, node.ParentType.HasValue ? "parent, underlying" : "underlying");
+
                     using (WriteBlock(ctor, node.ParentType.ValueOrDefault(), node.TypeName))
                     {
                         if (node.ParentType.HasValue)
                             WriteLine("_parent = parent;");
 
-                        WriteLine("_underlying = underlying;");
+                        if (!baseNode.HasValue)
+                            WriteLine("_underlying = underlying;");
                     }
 
                     WriteLine();
 
-                    if(node.ParentType.HasValue)
-                        WriteLine("public {0} Parent {{ get {{ return _parent; }} }}", node.ParentType.Value);
+                    if (parentNode.HasValue)
+                    {
+                        if(lowestParentNode.HasValue && parentNode.Value != lowestParentNode.Value)
+                            WriteLine("public new {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
+                        else
+                            WriteLine("public {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
+                    }
 
-                    WriteLine("internal Internal.{0} GetUnderlying() {{ return _underlying; }}", node.TypeName);
+                    WriteLine(baseNode.HasValue
+                                ? "new internal Internal.{0} GetUnderlying() {{ return (Internal.{0})base.GetUnderlying(); }}"
+                                : "internal Internal.{0} GetUnderlying() {{ return _underlying; }}",
+                              node.TypeName);
+
                     WriteLine();
 
-                    using (WriteBlock("public void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)"))
+                    String acceptChildrenModifier = baseNode.HasValue ? "override" : "virtual";
+
+                    Boolean hasNodeProperties = node.Properties.SelectMaybe(x => Resolve(node, x.Type)).Any();
+
+                    if (!baseNode.HasValue || hasNodeProperties)
                     {
-                        DispatchChildren(node, "dispatchInvoke");
+                        using (WriteBlock("public {0} void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)", acceptChildrenModifier))
+                        {
+                            DispatchChildren(node, "dispatchInvoke");
+
+                            if (baseNode.HasValue)
+                                WriteLine("base.AcceptChildren(dispatch);");
+                        }
+                        WriteLine();
                     }
 
                     DispatchChildren(node, "publicSelector");
@@ -126,28 +180,87 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "internal")
             {
-                using (WriteBlock("internal class {0}", node.TypeName))
+                using (WriteBlock("internal {0}class {1}{2}",
+                    node.IsAbstract ? "abstract " : "", 
+                    node.TypeName,
+                    baseNode.HasValue ? String.Format(" : {0}", baseNode.Value.TypeName) : ""))
                 {
                     DispatchChildren(node, "field");
                     WriteLine();
 
-                    Write("public {0}(", node.TypeName);
-                    DispatchChildren(node, "parameter", (s, l, r) => { Write(", "); return s; });
-                    
-                    using(WriteBlock(")"))
+                    var needsAnyParameters = nodeHierarcy.SelectMany(x => x.Properties).Any();
+                    var baseNeedsAnyArguments = nodeHierarcy.Skip(1).SelectMany(x => x.Properties).Any();
+
+                    if (needsAnyParameters)
                     {
-                        DispatchChildren(node, "assignArgument");
+                        Write("{0} {1}(", node.IsAbstract ? "protected" : "public", node.TypeName);
+                        DispatchChildren(nodeHierarcy, "parameter", (s, l, r) => { Write(", "); return s; });
+                        Write(")");
+
+                        if (baseNode.HasValue && baseNeedsAnyArguments)
+                        {
+                            Write(": base(");
+                            DispatchChildren(nodeHierarcy.Skip(1), "argument", (s, l, r) => { Write(", "); return s; });
+                            Write(")");
+                        }
+
+                        WriteLine();
+                        using (WithBlock())
+                        {
+                            DispatchChildren(node, "assignArgument");
+                        }
+                        WriteLine();
                     }
 
+                    String makeParentParameter = parentNode.HasValue
+                        ? String.Format("SyntacticModel.{0} parent", parentNode.Value.TypeName)
+                        : "Object parent";
+
+                    String makePublicInheritanceModifier = lowestBaseNode == node ? "" : "new ";
+                    using (WriteBlock("public {0}SyntacticModel.{1} MakePublic({2})", makePublicInheritanceModifier, node.TypeName, makeParentParameter))
+                    {
+                        WriteLine(lowestBaseNode == node
+                                    ? "return BuildPublic(parent);"
+                                    : "return (SyntacticModel.{0}) BuildPublic(parent);", 
+                                  node.TypeName);
+                    }
                     WriteLine();
+
+                    String buildParentParameter = lowestParentNode.HasValue
+                        ? String.Format("SyntacticModel.{0} parent", lowestParentNode.Value.TypeName)
+                        : "Object parent";
+
+                    String buildParentArgument = "";
+
+                    if (parentNode.HasValue)
+                    {
+                        buildParentArgument = parentNode.Value != lowestParentNode.Value 
+                            ? String.Format("(SyntacticModel.{0}) parent, ", parentNode.Value.TypeName) 
+                            : "parent, ";
+                    }
+
+                    if (node.IsAbstract && lowestBaseNode == node)
+                    {
+                        WriteLine("protected abstract SyntacticModel.{0} BuildPublic({1});", lowestBaseNode.TypeName, buildParentParameter);
+                    }
+                    else if (!node.IsAbstract)
+                    {
+                        String buildPublicInheritanceModifier = lowestBaseNode == node ? "virtual" : "override";
+                        using (WriteBlock("protected {0} SyntacticModel.{1} BuildPublic({2})", buildPublicInheritanceModifier, lowestBaseNode.TypeName, buildParentParameter))
+                        {
+                            WriteLine("return new SyntacticModel.{0}({1} this);", node.TypeName, buildParentArgument);
+                        }
+                        WriteLine();
+                    }
+
                     DispatchChildren(node, "property");
                 }
             }
 
-            if (mode == "syntaxMethod")
+            if (mode == "syntaxMethod" && !node.IsAbstract)
             {
                 Write("public static {0} {1}(", node.TypeName, node.Name);
-                DispatchChildren(node, "parameter", (s, l, r) => { Write(", "); return s; });
+                DispatchChildren(nodeHierarcy, "parameter", (s, l, r) => { Write(", "); return s; });
                 using(WriteBlock(")"))
                 {
 
@@ -156,7 +269,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                             : "return new {0}(new SyntacticModel.Internal.{0}(",
                         node.TypeName, 
                         node.ParentType.ValueOrDefault());
-                    DispatchChildren(node, "argumentUnderlyingSelector", (s, l, r) => { Write(", "); return s; });
+                    DispatchChildren(nodeHierarcy, "argumentUnderlyingSelector", (s, l, r) => { Write(", "); return s; });
                     WriteLine("));");
                 }
             }
@@ -166,6 +279,9 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
         protected String Visit(AstNodeProperty property, String mode)
         {
+            var node = Resolve(property.Parent, property.Type);
+            Boolean isNodeProperty = node.HasValue;
+
             if (mode == "field")
             {
                 WriteLine("private readonly {0} _{1};",
@@ -203,23 +319,23 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                 using (WriteBlock("public {0} {1}", GetPropertyType(property), property.Name))
                 using (WriteBlock("get"))
                 {
-                    if (property.IsNode)
+                    if (isNodeProperty)
                     {
                         WriteLine(property.Cardinality != AstNodePropertyCardinality.One
-                                    ? "return _underlying.{0}.Select(x => new {1}(this, x));"
-                                    : "return new {1}(this, _underlying.{0});",
+                                    ? "return GetUnderlying().{0}.Select(x => x.MakePublic(this));"
+                                    : "return GetUnderlying().{0}.MakePublic(this);",
                                   property.Name, property.Type);
                     }
                     else
                     {
-                        WriteLine("return _underlying.{0};", property.Name);
+                        WriteLine("return GetUnderlying().{0};", property.Name);
                     }
                 }
             }
 
             if (mode == "argumentUnderlyingSelector")
             {
-                if (property.IsNode)
+                if (isNodeProperty)
                 {
                     Write(property.Cardinality != AstNodePropertyCardinality.One
                               ? "{0}.Select(x => x.GetUnderlying())"
@@ -230,13 +346,13 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                     Write(SafeIdentifier(Camelize(property.Name)));
             }
 
-            if (mode == "dispatchInvoke" && property.IsNode)
+            if (mode == "dispatchInvoke" && isNodeProperty)
             {
                 if(property.Cardinality == AstNodePropertyCardinality.One)
-                    WriteLine("dispatch(new[]{{ {0} }});");
+                    WriteLine("dispatch(new[]{{ {0} }});", property.Name);
 
                 if (property.Cardinality == AstNodePropertyCardinality.ZeroOrOne)
-                    WriteLine("dispatch({0}.ToEnumerable());");
+                    WriteLine("dispatch({0}.ToEnumerable());", property.Name);
 
                 if(property.Cardinality == AstNodePropertyCardinality.Many)
                     WriteLine("dispatch({0});", property.Name);

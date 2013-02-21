@@ -32,8 +32,6 @@ namespace iSynaptic.CodeGeneration
     {
         private static readonly Regex SafeIdentifierRegex = new Regex("^(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while)$");
 
-        private readonly List<String> _usings = new List<String>();
-
         protected CSharpCodeAuthoringVisitor(TextWriter writer) 
             : this(writer, "    ")
         {
@@ -42,25 +40,6 @@ namespace iSynaptic.CodeGeneration
         protected CSharpCodeAuthoringVisitor(TextWriter writer, string indentationToken)
             : base(writer, indentationToken)
         {
-            AddUsings();
-        }
-
-        protected virtual void AddUsings()
-        {
-            AddUsing("System");
-            AddUsing("System.Collections.Generic");
-            AddUsing("System.Linq");
-        }
-
-        protected void AddUsing(String identifier)
-        {
-            _usings.Add(identifier);
-        }
-
-        protected virtual void WriteUsings()
-        {
-            WriteLine(_usings.Delimit("\r\n", x => String.Format("using {0};", x)));
-            WriteLine();
         }
 
         protected virtual IDisposable WithBlock()

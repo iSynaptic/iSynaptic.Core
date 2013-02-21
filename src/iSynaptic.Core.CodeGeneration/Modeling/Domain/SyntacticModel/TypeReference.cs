@@ -20,29 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.IO;
-using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
-using iSynaptic.Commons;
-
-namespace iSynaptic.CodeGeneration.Modeling.Domain
+namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    public class DomainCodeAuthoringVisitor : CSharpCodeAuthoringVisitor<Unit>
+    public class TypeReferenceSyntax
     {
-        public DomainCodeAuthoringVisitor(TextWriter writer) : base(writer)
-        {
-        }
-
-        protected void Visit(NamespaceSyntax @namespace)
-        {
-            using (WriteBlock("namespace {0}", @namespace.Name))
-            {
-                DispatchChildren(@namespace);
-            }
-        }
-
-        protected void Visit(UsingStatementSyntax @using)
-        {
-            WriteLine("using {0};", @using.Namespace);
-        }
     }
 }
