@@ -9,14 +9,21 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
     public static class Syntax
     {
-        public static AstNodeFamily Family(String @namespace, IEnumerable<AstNode> nodes)
+        public static AstNodeFamily Family(String @namespace, IEnumerable<AstMolecule> molecules)
         {
-            return new AstNodeFamily(new SyntacticModel.Internal.AstNodeFamily(@namespace, nodes.Select(x => x.GetUnderlying())));
+            return new AstNodeFamily(new SyntacticModel.Internal.AstNodeFamily(@namespace, molecules.Select(x => x.GetUnderlying())));
         }
 
-        public static AstNode Node(Boolean isAbstract, String name, String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+
+
+        public static AstNode Node(Boolean isAbstract, String name, Maybe<String> parentType, String typeName, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
         {
-            return new AstNode(null, new SyntacticModel.Internal.AstNode(isAbstract, name, typeName, parentType, baseTypes, properties.Select(x => x.GetUnderlying())));
+            return new AstNode(null, new SyntacticModel.Internal.AstNode(isAbstract, name, parentType, typeName, baseTypes, properties.Select(x => x.GetUnderlying())));
+        }
+
+        public static AstNodeContract Contract(String typeName, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+        {
+            return new AstNodeContract(null, new SyntacticModel.Internal.AstNodeContract(typeName, baseTypes, properties.Select(x => x.GetUnderlying())));
         }
 
         public static AstNodeProperty Property(String name, String type, AstNodePropertyCardinality cardinality)
@@ -28,7 +35,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
 {
-    public class AstNodeFamily : IAstConcept, IVisitable
+    public class AstNodeFamily : IVisitable
     {
         private readonly Internal.AstNodeFamily _underlying;
 
@@ -41,7 +48,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
-            dispatch(Nodes);
+            dispatch(Molecules);
         }
 
         public String Namespace
@@ -51,60 +58,46 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
                 return GetUnderlying().Namespace;
             }
         }
-        public IEnumerable<AstNode> Nodes
+        public IEnumerable<AstMolecule> Molecules
         {
             get
             {
-                return GetUnderlying().Nodes.Select(x => x.MakePublic(this));
+                return GetUnderlying().Molecules.Select(x => x.MakePublic(this));
             }
         }
     }
 
-    public class AstNode : IAstConcept, IVisitable
+    public interface IAstConcept
+    {
+        String TypeName { get; }
+        IEnumerable<String> BaseTypes { get; }
+        IEnumerable<AstNodeProperty> Properties { get; }
+    }
+
+    public abstract class AstMolecule : IVisitable
     {
         private readonly AstNodeFamily _parent;
-        private readonly Internal.AstNode _underlying;
+        private readonly Internal.AstMolecule _underlying;
 
-        internal AstNode(AstNodeFamily parent, Internal.AstNode underlying)
+        internal AstMolecule(AstNodeFamily parent, Internal.AstMolecule underlying)
         {
             _parent = parent;
             _underlying = underlying;
         }
 
         public AstNodeFamily Parent { get { return _parent; } }
-        internal Internal.AstNode GetUnderlying() { return _underlying; }
+        internal Internal.AstMolecule GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
             dispatch(Properties);
         }
 
-        public Boolean IsAbstract
-        {
-            get
-            {
-                return GetUnderlying().IsAbstract;
-            }
-        }
-        public String Name
-        {
-            get
-            {
-                return GetUnderlying().Name;
-            }
-        }
         public String TypeName
         {
             get
             {
                 return GetUnderlying().TypeName;
-            }
-        }
-        public Maybe<String> ParentType
-        {
-            get
-            {
-                return GetUnderlying().ParentType;
             }
         }
         public IEnumerable<String> BaseTypes
@@ -123,18 +116,69 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         }
     }
 
-    public class AstNodeProperty : IAstConcept, IVisitable
+    public class AstNode : AstMolecule, IAstConcept
     {
-        private readonly AstNode _parent;
+        private readonly AstNodeFamily _parent;
+
+        internal AstNode(AstNodeFamily parent, Internal.AstNode underlying)
+            : base(parent, underlying)
+        {
+            _parent = parent;
+        }
+
+        public AstNodeFamily Parent { get { return _parent; } }
+        new internal Internal.AstNode GetUnderlying() { return (Internal.AstNode)base.GetUnderlying(); }
+
+        public Boolean IsAbstract
+        {
+            get
+            {
+                return GetUnderlying().IsAbstract;
+            }
+        }
+        public String Name
+        {
+            get
+            {
+                return GetUnderlying().Name;
+            }
+        }
+        public Maybe<String> ParentType
+        {
+            get
+            {
+                return GetUnderlying().ParentType;
+            }
+        }
+    }
+
+    public class AstNodeContract : AstMolecule, IAstConcept
+    {
+        private readonly AstNodeFamily _parent;
+
+        internal AstNodeContract(AstNodeFamily parent, Internal.AstNodeContract underlying)
+            : base(parent, underlying)
+        {
+            _parent = parent;
+        }
+
+        public AstNodeFamily Parent { get { return _parent; } }
+        new internal Internal.AstNodeContract GetUnderlying() { return (Internal.AstNodeContract)base.GetUnderlying(); }
+
+    }
+
+    public class AstNodeProperty : IVisitable
+    {
+        private readonly AstMolecule _parent;
         private readonly Internal.AstNodeProperty _underlying;
 
-        internal AstNodeProperty(AstNode parent, Internal.AstNodeProperty underlying)
+        internal AstNodeProperty(AstMolecule parent, Internal.AstNodeProperty underlying)
         {
             _parent = parent;
             _underlying = underlying;
         }
 
-        public AstNode Parent { get { return _parent; } }
+        public AstMolecule Parent { get { return _parent; } }
         internal Internal.AstNodeProperty GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -169,12 +213,12 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         internal class AstNodeFamily
         {
             private readonly String _namespace;
-            private readonly IEnumerable<AstNode> _nodes;
+            private readonly IEnumerable<AstMolecule> _molecules;
 
-            public AstNodeFamily(String @namespace, IEnumerable<AstNode> nodes)
+            public AstNodeFamily(String @namespace, IEnumerable<AstMolecule> molecules)
             {
                 _namespace = @namespace;
-                _nodes = nodes;
+                _molecules = molecules;
             }
 
             public SyntacticModel.AstNodeFamily MakePublic(Object parent)
@@ -188,44 +232,81 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
             }
 
             public String Namespace { get { return _namespace; } }
-            public IEnumerable<AstNode> Nodes { get { return _nodes; } }
+            public IEnumerable<AstMolecule> Molecules { get { return _molecules; } }
         }
 
-        internal class AstNode
+
+        internal abstract class AstMolecule
         {
-            private readonly Boolean _isAbstract;
-            private readonly String _name;
             private readonly String _typeName;
-            private readonly Maybe<String> _parentType;
             private readonly IEnumerable<String> _baseTypes;
             private readonly IEnumerable<AstNodeProperty> _properties;
 
-            public AstNode(Boolean isAbstract, String name, String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+            protected AstMolecule(String typeName, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
             {
-                _isAbstract = isAbstract;
-                _name = name;
                 _typeName = typeName;
-                _parentType = parentType;
                 _baseTypes = baseTypes;
                 _properties = properties;
             }
 
-            public SyntacticModel.AstNode MakePublic(SyntacticModel.AstNodeFamily parent)
+            public SyntacticModel.AstMolecule MakePublic(SyntacticModel.AstNodeFamily parent)
             {
                 return BuildPublic(parent);
             }
 
-            protected virtual SyntacticModel.AstNode BuildPublic(SyntacticModel.AstNodeFamily parent)
+            protected abstract SyntacticModel.AstMolecule BuildPublic(SyntacticModel.AstNodeFamily parent);
+            public String TypeName { get { return _typeName; } }
+            public IEnumerable<String> BaseTypes { get { return _baseTypes; } }
+            public IEnumerable<AstNodeProperty> Properties { get { return _properties; } }
+        }
+
+        internal class AstNode : AstMolecule
+        {
+            private readonly Boolean _isAbstract;
+            private readonly String _name;
+            private readonly Maybe<String> _parentType;
+
+            public AstNode(Boolean isAbstract, String name, Maybe<String> parentType, String typeName, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+                : base(typeName, baseTypes, properties)
+            {
+                _isAbstract = isAbstract;
+                _name = name;
+                _parentType = parentType;
+            }
+
+            public new SyntacticModel.AstNode MakePublic(SyntacticModel.AstNodeFamily parent)
+            {
+                return (SyntacticModel.AstNode)BuildPublic(parent);
+            }
+
+            protected override SyntacticModel.AstMolecule BuildPublic(SyntacticModel.AstNodeFamily parent)
             {
                 return new SyntacticModel.AstNode(parent, this);
             }
 
             public Boolean IsAbstract { get { return _isAbstract; } }
             public String Name { get { return _name; } }
-            public String TypeName { get { return _typeName; } }
             public Maybe<String> ParentType { get { return _parentType; } }
-            public IEnumerable<String> BaseTypes { get { return _baseTypes; } }
-            public IEnumerable<AstNodeProperty> Properties { get { return _properties; } }
+        }
+
+        internal class AstNodeContract : AstMolecule
+        {
+
+            public AstNodeContract(String typeName, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+                : base(typeName, baseTypes, properties)
+            {
+            }
+
+            public new SyntacticModel.AstNodeContract MakePublic(SyntacticModel.AstNodeFamily parent)
+            {
+                return (SyntacticModel.AstNodeContract)BuildPublic(parent);
+            }
+
+            protected override SyntacticModel.AstMolecule BuildPublic(SyntacticModel.AstNodeFamily parent)
+            {
+                return new SyntacticModel.AstNodeContract(parent, this);
+            }
+
         }
 
         internal class AstNodeProperty
@@ -241,12 +322,12 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
                 _cardinality = cardinality;
             }
 
-            public SyntacticModel.AstNodeProperty MakePublic(SyntacticModel.AstNode parent)
+            public SyntacticModel.AstNodeProperty MakePublic(SyntacticModel.AstMolecule parent)
             {
                 return BuildPublic(parent);
             }
 
-            protected virtual SyntacticModel.AstNodeProperty BuildPublic(SyntacticModel.AstNode parent)
+            protected virtual SyntacticModel.AstNodeProperty BuildPublic(SyntacticModel.AstMolecule parent)
             {
                 return new SyntacticModel.AstNodeProperty(parent, this);
             }

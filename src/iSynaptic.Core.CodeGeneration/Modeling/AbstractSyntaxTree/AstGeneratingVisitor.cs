@@ -33,18 +33,18 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
     public class AstGeneratingVisitor : CSharpCodeAuthoringVisitor<String>
     {
-        private readonly Dictionary<String, AstNode> _symbolTable;
+        private readonly Dictionary<String, AstMolecule> _symbolTable;
         private readonly Func<String, IVisitable, IVisitable, String> _lineInterleave;
 
-        public AstGeneratingVisitor(TextWriter writer, Dictionary<String, AstNode> symbolTable) : base(writer)
+        public AstGeneratingVisitor(TextWriter writer, Dictionary<String, AstMolecule> symbolTable) : base(writer)
         {
             _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
             _lineInterleave = (st, l, r) => { WriteLine(); return st; };
         }
 
-        public Maybe<AstNode> Resolve(AstNode relativeTo, String nodeType)
+        public Maybe<AstMolecule> Resolve(AstMolecule relativeTo, String nodeType)
         {
-            return nodeType != relativeTo.Name 
+            return nodeType != relativeTo.TypeName 
                 ? _symbolTable.TryGetValue(String.Format("{0}.{1}", relativeTo.Parent.Namespace, nodeType)) 
                 : relativeTo.ToMaybe();
         }
@@ -90,9 +90,22 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             }
         }
 
+        protected String Visit(AstNodeContract contract, String mode)
+        {
+            if (mode == "public")
+            {
+                using (WriteBlock("public interface {0}", contract.TypeName))
+                {
+                    DispatchChildren(contract, "contractProperty");
+                }
+            }
+
+            return mode;
+        }
+
         protected String Visit(AstNode node, String mode)
         {
-            var nodeHierarcy = node.Recurse(x => x.BaseTypes.TryFirst().SelectMaybe(y => Resolve(x, y))).ToArray();
+            var nodeHierarcy = node.Recurse(x => x.BaseTypes.TryFirst().SelectMaybe(y => Resolve(x, y).OfType<AstNode>())).ToArray();
 
             var baseNode = nodeHierarcy.Skip(1).TryFirst();
             var parentNode = nodeHierarcy
@@ -117,24 +130,24 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
                 using (WriteBlock("public {0}class {1}{2}", node.IsAbstract ? "abstract " : "", node.TypeName, baseTypesSuffix))
                 {
-                    if (node.ParentType.HasValue)
-                        WriteLine("private readonly {0} _parent;", node.ParentType.Value);
+                    if (parentNode.HasValue)
+                        WriteLine("private readonly {0} _parent;", parentNode.Value.TypeName);
 
                     if (!baseNode.HasValue)
                         WriteLine("private readonly Internal.{0} _underlying;", node.TypeName);
 
                     WriteLine();
 
-                    string ctor = node.ParentType.HasValue
+                    string ctor = parentNode.HasValue
                         ? "internal {1}({0} parent, Internal.{1} underlying)"
                         : "internal {1}(Internal.{1} underlying)";
 
                     if (baseNode.HasValue)
-                        ctor = String.Format("{0} : base({1})", ctor, node.ParentType.HasValue ? "parent, underlying" : "underlying");
+                        ctor = String.Format("{0} : base({1})", ctor, parentNode.HasValue ? "parent, underlying" : "underlying");
 
-                    using (WriteBlock(ctor, node.ParentType.ValueOrDefault(), node.TypeName))
+                    using (WriteBlock(ctor, parentNode.Select(x => x.TypeName).ValueOrDefault(), node.TypeName))
                     {
-                        if (node.ParentType.HasValue)
+                        if (parentNode.HasValue)
                             WriteLine("_parent = parent;");
 
                         if (!baseNode.HasValue)
@@ -264,11 +277,11 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                 using(WriteBlock(")"))
                 {
 
-                    Write(node.ParentType.HasValue
+                    Write(parentNode.HasValue
                             ? "return new {0}(null, new SyntacticModel.Internal.{0}("
                             : "return new {0}(new SyntacticModel.Internal.{0}(",
-                        node.TypeName, 
-                        node.ParentType.ValueOrDefault());
+                        node.TypeName,
+                        parentNode.Select(x => x.TypeName).ValueOrDefault());
                     DispatchChildren(nodeHierarcy, "argumentUnderlyingSelector", (s, l, r) => { Write(", "); return s; });
                     WriteLine("));");
                 }
@@ -312,6 +325,13 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                           GetPropertyType(property), 
                           property.Name, 
                           Camelize(property.Name));
+            }
+
+            if (mode == "contractProperty")
+            {
+                WriteLine("{0} {1} {{ get; }}",
+                          GetPropertyType(property),
+                          property.Name);
             }
 
             if (mode == "publicSelector")

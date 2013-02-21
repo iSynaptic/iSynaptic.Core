@@ -55,7 +55,6 @@
     <Compile Include="Modeling\AbstractSyntaxTree\AstNodePropertyCardinality.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\Generated.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\Parser.cs" />
-    <Compile Include="Modeling\AbstractSyntaxTree\SyntacticModel\IAstConcept.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\SymbolTableConstructionVisitor.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
@@ -72,6 +71,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Modeling\AbstractSyntaxTree\SyntacticModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

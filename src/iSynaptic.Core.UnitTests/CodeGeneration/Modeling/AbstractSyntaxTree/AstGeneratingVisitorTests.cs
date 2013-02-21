@@ -39,23 +39,38 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             AstNodeFamily family = parser.Parse(@"ast iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
-  node AstNodeFamily(""Family"") : IAstConcept
+  node AstNodeFamily(""Family"")
   {
     String Namespace;
-    AstNode* Nodes;
+    AstMolecule* Molecules;
   }
 
-  node AstNode(""Node"", AstNodeFamily) : IAstConcept
+  contract IAstConcept
   {
-    Boolean IsAbstract;
-    String Name;
     String TypeName;
-    String? ParentType;
     String* BaseTypes;
     AstNodeProperty* Properties;
   }
 
-  node AstNodeProperty(""Property"", AstNode) : IAstConcept
+  abstract node AstMolecule(""Molecule"", AstNodeFamily)
+  {
+    String TypeName;
+    String* BaseTypes;
+    AstNodeProperty* Properties;
+  }
+
+  node AstNode(""Node"") : AstMolecule, IAstConcept
+  {
+    Boolean IsAbstract;
+    String Name;
+    String? ParentType;
+  }
+
+  node AstNodeContract(""Contract"") : AstMolecule, IAstConcept
+  {
+  }
+
+  node AstNodeProperty(""Property"", AstMolecule)
   {
     String Name;
     String Type;

@@ -55,7 +55,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         {
             return from keyword in Parse.String("ast")
                    from ns in NamespaceOrTypeName()
-                   from nodes in Blocked(Node().Many())
+                   from nodes in Blocked(Node().Or<AstMolecule>(Contract()).Many())
                    select Syntax.Family(ns, nodes);
         }
 
@@ -88,10 +88,30 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                    select Syntax.Node(
                             isAbstract,
                             name,
-                            typeName,
                             parent,
+                            typeName,
                             baseTypes,
                             properties);
+        }
+
+        public static Parser<AstNodeContract> Contract()
+        {
+            return from keyword in Parse.String("contract")
+                   from typeName in IdentifierOrKeyword()
+                   from baseTypes in
+                       (
+                            from colun in Parse.Char(':')
+                            from types in TypeName().Delimit(Parse.Char(','))
+                            select types
+                       ).Optional()
+                   from blockStart in Parse.Char('{')
+                   from properties in Property().Many()
+                   from blockEnd in Parse.Char('}')
+                   select Syntax.Contract(
+                            typeName,
+                            baseTypes,
+                            properties);
+
         }
 
         public static Parser<AstNodeProperty> Property()
