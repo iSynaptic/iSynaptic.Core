@@ -51,14 +51,6 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
     AstNodeProperty* Properties;
   }
 
-  /*abstract node AstMolecule(""Molecule"", AstNodeFamily)
-  {
-    String TypeName;
-    String? ParentType;
-    String* BaseTypes;
-    AstNodeProperty* Properties;
-  }*/
-
   node AstNode(""Node"", AstNodeFamily) : IAstConcept
   {
     Boolean IsAbstract;

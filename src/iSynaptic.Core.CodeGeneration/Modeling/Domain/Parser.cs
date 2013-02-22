@@ -26,6 +26,8 @@ using System.Linq;
 using Sprache;
 
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
+using iSynaptic.Commons;
+using Result = Sprache.Result;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
@@ -74,12 +76,35 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               from end in StatementEnd
               select Syntax.UsingStatement(ns);
 
-        public static readonly Parser<ValueSyntax> Value
-            = from keyword in Parse.String("value")
+        public static readonly Parser<TypeCardinalitySyntax> TypeCardinality
+            = Parse.Char('*').Select(x => new TypeCardinalitySyntax(0))
+            .Or(Parse.Char('+').Select(x => new TypeCardinalitySyntax(1)))
+            .Or(Parse.Char('?').Select(x => new TypeCardinalitySyntax(0, 1)))
+            .Or(Parse.Return(new TypeCardinalitySyntax(1, 1)));
+
+        public static readonly Parser<TypeReferenceSyntax> TypeReference
+            = from name in Name
+              from cardinality in TypeCardinality
+              select new TypeReferenceSyntax(name, cardinality);
+
+        public static readonly Parser<ValuePropertySyntax> ValueProperty
+            = from type in TypeReference
               from name in SimpleName
-              from blockStart in BlockStart
-              from blockEnd in BlockEnd
-              select Syntax.Value(name, Enumerable.Empty<ValuePropertySyntax>());
+              from end in StatementEnd
+              select Syntax.ValueProperty(name, type);
+
+        public static readonly Parser<ValueSyntax> Value
+            = from isAbstract in Flag("abstract")
+              from keyword in Parse.String("value")
+              from name in SimpleName
+              from @base in
+              (
+                    from op in Parse.Char(':')
+                    from n in Name
+                    select n
+              ).Optional()
+              from properties in Blocked(ValueProperty.Many())
+              select Syntax.Value(isAbstract, name, @base, properties);
 
         public static readonly Parser<AggregateSyntax> Aggregate
             = from keyword in Parse.String("aggregate")

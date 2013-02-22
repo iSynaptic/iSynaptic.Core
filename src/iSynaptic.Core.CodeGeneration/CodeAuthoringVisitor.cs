@@ -32,9 +32,13 @@ namespace iSynaptic.CodeGeneration
     public abstract class CodeAuthoringVisitor<TState> : Visitor<TState>
     {
         protected CodeAuthoringVisitor(TextWriter writer, String indentationToken)
+            : this(new IndentingTextWriter(writer, indentationToken))
         {
-            Guard.NotNull(writer, "writer");
-            Writer = new IndentingTextWriter(writer, indentationToken);
+        }
+
+        protected CodeAuthoringVisitor(IndentingTextWriter writer)
+        {
+            Writer = Guard.NotNull(writer, "writer");
         }
 
         protected virtual IDisposable WithBlock(String start, String end)

@@ -57,6 +57,7 @@
     <Compile Include="Modeling\AbstractSyntaxTree\Parser.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\SymbolTableConstructionVisitor.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\FullDomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
     <Compile Include="Modeling\Domain\Parser.cs" />
     <Compile Include="Modeling\Domain\SymbolResolution.cs" />
@@ -66,15 +67,19 @@
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateEventPropertySyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateEventSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateSyntax.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\BuiltInType.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\GenericNameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\IdentifierNameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\NamespaceSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\NameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\QualifiedNameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\SimpleNameSyntax.cs" />
-    <Compile Include="Modeling\Domain\SyntacticModel\TypeReference.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\Temp.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\TypeCardinalitySyntax.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\TypeReferenceSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\ValuePropertySyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\ValueSyntax.cs" />
+    <Compile Include="Modeling\Domain\ValueCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\ParserExtensions.cs" />
     <Compile Include="Modeling\StandardLanguageParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -85,6 +90,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modeling\AbstractSyntaxTree\SyntacticModel\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\iSynaptic.Core\iSynaptic.Core.csproj">
+      <Project>{E249B9CC-0867-4BC2-AF95-AAC079C696B2}</Project>
+      <Name>iSynaptic.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

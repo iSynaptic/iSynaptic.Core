@@ -34,6 +34,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         private readonly Dictionary<NameSyntax, ISymbol> _map
             = new Dictionary<NameSyntax, ISymbol>();
 
+        public SymbolTable()
+        {
+            BuiltInType.Types.Run(Add);
+        }
+
         public void Add(ISymbol symbol)
         {
             _map.Add(symbol.FullName, symbol);
@@ -49,24 +54,29 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             var usingsContainer = context as IUsingsContainer;
             if (usingsContainer != null)
             {
-                var resolution = usingsContainer.UsingStatements
-                               .SelectMaybe(x =>
-                               {
-                                   var n = context.FullName + x.Namespace + name;
-                                   return _map.TryGetValue(n);
-                               })
-                               .Select(x => new SymbolResolution(x))
-                               .Aggregate(default(SymbolResolution), (l, r) => l & r);
+                var resolution = ResolveViaUsings(context.FullName, name, usingsContainer);
 
                 if (resolution.Status != SymbolResolutionStatus.NotFound)
                     return resolution;
             }
 
-            var parent = context.Parent as ISymbol;
+            var parentSymbol = context.Parent as ISymbol;
+            if (parentSymbol != null)
+                return Resolve(parentSymbol, name);
 
-            return parent != null 
-                ? Resolve(parent, name) 
-                : default(SymbolResolution);
+            var parentUsings = context.Parent as IUsingsContainer;
+            if (parentUsings != null)
+                return ResolveViaUsings(null, name, parentUsings);
+
+            return default(SymbolResolution);
+        }
+
+        private SymbolResolution ResolveViaUsings(NameSyntax baseName, NameSyntax name, IUsingsContainer usingsContainer)
+        {
+            return usingsContainer.UsingStatements
+                .SelectMaybe(x => _map.TryGetValue(baseName + x.Namespace + name))
+                .Select(x => new SymbolResolution(x))
+                .Aggregate(default(SymbolResolution), (l, r) => l & r);
         }
     }
 }

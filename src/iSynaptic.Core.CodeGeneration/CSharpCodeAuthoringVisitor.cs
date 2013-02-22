@@ -21,10 +21,9 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using iSynaptic.Commons.Linq;
+using iSynaptic.Commons.Text;
 
 namespace iSynaptic.CodeGeneration
 {
@@ -33,12 +32,12 @@ namespace iSynaptic.CodeGeneration
         private static readonly Regex SafeIdentifierRegex = new Regex("^(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while)$");
 
         protected CSharpCodeAuthoringVisitor(TextWriter writer) 
-            : this(writer, "    ")
+            : base(writer, "    ")
         {
         }
 
-        protected CSharpCodeAuthoringVisitor(TextWriter writer, string indentationToken)
-            : base(writer, indentationToken)
+        protected CSharpCodeAuthoringVisitor(IndentingTextWriter writer)
+            : base(writer)
         {
         }
 

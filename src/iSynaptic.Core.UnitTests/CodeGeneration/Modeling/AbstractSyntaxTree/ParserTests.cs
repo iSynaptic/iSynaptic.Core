@@ -82,7 +82,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.One);
-            results.Name.Should().Be("SimpleName");
+            results.SimpleName.Should().Be("SimpleName");
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.ZeroOrOne);
-            results.Name.Should().Be("SimpleName");
+            results.SimpleName.Should().Be("SimpleName");
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.Many);
-            results.Name.Should().Be("SimpleName");
+            results.SimpleName.Should().Be("SimpleName");
         }
     }
 }

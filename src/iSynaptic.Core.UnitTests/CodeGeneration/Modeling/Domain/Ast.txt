@@ -18,6 +18,7 @@
 	contract IType : ISymbol 
 	{
 		SimpleNameSyntax Name;
+		Boolean IsValueType;
 	}
 
     node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer, INode
@@ -38,7 +39,7 @@
     {
         SimpleNameSyntax Name;
 		NameSyntax? IdentifierType;
-		NameSyntax? BaseAggregate;
+		NameSyntax? Base;
 
         AggregateEventSyntax* Events;
     }
@@ -52,19 +53,22 @@
     node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax) : ISymbol
     {
         SimpleNameSyntax Name;
-        SimpleNameSyntax Type;
+        TypeReferenceSyntax Type;
     }
 
     node ValueSyntax("Value", NamespaceSyntax) : INamespaceMember, IType
     {
+		Boolean IsAbstract;
         SimpleNameSyntax Name;
+		NameSyntax? Base;
+
         ValuePropertySyntax* Properties;
     }
 
     node ValuePropertySyntax("ValueProperty", ValueSyntax) : ISymbol
     {
         SimpleNameSyntax Name;
-        SimpleNameSyntax Type;
+        TypeReferenceSyntax Type;
     }
 
     node UsingStatementSyntax("UsingStatement")

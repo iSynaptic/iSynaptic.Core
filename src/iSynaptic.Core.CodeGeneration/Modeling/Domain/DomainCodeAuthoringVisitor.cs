@@ -26,61 +26,54 @@ using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
+using iSynaptic.Commons.Text;
+using ISymbol = iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel.ISymbol;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
-    public class DomainCodeAuthoringVisitor : CSharpCodeAuthoringVisitor<Unit>
+    public abstract class DomainCodeAuthoringVisitor<TState> : CSharpCodeAuthoringVisitor<TState>
     {
         private readonly SymbolTable _symbolTable;
 
-        public DomainCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable) : base(writer)
+        protected DomainCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable) : base(writer)
         {
             _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
         }
 
-        protected void Visit(NamespaceSyntax @namespace)
+        protected DomainCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable)
+            : base(writer)
         {
-            using (WriteBlock("namespace {0}", @namespace.Name))
-            {
-                DispatchChildren(@namespace);
-            }
+            _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
         }
 
-        protected void Visit(UsingStatementSyntax @using)
+        protected String GetTypeString(NameSyntax type, ISymbol relativeTo)
         {
-            WriteLine("using {0};", @using.Namespace);
+            return GetTypeString(new TypeReferenceSyntax(type, new TypeCardinalitySyntax(1, 1)), relativeTo);
         }
 
-        protected void Visit(ValueSyntax value)
+        protected String GetTypeString(TypeReferenceSyntax reference, ISymbol relativeTo)
         {
-            using (WriteBlock("public class {0} : IEquatable<{0}>", value.Name))
-            {
-                
-            }
+            String elementalType = GetElementalTypeString(reference, relativeTo);
+
+            if (reference.Cardinality.IsMany)
+                return String.Format("IEnumerable<{0}>", elementalType);
+
+            if (reference.Cardinality.IsOptional)
+                return String.Format("Maybe<{0}>", elementalType);
+
+            return elementalType;
         }
 
-        protected void Visit(AggregateSyntax aggregate)
+        protected String GetElementalTypeString(TypeReferenceSyntax reference, ISymbol relativeTo)
         {
-            var baseAggregateSymbol = aggregate.BaseAggregate
-                .Select(x => _symbolTable.Resolve(aggregate, x))
-                .Select(x => x.Symbol);
+            var resolvedType = SymbolTable.Resolve(relativeTo, reference.Name);
 
-            if (baseAggregateSymbol.HasValue && (baseAggregateSymbol.Value == aggregate || !(baseAggregateSymbol.Value is AggregateSyntax)))
-                throw new InvalidOperationException("Aggregate cannot be it's own base or use non-aggregates as a base.");
-
-            String baseAggregate = baseAggregateSymbol
-                .Select(x => x.FullName)
-                .Select(x => GetRelativeName(x, aggregate.Parent))
-                .Select(x => x.ToString())
-                .ValueOrDefault("Aggregate<Guid>");
-
-            using (WriteBlock("public class {0} : {1}", aggregate.Name, baseAggregate))
-            {
-
-            }
+            return resolvedType.Status == SymbolResolutionStatus.NotFound
+                ? reference.Name.ToString()
+                : (String)GetRelativeName(resolvedType.Symbol.FullName, relativeTo);
         }
 
-        protected NameSyntax GetRelativeName(NameSyntax name, SyntacticModel.ISymbol relativeTo)
+        protected NameSyntax GetRelativeName(NameSyntax name, ISymbol relativeTo)
         {
             Guard.NotNull(name, "name");
             Guard.NotNull(relativeTo, "relativeTo");
@@ -91,30 +84,32 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             NameSyntax result = name;
 
             result = name.Parts
-                .ZipAll(relativeTo.FullName.Parts)
-                .SkipWhile(x => x[0] == x[1])
-                .SelectMaybe(x => x[0])
-                .OfType<NameSyntax>()
-                .Aggregate((l, r) => l + r);
+                         .ZipAll(relativeTo.FullName.Parts)
+                         .SkipWhile(x => x[0] == x[1])
+                         .SelectMaybe(x => x[0])
+                         .OfType<NameSyntax>()
+                         .Aggregate((l, r) => l + r);
 
 
             var usings = relativeTo as IUsingsContainer;
             if (usings != null)
             {
                 var applicableUsing = usings
-                      .UsingStatements
-                      .Select(x => x.Namespace)
-                      .Where(result.StartsWith)
-                      .OrderByDescending(x => x.Parts.Count())
-                      .TryFirst();
+                    .UsingStatements
+                    .Select(x => x.Namespace)
+                    .Where(result.StartsWith)
+                    .OrderByDescending(x => x.Parts.Count())
+                    .TryFirst();
 
                 if (applicableUsing.HasValue)
                     return result.Parts
-                        .Skip(applicableUsing.Value.Parts.Count())
-                        .Aggregate<NameSyntax>((l, r) => l + r);
+                                 .Skip(applicableUsing.Value.Parts.Count())
+                                 .Aggregate<NameSyntax>((l, r) => l + r);
             }
 
             return result;
         }
+
+        protected SymbolTable SymbolTable { get { return _symbolTable; } }
     }
 }

@@ -45,7 +45,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             var tree = Parser.SyntaxTree.Parse(input);
             var symbolTable = SymbolTableConstructionVisitor.BuildSymbolTable(tree);
 
-            var visitor = new DomainCodeAuthoringVisitor(Console.Out, symbolTable);
+            var visitor = new FullDomainCodeAuthoringVisitor(Console.Out, symbolTable);
             visitor.Dispatch(tree);
         }
     }

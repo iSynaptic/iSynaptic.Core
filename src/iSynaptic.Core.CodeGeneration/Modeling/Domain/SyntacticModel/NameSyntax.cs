@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sprache;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
 
@@ -32,8 +33,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         public static NameSyntax operator+(NameSyntax left, NameSyntax right)
         {
-            Guard.NotNull(left, "left");
-            Guard.NotNull(right, "right");
+            if (left == null)
+                return right;
+
+            if (right == null)
+                return left;
 
             var simpleName = right as SimpleNameSyntax;
             if (simpleName != null)
@@ -74,6 +78,16 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         public static bool operator !=(NameSyntax left, NameSyntax right)
         {
             return !(left == right);
+        }
+
+        public static implicit operator String(NameSyntax name)
+        {
+            return name.ToString();
+        }
+
+        public static implicit operator NameSyntax(String name)
+        {
+            return Parser.Name.Parse(name);
         }
 
         public abstract SimpleNameSyntax SimpleName { get; }

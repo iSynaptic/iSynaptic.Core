@@ -4,9 +4,22 @@ namespace iSynaptic.Modeling.Domain.Test
 {
 	namespace Inner
 	{
-		//using Foo;
+		value Message
+		{
+			Guid Id;
+		}
+
+		value DerivedMessage : Message
+		{
+			String Content;
+		}
+
 		value Test
 		{
+			String Name;
+			String? Message;
+			String+ Foos;
+			String* OtherFoos;
 		}
 
 		aggregate<Guid> ServiceCase : Foo.Base

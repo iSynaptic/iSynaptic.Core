@@ -34,12 +34,10 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
     public class AstGeneratingVisitor : CSharpCodeAuthoringVisitor<String>
     {
         private readonly Dictionary<String, IAstConcept> _symbolTable;
-        private readonly Func<String, IVisitable, IVisitable, String> _lineInterleave;
 
         public AstGeneratingVisitor(TextWriter writer, Dictionary<String, IAstConcept> symbolTable) : base(writer)
         {
             _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
-            _lineInterleave = (st, l, r) => { WriteLine(); return st; };
         }
 
         public Maybe<IAstConcept> Resolve(IAstConcept relativeTo, String nodeType)
@@ -76,13 +74,12 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                 WriteLine("internal interface IAstUnderlyingNode<out T, in TParent> { T MakePublic(TParent parent); }");
                 WriteLine();
 
-
-                DispatchChildren(family, "public", _lineInterleave);
+                Delimit(family.Concepts, "public", Environment.NewLine);
 
                 WriteLine();
                 using (WriteBlock("namespace Internal"))
                 {
-                    DispatchChildren(family, "internal", _lineInterleave);
+                    Delimit(family.Concepts, "internal", Environment.NewLine);
                 }
             }
 
@@ -93,7 +90,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         {
             using (WriteBlock("public static class Syntax"))
             {
-                DispatchChildren(family, "syntaxMethod", _lineInterleave);
+                Delimit(family.Concepts, "syntaxMethod", Environment.NewLine);
             }
         }
 
@@ -255,7 +252,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                         WriteLine();
                         using (WithBlock())
                         {
-                            DispatchChildren(node, "assignArgument");
+                            DispatchChildren(node, "assignToField");
                         }
                         WriteLine();
                     }
@@ -303,7 +300,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "syntaxMethod" && !node.IsAbstract)
             {
-                Write("public static {0} {1}(", node.TypeName, node.Name);
+                Write("public static {0} {1}(", node.TypeName, node.SimpleName);
                 DispatchChildren(nodeHierarcy, "parameter", (s, l, r) => { Write(", "); return s; });
                 using(WriteBlock(")"))
                 {
@@ -330,44 +327,44 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             {
                 WriteLine("private readonly {0} _{1};",
                           GetPropertyType(property),
-                          Camelize(property.Name));
+                          Camelize(property.SimpleName));
             }
 
             if (mode == "parameter")
             {
                 Write("{0} {1}", 
-                      GetPropertyType(property), 
-                      SafeIdentifier(Camelize(property.Name)));
+                      GetPropertyType(property),
+                      SafeIdentifier(Camelize(property.SimpleName)));
             }
 
             if (mode == "argument")
             {
-                Write("{0}", SafeIdentifier(Camelize(property.Name)));
+                Write("{0}", SafeIdentifier(Camelize(property.SimpleName)));
             }
 
-            if (mode == "assignArgument")
+            if (mode == "assignToField")
             {
-                WriteLine("_{0} = {1};", Camelize(property.Name), SafeIdentifier(Camelize(property.Name)));
+                WriteLine("_{0} = {1};", Camelize(property.SimpleName), SafeIdentifier(Camelize(property.SimpleName)));
             }
 
             if (mode == "property")
             {
                 WriteLine("public {0} {1} {{ get {{ return _{2}; }} }}",
-                          GetPropertyType(property), 
-                          property.Name, 
-                          Camelize(property.Name));
+                          GetPropertyType(property),
+                          property.SimpleName,
+                          Camelize(property.SimpleName));
             }
 
             if (mode == "contractProperty")
             {
                 WriteLine("{0} {1} {{ get; }}",
                           GetPropertyType(property),
-                          property.Name);
+                          property.SimpleName);
             }
 
             if (mode == "publicSelector")
             {
-                using (WriteBlock("public {0} {1}", GetPropertyType(property), property.Name))
+                using (WriteBlock("public {0} {1}", GetPropertyType(property), property.SimpleName))
                 using (WriteBlock("get"))
                 {
                     if (isNodeProperty)
@@ -375,11 +372,11 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                         WriteLine(property.Cardinality != AstNodePropertyCardinality.One
                                     ? "return ((IAstNode<Internal.{0}>)this).GetUnderlying().{1}.Select(x => ((IAstUnderlyingNode<{2}, {0}>)x).MakePublic(this));"
                                     : "return ((IAstUnderlyingNode<{2}, {0}>)((IAstNode<Internal.{0}>)this).GetUnderlying().{1}).MakePublic(this);",
-                                  property.Parent.TypeName, property.Name, property.Type);
+                                  property.Parent.TypeName, property.SimpleName, property.Type);
                     }
                     else
                     {
-                        WriteLine("return ((IAstNode<Internal.{0}>)this).GetUnderlying().{1};", property.Parent.TypeName, property.Name);
+                        WriteLine("return ((IAstNode<Internal.{0}>)this).GetUnderlying().{1};", property.Parent.TypeName, property.SimpleName);
                     }
                 }
             }
@@ -391,23 +388,23 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                     Write(property.Cardinality != AstNodePropertyCardinality.One
                               ? "{0}.Select(x => ((IAstNode<SyntacticModel.Internal.{1}>)x).GetUnderlying())"
                               : "((IAstNode<SyntacticModel.Internal.{1}>){0}).GetUnderlying()",
-                          SafeIdentifier(Camelize(property.Name)),
+                          SafeIdentifier(Camelize(property.SimpleName)),
                           property.Type);
                 }
                 else
-                    Write(SafeIdentifier(Camelize(property.Name)));
+                    Write(SafeIdentifier(Camelize(property.SimpleName)));
             }
 
             if (mode == "dispatchInvoke" && isNodeProperty)
             {
                 if(property.Cardinality == AstNodePropertyCardinality.One)
-                    WriteLine("dispatch(new[]{{ {0} }});", property.Name);
+                    WriteLine("dispatch(new[]{{ {0} }});", property.SimpleName);
 
                 if (property.Cardinality == AstNodePropertyCardinality.ZeroOrOne)
-                    WriteLine("dispatch({0}.ToEnumerable());", property.Name);
+                    WriteLine("dispatch({0}.ToEnumerable());", property.SimpleName);
 
                 if(property.Cardinality == AstNodePropertyCardinality.Many)
-                    WriteLine("dispatch({0});", property.Name);
+                    WriteLine("dispatch({0});", property.SimpleName);
             }
 
             return mode;
