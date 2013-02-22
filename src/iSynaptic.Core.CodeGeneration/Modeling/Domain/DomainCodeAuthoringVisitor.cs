@@ -20,9 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.IO;
+using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
@@ -56,12 +59,62 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             }
         }
 
-        protected void Visit(AggregateSyntax value)
+        protected void Visit(AggregateSyntax aggregate)
         {
-            using (WriteBlock("public class {0} : Aggregate<{1}>", value.Name, value.IdentifierType.ValueOrDefault(Syntax.IdentifierName("T"))))
+            var baseAggregateSymbol = aggregate.BaseAggregate
+                .Select(x => _symbolTable.Resolve(aggregate, x))
+                .Select(x => x.Symbol);
+
+            if (baseAggregateSymbol.HasValue && (baseAggregateSymbol.Value == aggregate || !(baseAggregateSymbol.Value is AggregateSyntax)))
+                throw new InvalidOperationException("Aggregate cannot be it's own base or use non-aggregates as a base.");
+
+            String baseAggregate = baseAggregateSymbol
+                .Select(x => x.FullName)
+                .Select(x => GetRelativeName(x, aggregate.Parent))
+                .Select(x => x.ToString())
+                .ValueOrDefault("Aggregate<Guid>");
+
+            using (WriteBlock("public class {0} : {1}", aggregate.Name, baseAggregate))
             {
 
             }
+        }
+
+        protected NameSyntax GetRelativeName(NameSyntax name, SyntacticModel.ISymbol relativeTo)
+        {
+            Guard.NotNull(name, "name");
+            Guard.NotNull(relativeTo, "relativeTo");
+
+            if (name == relativeTo.FullName)
+                return name.SimpleName;
+
+            NameSyntax result = name;
+
+            result = name.Parts
+                .ZipAll(relativeTo.FullName.Parts)
+                .SkipWhile(x => x[0] == x[1])
+                .SelectMaybe(x => x[0])
+                .OfType<NameSyntax>()
+                .Aggregate((l, r) => l + r);
+
+
+            var usings = relativeTo as IUsingsContainer;
+            if (usings != null)
+            {
+                var applicableUsing = usings
+                      .UsingStatements
+                      .Select(x => x.Namespace)
+                      .Where(result.StartsWith)
+                      .OrderByDescending(x => x.Parts.Count())
+                      .TryFirst();
+
+                if (applicableUsing.HasValue)
+                    return result.Parts
+                        .Skip(applicableUsing.Value.Parts.Count())
+                        .Aggregate<NameSyntax>((l, r) => l + r);
+            }
+
+            return result;
         }
     }
 }

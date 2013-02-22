@@ -21,6 +21,9 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
+using iSynaptic.Commons.Collections.Generic;
+using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
@@ -34,6 +37,36 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         public void Add(ISymbol symbol)
         {
             _map.Add(symbol.FullName, symbol);
+        }
+
+        public SymbolResolution Resolve(ISymbol context, NameSyntax name)
+        {
+            var fullName = context.FullName + name;
+            var symbol = _map.TryGetValue(fullName);
+            if(symbol.HasValue)
+                return new SymbolResolution(symbol.Value);
+
+            var usingsContainer = context as IUsingsContainer;
+            if (usingsContainer != null)
+            {
+                var resolution = usingsContainer.UsingStatements
+                               .SelectMaybe(x =>
+                               {
+                                   var n = context.FullName + x.Namespace + name;
+                                   return _map.TryGetValue(n);
+                               })
+                               .Select(x => new SymbolResolution(x))
+                               .Aggregate(default(SymbolResolution), (l, r) => l & r);
+
+                if (resolution.Status != SymbolResolutionStatus.NotFound)
+                    return resolution;
+            }
+
+            var parent = context.Parent as ISymbol;
+
+            return parent != null 
+                ? Resolve(parent, name) 
+                : default(SymbolResolution);
         }
     }
 }

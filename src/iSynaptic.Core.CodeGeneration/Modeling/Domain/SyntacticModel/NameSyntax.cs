@@ -21,18 +21,62 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using iSynaptic.Commons;
+using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    public abstract partial class NameSyntax
+    public abstract partial class NameSyntax : IEquatable<NameSyntax>
     {
-        public static QualifiedNameSyntax operator+(NameSyntax left, NameSyntax right)
+        public static NameSyntax operator+(NameSyntax left, NameSyntax right)
         {
+            Guard.NotNull(left, "left");
+            Guard.NotNull(right, "right");
+
             var simpleName = right as SimpleNameSyntax;
             if (simpleName != null)
                 return Syntax.QualifiedName(left, simpleName);
 
-            throw new NotImplementedException();
+            var qns = (QualifiedNameSyntax) right;
+            return qns.Parts.Aggregate(left, Syntax.QualifiedName);
         }
+
+        public bool StartsWith(NameSyntax other)
+        {
+            Guard.NotNull(other, "other");
+            return ToString().StartsWith(other.ToString());
+        }
+
+        public bool Equals(NameSyntax other)
+        {
+            return !ReferenceEquals(other, null) &&
+                   ToString() == other.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as NameSyntax);
+        }
+
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
+        }
+
+        public static bool operator==(NameSyntax left, NameSyntax right)
+        {
+            if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
+            return ReferenceEquals(left, null) || left.Equals(right);
+        }
+
+        public static bool operator !=(NameSyntax left, NameSyntax right)
+        {
+            return !(left == right);
+        }
+
+        public abstract SimpleNameSyntax SimpleName { get; }
+        public abstract IEnumerable<SimpleNameSyntax> Parts { get; }
     }
 }

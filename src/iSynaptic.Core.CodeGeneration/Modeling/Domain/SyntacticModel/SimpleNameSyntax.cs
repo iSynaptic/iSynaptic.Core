@@ -19,30 +19,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
-
-namespace iSynaptic.CodeGeneration.Modeling.Domain
+namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    public class SymbolTableConstructionVisitor : Visitor<SymbolTable>
+    public partial class SimpleNameSyntax
     {
-        private SymbolTableConstructionVisitor() { }
-
-        public static SymbolTable BuildSymbolTable(SyntaxTree tree)
+        public override SimpleNameSyntax SimpleName
         {
-            return new SymbolTableConstructionVisitor()
-                .Dispatch(tree, new SymbolTable());
+            get { return this; }
         }
 
-        protected void Visit(NamespaceSyntax @namespace, SymbolTable table)
+        public override System.Collections.Generic.IEnumerable<SimpleNameSyntax> Parts
         {
-            DispatchChildren(@namespace, table);
-        }
-
-        protected void Visit(ISymbol symbol, SymbolTable table)
-        {
-            table.Add(symbol);
-            DispatchChildren(symbol, table);
+            get { return new[] {this}; }
         }
     }
 }

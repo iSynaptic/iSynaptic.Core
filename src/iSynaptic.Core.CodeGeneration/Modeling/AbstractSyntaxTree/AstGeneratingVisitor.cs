@@ -132,21 +132,26 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
         protected String Visit(AstNode node, String mode)
         {
-            var nodeHierarcy = node.Recurse(x => x.BaseTypes.TryFirst().SelectMaybe(y => Resolve(x, y).OfType<AstNode>())).ToArray();
+            var conceptHierarchy = node.Recurse<IAstConcept>(x => x.BaseTypes.SelectMaybe(y => Resolve(x, y))).ToArray();
+            var nodeHierarcy = conceptHierarchy.OfType<AstNode>();
 
+            var parentHierarcy = nodeHierarcy.SelectMaybe(x => x.ParentType).SelectMaybe(x => Resolve(node, x)).ToArray();
+            bool parentDefinedByNode = parentHierarcy.Any();
+
+            if(!parentDefinedByNode)
+                parentHierarcy = conceptHierarchy.SelectMaybe(x => x.ParentType).SelectMaybe(x => Resolve(node, x)).ToArray();
+            ;
             var baseNode = nodeHierarcy.Skip(1).TryFirst();
-            var parentNode = nodeHierarcy
-                .SelectMaybe(x => x.ParentType)
-                .SelectMaybe(x => Resolve(node, x))
-                .TryFirst();
+            var parentNode = parentHierarcy.TryFirst();
 
             var lowestBaseNode = nodeHierarcy.Last();
-            var lowestParentNode = nodeHierarcy
-                .SelectMaybe(x => x.ParentType)
-                .SelectMaybe(x => Resolve(node, x))
-                .TryLast();
+            var lowestParentNode = parentHierarcy.TryLast();
 
-
+            var contractsWithParent = conceptHierarchy
+                .OfType<AstNodeContract>()
+                .Distinct()
+                .Where(x => x.ParentType.HasValue);
+            
             var baseTypes = node.BaseTypes.Concat(new[]{String.Format("IAstNode<Internal.{0}>", node.TypeName)});
 
             if (mode == "public")
@@ -181,11 +186,14 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
                     if (parentNode.HasValue)
                     {
-                        if(lowestParentNode.HasValue && parentNode.Value != lowestParentNode.Value)
+                        if (parentDefinedByNode && lowestParentNode.HasValue && parentNode.Value != lowestParentNode.Value)
                             WriteLine("public new {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
                         else
                             WriteLine("public {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
                     }
+
+                    foreach (var contractWithParent in contractsWithParent)
+                        WriteLine("{0} {1}.Parent {{ get {{ return _parent; }} }}", contractWithParent.ParentType.Value, contractWithParent.TypeName);
 
                     WriteLine("Internal.{0} IAstNode<Internal.{0}>.GetUnderlying() {{ return _underlying; }}", node.TypeName);
                     WriteLine();

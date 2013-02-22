@@ -36,7 +36,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {
   node AstNode(""Node"", AstNodeFamily)
   {
-    String Name;
+    String SimpleName;
     String TypeName;
     String? ParentType;
     String* BaseTypes;
@@ -51,7 +51,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
   node AstNodeProperty(""Property"", AstNode)
   {
-    String Name;
+    String SimpleName;
     String Type;
     Boolean IsNode;
     AstNodePropertyCardinality Cardinality;
@@ -66,7 +66,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             parser.Parse(@"node AstNode(""Node"", AstNodeFamily)
   {
-    String Name;
+    String SimpleName;
     String TypeName;
     String? ParentType;
     String* BaseTypes;
@@ -78,33 +78,33 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         public void Property_WithNoCardinalityModifier_Parsers()
         {
             var parser = Parser.Property();
-            var results = parser.Parse("String Name;");
+            var results = parser.Parse("String SimpleName;");
 
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.One);
-            results.Name.Should().Be("Name");
+            results.Name.Should().Be("SimpleName");
         }
 
         [Test]
         public void Property_WithZeroOrOneModifier_Parsers()
         {
             var parser = Parser.Property();
-            var results = parser.Parse("String? Name;");
+            var results = parser.Parse("String? SimpleName;");
 
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.ZeroOrOne);
-            results.Name.Should().Be("Name");
+            results.Name.Should().Be("SimpleName");
         }
 
         [Test]
         public void Property_WithManyModifier_Parsers()
         {
             var parser = Parser.Property();
-            var results = parser.Parse("String* Name;");
+            var results = parser.Parse("String* SimpleName;");
 
             results.Type.Should().Be("String");
             results.Cardinality.Should().Be(AstNodePropertyCardinality.Many);
-            results.Name.Should().Be("Name");
+            results.Name.Should().Be("SimpleName");
         }
     }
 }

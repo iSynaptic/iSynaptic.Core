@@ -21,14 +21,32 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
     public partial class QualifiedNameSyntax
     {
+        public override IEnumerable<SimpleNameSyntax> Parts
+        {
+            get
+            {
+                var parts = this.Recurse(x => x.Left as QualifiedNameSyntax)
+                           .ToArray();
+
+                return parts.Select(x => x.Right)
+                    .Concat(new[] { (SimpleNameSyntax)parts[parts.Length - 1].Left })
+                    .Reverse();
+            }
+        }
+
         public override string ToString()
         {
             return String.Format("{0}.{1}", Left, Right);
         }
+
+        public override SimpleNameSyntax SimpleName { get { return Right; } }
     }
 }

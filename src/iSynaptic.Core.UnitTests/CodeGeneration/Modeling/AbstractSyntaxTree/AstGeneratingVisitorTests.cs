@@ -62,7 +62,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
   node AstNode(""Node"", AstNodeFamily) : IAstConcept
   {
     Boolean IsAbstract;
-    String Name;
+    String SimpleName;
     String TypeName;
     String? ParentType;
     String* BaseTypes;
@@ -80,7 +80,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
   node AstNodeProperty(""Property"", IAstConcept)
   {
-    String Name;
+    String SimpleName;
     String Type;
     AstNodePropertyCardinality Cardinality;
   }

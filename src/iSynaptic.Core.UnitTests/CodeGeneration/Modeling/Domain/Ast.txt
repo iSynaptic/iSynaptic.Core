@@ -1,14 +1,16 @@
 ﻿ast iSynaptic.CodeGeneration.Modeling.Domain
 {
-    contract INamespaceParent { }
-    contract INamespaceMember { }
+	contract INode(INode) { }
+
+    contract INamespaceParent : INode { }
+    contract INamespaceMember : INode { }
 	
 	contract IUsingsContainer
 	{
 		UsingStatementSyntax* UsingStatements;
 	}
 
-	contract ISymbol
+	contract ISymbol : INode
 	{
 		NameSyntax FullName;
 	}
@@ -18,7 +20,7 @@
 		SimpleNameSyntax Name;
 	}
 
-    node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer
+    node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer, INode
     {
         UsingStatementSyntax* UsingStatements;
         NamespaceSyntax* Namespaces;

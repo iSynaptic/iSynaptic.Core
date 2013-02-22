@@ -91,6 +91,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         }
 
         public AstNodeFamily Parent { get { return _parent; } }
+        AstNodeFamily IAstConcept.Parent { get { return _parent; } }
         Internal.AstNode IAstNode<Internal.AstNode>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -154,6 +155,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         }
 
         public AstNodeFamily Parent { get { return _parent; } }
+        AstNodeFamily IAstConcept.Parent { get { return _parent; } }
         Internal.AstNodeContract IAstNode<Internal.AstNodeContract>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)

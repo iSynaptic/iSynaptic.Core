@@ -14,9 +14,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
 
 
+
         public static SyntaxTree SyntaxTree(IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces)
         {
-            return new SyntaxTree(new SyntacticModel.Internal.SyntaxTree(usingStatements.Select(x => ((IAstNode<SyntacticModel.Internal.UsingStatementSyntax>)x).GetUnderlying()), namespaces.Select(x => ((IAstNode<SyntacticModel.Internal.NamespaceSyntax>)x).GetUnderlying())));
+            return new SyntaxTree(null, new SyntacticModel.Internal.SyntaxTree(usingStatements.Select(x => ((IAstNode<SyntacticModel.Internal.UsingStatementSyntax>)x).GetUnderlying()), namespaces.Select(x => ((IAstNode<SyntacticModel.Internal.NamespaceSyntax>)x).GetUnderlying())));
         }
 
         public static NamespaceSyntax Namespace(NameSyntax name, IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<INamespaceMember> members)
@@ -79,11 +80,16 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
     internal interface IAstUnderlyingNode<out T, in TParent> { T MakePublic(TParent parent); }
 
-    public interface INamespaceParent : IVisitable
+    public interface INode : IVisitable
+    {
+        INode Parent { get; }
+    }
+
+    public interface INamespaceParent : INode, IVisitable
     {
     }
 
-    public interface INamespaceMember : IVisitable
+    public interface INamespaceMember : INode, IVisitable
     {
     }
 
@@ -92,7 +98,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         IEnumerable<UsingStatementSyntax> UsingStatements { get; }
     }
 
-    public interface ISymbol : IVisitable
+    public interface ISymbol : INode, IVisitable
     {
         NameSyntax FullName { get; }
     }
@@ -102,15 +108,19 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         SimpleNameSyntax Name { get; }
     }
 
-    public partial class SyntaxTree : INamespaceParent, IUsingsContainer, IAstNode<Internal.SyntaxTree>
+    public partial class SyntaxTree : INamespaceParent, IUsingsContainer, INode, IAstNode<Internal.SyntaxTree>
     {
+        private readonly INode _parent;
         private readonly Internal.SyntaxTree _underlying;
 
-        internal SyntaxTree(Internal.SyntaxTree underlying)
+        internal SyntaxTree(INode parent, Internal.SyntaxTree underlying)
         {
+            _parent = parent;
             _underlying = underlying;
         }
 
+        public INode Parent { get { return _parent; } }
+        INode INode.Parent { get { return _parent; } }
         Internal.SyntaxTree IAstNode<Internal.SyntaxTree>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -147,6 +157,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public INamespaceParent Parent { get { return _parent; } }
+        INode INode.Parent { get { return _parent; } }
         Internal.NamespaceSyntax IAstNode<Internal.NamespaceSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -191,6 +202,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public NamespaceSyntax Parent { get { return _parent; } }
+        INode INode.Parent { get { return _parent; } }
         Internal.AggregateSyntax IAstNode<Internal.AggregateSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -243,6 +255,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public AggregateSyntax Parent { get { return _parent; } }
+        INode INode.Parent { get { return _parent; } }
         Internal.AggregateEventSyntax IAstNode<Internal.AggregateEventSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -279,6 +292,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public AggregateEventSyntax Parent { get { return _parent; } }
+        INode INode.Parent { get { return _parent; } }
         Internal.AggregateEventPropertySyntax IAstNode<Internal.AggregateEventPropertySyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -315,6 +329,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public NamespaceSyntax Parent { get { return _parent; } }
+        INode INode.Parent { get { return _parent; } }
         Internal.ValueSyntax IAstNode<Internal.ValueSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -351,6 +366,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
 
         public ValueSyntax Parent { get { return _parent; } }
+        INode INode.Parent { get { return _parent; } }
         Internal.ValuePropertySyntax IAstNode<Internal.ValuePropertySyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
@@ -516,11 +532,15 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
     namespace Internal
     {
-        internal interface INamespaceParent
+        internal interface INode
         {
         }
 
-        internal interface INamespaceMember
+        internal interface INamespaceParent : INode
+        {
+        }
+
+        internal interface INamespaceMember : INode
         {
         }
 
@@ -528,7 +548,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
         }
 
-        internal interface ISymbol
+        internal interface ISymbol : INode
         {
         }
 
@@ -536,7 +556,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
         }
 
-        internal class SyntaxTree : INamespaceParent, IUsingsContainer, IAstUnderlyingNode<SyntacticModel.SyntaxTree, Object>
+        internal class SyntaxTree : INamespaceParent, IUsingsContainer, INode, IAstUnderlyingNode<SyntacticModel.SyntaxTree, SyntacticModel.INode>
         {
             private readonly IEnumerable<UsingStatementSyntax> _usingStatements;
             private readonly IEnumerable<NamespaceSyntax> _namespaces;
@@ -547,14 +567,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 _namespaces = namespaces;
             }
 
-            public SyntacticModel.SyntaxTree MakePublic(Object parent)
+            public SyntacticModel.SyntaxTree MakePublic(SyntacticModel.INode parent)
             {
                 return BuildPublic(parent);
             }
 
-            protected virtual SyntacticModel.SyntaxTree BuildPublic(Object parent)
+            protected virtual SyntacticModel.SyntaxTree BuildPublic(SyntacticModel.INode parent)
             {
-                return new SyntacticModel.SyntaxTree(this);
+                return new SyntacticModel.SyntaxTree(parent, this);
             }
 
             public IEnumerable<UsingStatementSyntax> UsingStatements { get { return _usingStatements; } }
