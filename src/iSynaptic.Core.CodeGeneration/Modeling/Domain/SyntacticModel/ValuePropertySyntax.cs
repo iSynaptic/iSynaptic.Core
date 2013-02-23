@@ -23,6 +23,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
     public partial class ValuePropertySyntax
     {
+        public NameSyntax Name { get { return SimpleName; } }
+
         public NameSyntax FullName
         {
             get

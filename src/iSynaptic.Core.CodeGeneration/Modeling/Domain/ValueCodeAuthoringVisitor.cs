@@ -39,7 +39,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         protected void Visit(ValueSyntax value)
         {
             var baseValue = value.Base
-                .Select(x => SymbolTable.Resolve(value, x).Symbol)
+                .Select(x => SymbolTable.Resolve(value.Parent, x).Symbol)
                 .Cast<ValueSyntax>();
 
             var baseProperties = baseValue
@@ -84,8 +84,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         private void WriteEquatableImplementation(ValueSyntax value, Boolean hasBase)
         {
-            WriteLine("public bool Equals({0} other)", value.Name);
-            using (WithBlock())
+            using (WriteBlock("public Boolean Equals({0} other)", value.Name))
             {
                 WriteLine("if (ReferenceEquals(other, null)) return false;");
                 WriteLine("if (GetType() != other.GetType()) return false;");
@@ -94,6 +93,31 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 Dispatch(value.Properties, "equalsCheck");
                 WriteLine(hasBase ? "return base.Equals(other);" : "return true;");
             }
+            WriteLine();
+
+            WriteLine("public override Boolean Equals(object obj) {{ return Equals(obj as {0}); }}", value.Name);
+            WriteLine();
+
+            using (WriteBlock("public override Int32 GetHashCode()"))
+            {
+                WriteLine(hasBase ? "int hash = base.GetHashCode();" : "int hash = 1;");
+                WriteLine();
+
+                Dispatch(value.Properties, "mixInHash");
+
+                WriteLine();
+                WriteLine("return hash;");
+            }
+            WriteLine();
+            
+            using (WriteBlock("public static bool operator ==({0} left, {0} right)", value.Name))
+            {
+                WriteLine("if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;");
+                WriteLine("return ReferenceEquals(left, null) || left.Equals(right);");
+            }
+            WriteLine();
+
+            WriteLine("public static bool operator !=({0} left, {0} right) {{ return !(left == right); }}", value.Name);
         }
 
         protected void Visit(ValuePropertySyntax property, String mode)
@@ -157,6 +181,24 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 }
                 else
                     WriteLine("if (!{0}.SequenceEqual(other.{0})) return false;", propertyName);
+            }
+
+            if (mode == "mixInHash")
+            {
+                if (!cardinality.IsMany)
+                {
+                    if (cardinality.IsOptional)
+                    {
+                        WriteLine(type.IsValueType
+                                      ? "hash = HashCode.MixJenkins32(hash + ({0}.HasValue ? {0}.GetHashCode() : 0));"
+                                      : "hash = HashCode.MixJenkins32(hash + (!ReferenceEquals({0}, null) ? {0}.GetHashCode() : 0));",
+                                  propertyName);
+                    }
+                    else
+                        WriteLine("hash = HashCode.MixJenkins32(hash + {0}.GetHashCode());", propertyName);
+                }
+                else
+                    WriteLine("hash = {0}.Aggregate(hash, (h, item) => HashCode.MixJenkins32(h + item.GetHashCode()));", propertyName);
             }
         }
     }

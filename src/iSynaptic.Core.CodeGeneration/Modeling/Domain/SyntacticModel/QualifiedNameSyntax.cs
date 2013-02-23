@@ -47,6 +47,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             return String.Format("{0}.{1}", Left, Right);
         }
 
+        public override NameSyntax Parent { get { return Left; } }
         public override SimpleNameSyntax SimpleName { get { return Right; } }
     }
 }

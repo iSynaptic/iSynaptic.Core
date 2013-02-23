@@ -1,25 +1,26 @@
 ﻿ast iSynaptic.CodeGeneration.Modeling.Domain
 {
-	contract INode(INode) { }
+    contract INode(INode) { }
 
     contract INamespaceParent : INode { }
     contract INamespaceMember : INode { }
-	
-	contract IUsingsContainer
-	{
-		UsingStatementSyntax* UsingStatements;
-	}
+    
+    contract IUsingsContainer
+    {
+        UsingStatementSyntax* UsingStatements;
+    }
 
-	contract ISymbol : INode
-	{
-		NameSyntax FullName;
-	}
+    contract ISymbol : INode
+    {
+        NameSyntax Name;
+        NameSyntax FullName;
+    }
 
-	contract IType : ISymbol 
-	{
-		SimpleNameSyntax Name;
-		Boolean IsValueType;
-	}
+    contract IType : ISymbol 
+    {
+        SimpleNameSyntax SimpleName;
+        Boolean IsValueType;
+    }
 
     node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer, INode
     {
@@ -37,37 +38,37 @@
 
     node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType
     {
-        SimpleNameSyntax Name;
-		NameSyntax? IdentifierType;
-		NameSyntax? Base;
+        SimpleNameSyntax SimpleName;
+        NameSyntax? IdentifierType;
+        NameSyntax? Base;
 
         AggregateEventSyntax* Events;
     }
 
-    node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : ISymbol
+    node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : IType
     {
-        SimpleNameSyntax Name;
+        SimpleNameSyntax SimpleName;
         AggregateEventPropertySyntax* Properties;
     }
 
     node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax) : ISymbol
     {
-        SimpleNameSyntax Name;
+        SimpleNameSyntax SimpleName;
         TypeReferenceSyntax Type;
     }
 
     node ValueSyntax("Value", NamespaceSyntax) : INamespaceMember, IType
     {
-		Boolean IsAbstract;
-        SimpleNameSyntax Name;
-		NameSyntax? Base;
+        Boolean IsAbstract;
+        SimpleNameSyntax SimpleName;
+        NameSyntax? Base;
 
         ValuePropertySyntax* Properties;
     }
 
     node ValuePropertySyntax("ValueProperty", ValueSyntax) : ISymbol
     {
-        SimpleNameSyntax Name;
+        SimpleNameSyntax SimpleName;
         TypeReferenceSyntax Type;
     }
 

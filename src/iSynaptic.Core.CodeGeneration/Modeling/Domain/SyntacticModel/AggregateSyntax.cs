@@ -26,6 +26,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
     public partial class AggregateSyntax
     {
+        public NameSyntax Name { get { return SimpleName; } }
+
         public NameSyntax FullName
         {
             get

@@ -23,10 +23,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
     public partial class SimpleNameSyntax
     {
-        public override SimpleNameSyntax SimpleName
-        {
-            get { return this; }
-        }
+        public override NameSyntax Parent { get { return null; } }
+        public override SimpleNameSyntax SimpleName { get { return this; } }
 
         public override System.Collections.Generic.IEnumerable<SimpleNameSyntax> Parts
         {

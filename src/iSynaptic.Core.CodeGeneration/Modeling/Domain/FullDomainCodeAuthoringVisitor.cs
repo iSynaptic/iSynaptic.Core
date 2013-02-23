@@ -40,10 +40,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
             Dispatch(tree.UsingStatements.Concat(new[]
             {
-                Syntax.UsingStatement("System"),
-                Syntax.UsingStatement("System.Collections.Generic"),
-                Syntax.UsingStatement("System.Linq"),
-                Syntax.UsingStatement("iSynaptic.Commons")
+                Syntax.UsingStatement((NameSyntax)"System"),
+                Syntax.UsingStatement((NameSyntax)"System.Collections.Generic"),
+                Syntax.UsingStatement((NameSyntax)"System.Linq"),
+                Syntax.UsingStatement((NameSyntax)"iSynaptic.Commons")
 
             }).Distinct(x => x.Namespace));
             WriteLine();

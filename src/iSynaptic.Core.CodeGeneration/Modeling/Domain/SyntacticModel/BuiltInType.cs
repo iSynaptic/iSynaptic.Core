@@ -61,6 +61,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public Type ActualType { get { return _actualType; } }
         public NameSyntax FullName { get { return _fullName; } }
-        public SimpleNameSyntax Name { get { return FullName.SimpleName; } }
+
+        public NameSyntax Name { get { return SimpleName; } }
+        public SimpleNameSyntax SimpleName { get { return FullName.SimpleName; } }
     }
 }

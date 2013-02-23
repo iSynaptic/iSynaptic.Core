@@ -23,6 +23,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
     public partial class AggregateEventSyntax
     {
+        public NameSyntax Name { get { return SimpleName; } }
+
         public NameSyntax FullName
         {
             get
@@ -35,5 +37,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return Name;
             }
         }
+
+        public bool IsValueType { get { return false; } }
     }
 }

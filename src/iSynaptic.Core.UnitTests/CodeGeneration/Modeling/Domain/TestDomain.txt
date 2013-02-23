@@ -2,36 +2,36 @@
 
 namespace iSynaptic.Modeling.Domain.Test
 {
-	namespace Inner
-	{
-		value Message
-		{
-			Guid Id;
-		}
+    namespace Inner
+    {
+        value Message
+        {
+            Guid Id;
+        }
 
-		value DerivedMessage : Message
-		{
-			String Content;
-		}
+        value DerivedMessage : Message
+        {
+            String Content;
+        }
 
-		value Test
-		{
-			String Name;
-			String? Message;
-			String+ Foos;
-			String* OtherFoos;
-		}
+        value Test
+        {
+            String Name;
+            String? Message;
+            String+ Foos;
+            String* OtherFoos;
+        }
 
-		aggregate<Guid> ServiceCase : Foo.Base
-		{
-		}
-	}
-	
-	namespace Inner.Foo
-	{
-		aggregate Base
-		{
-		}
+        aggregate<Guid> ServiceCase : Foo.Base
+        {
+        }
+    }
+    
+    namespace Inner.Foo
+    {
+        aggregate Base
+        {
+        }
 
-	}
+    }
 }

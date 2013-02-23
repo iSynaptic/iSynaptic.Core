@@ -25,29 +25,29 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return new NamespaceSyntax(null, new SyntacticModel.Internal.NamespaceSyntax(((IAstNode<SyntacticModel.Internal.NameSyntax>)name).GetUnderlying(), usingStatements.Select(x => ((IAstNode<SyntacticModel.Internal.UsingStatementSyntax>)x).GetUnderlying()), members.Select(x => ((IAstNode<SyntacticModel.Internal.INamespaceMember>)x).GetUnderlying())));
         }
 
-        public static AggregateSyntax Aggregate(SimpleNameSyntax name, Maybe<NameSyntax> identifierType, Maybe<NameSyntax> @base, IEnumerable<AggregateEventSyntax> events)
+        public static AggregateSyntax Aggregate(SimpleNameSyntax simpleName, Maybe<NameSyntax> identifierType, Maybe<NameSyntax> @base, IEnumerable<AggregateEventSyntax> events)
         {
-            return new AggregateSyntax(null, new SyntacticModel.Internal.AggregateSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)name).GetUnderlying(), identifierType.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), events.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateEventSyntax>)x).GetUnderlying())));
+            return new AggregateSyntax(null, new SyntacticModel.Internal.AggregateSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), identifierType.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), events.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateEventSyntax>)x).GetUnderlying())));
         }
 
-        public static AggregateEventSyntax AggregateEvent(SimpleNameSyntax name, IEnumerable<AggregateEventPropertySyntax> properties)
+        public static AggregateEventSyntax AggregateEvent(SimpleNameSyntax simpleName, IEnumerable<AggregateEventPropertySyntax> properties)
         {
-            return new AggregateEventSyntax(null, new SyntacticModel.Internal.AggregateEventSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)name).GetUnderlying(), properties.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateEventPropertySyntax>)x).GetUnderlying())));
+            return new AggregateEventSyntax(null, new SyntacticModel.Internal.AggregateEventSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), properties.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateEventPropertySyntax>)x).GetUnderlying())));
         }
 
-        public static AggregateEventPropertySyntax AggregateEventProperty(SimpleNameSyntax name, TypeReferenceSyntax type)
+        public static AggregateEventPropertySyntax AggregateEventProperty(SimpleNameSyntax simpleName, TypeReferenceSyntax type)
         {
-            return new AggregateEventPropertySyntax(null, new SyntacticModel.Internal.AggregateEventPropertySyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)name).GetUnderlying(), type));
+            return new AggregateEventPropertySyntax(null, new SyntacticModel.Internal.AggregateEventPropertySyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), type));
         }
 
-        public static ValueSyntax Value(Boolean isAbstract, SimpleNameSyntax name, Maybe<NameSyntax> @base, IEnumerable<ValuePropertySyntax> properties)
+        public static ValueSyntax Value(Boolean isAbstract, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<ValuePropertySyntax> properties)
         {
-            return new ValueSyntax(null, new SyntacticModel.Internal.ValueSyntax(isAbstract, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)name).GetUnderlying(), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), properties.Select(x => ((IAstNode<SyntacticModel.Internal.ValuePropertySyntax>)x).GetUnderlying())));
+            return new ValueSyntax(null, new SyntacticModel.Internal.ValueSyntax(isAbstract, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), properties.Select(x => ((IAstNode<SyntacticModel.Internal.ValuePropertySyntax>)x).GetUnderlying())));
         }
 
-        public static ValuePropertySyntax ValueProperty(SimpleNameSyntax name, TypeReferenceSyntax type)
+        public static ValuePropertySyntax ValueProperty(SimpleNameSyntax simpleName, TypeReferenceSyntax type)
         {
-            return new ValuePropertySyntax(null, new SyntacticModel.Internal.ValuePropertySyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)name).GetUnderlying(), type));
+            return new ValuePropertySyntax(null, new SyntacticModel.Internal.ValuePropertySyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), type));
         }
 
         public static UsingStatementSyntax UsingStatement(NameSyntax @namespace)
@@ -100,12 +100,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
     public interface ISymbol : INode, IVisitable
     {
+        NameSyntax Name { get; }
         NameSyntax FullName { get; }
     }
 
     public interface IType : ISymbol, IVisitable
     {
-        SimpleNameSyntax Name { get; }
+        SimpleNameSyntax SimpleName { get; }
         Boolean IsValueType { get; }
     }
 
@@ -208,17 +209,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
-            dispatch(new[] { Name });
+            dispatch(new[] { SimpleName });
             dispatch(IdentifierType.ToEnumerable());
             dispatch(Base.ToEnumerable());
             dispatch(Events);
         }
 
-        public SimpleNameSyntax Name
+        public SimpleNameSyntax SimpleName
         {
             get
             {
-                return ((IAstUnderlyingNode<SimpleNameSyntax, AggregateSyntax>)((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().Name).MakePublic(this);
+                return ((IAstUnderlyingNode<SimpleNameSyntax, AggregateSyntax>)((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().SimpleName).MakePublic(this);
             }
         }
         public Maybe<NameSyntax> IdentifierType
@@ -244,7 +245,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
     }
 
-    public partial class AggregateEventSyntax : ISymbol, IAstNode<Internal.AggregateEventSyntax>
+    public partial class AggregateEventSyntax : IType, IAstNode<Internal.AggregateEventSyntax>
     {
         private readonly AggregateSyntax _parent;
         private readonly Internal.AggregateEventSyntax _underlying;
@@ -261,15 +262,15 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
-            dispatch(new[] { Name });
+            dispatch(new[] { SimpleName });
             dispatch(Properties);
         }
 
-        public SimpleNameSyntax Name
+        public SimpleNameSyntax SimpleName
         {
             get
             {
-                return ((IAstUnderlyingNode<SimpleNameSyntax, AggregateEventSyntax>)((IAstNode<Internal.AggregateEventSyntax>)this).GetUnderlying().Name).MakePublic(this);
+                return ((IAstUnderlyingNode<SimpleNameSyntax, AggregateEventSyntax>)((IAstNode<Internal.AggregateEventSyntax>)this).GetUnderlying().SimpleName).MakePublic(this);
             }
         }
         public IEnumerable<AggregateEventPropertySyntax> Properties
@@ -298,14 +299,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
-            dispatch(new[] { Name });
+            dispatch(new[] { SimpleName });
         }
 
-        public SimpleNameSyntax Name
+        public SimpleNameSyntax SimpleName
         {
             get
             {
-                return ((IAstUnderlyingNode<SimpleNameSyntax, AggregateEventPropertySyntax>)((IAstNode<Internal.AggregateEventPropertySyntax>)this).GetUnderlying().Name).MakePublic(this);
+                return ((IAstUnderlyingNode<SimpleNameSyntax, AggregateEventPropertySyntax>)((IAstNode<Internal.AggregateEventPropertySyntax>)this).GetUnderlying().SimpleName).MakePublic(this);
             }
         }
         public TypeReferenceSyntax Type
@@ -334,7 +335,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
-            dispatch(new[] { Name });
+            dispatch(new[] { SimpleName });
             dispatch(Base.ToEnumerable());
             dispatch(Properties);
         }
@@ -346,11 +347,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return ((IAstNode<Internal.ValueSyntax>)this).GetUnderlying().IsAbstract;
             }
         }
-        public SimpleNameSyntax Name
+        public SimpleNameSyntax SimpleName
         {
             get
             {
-                return ((IAstUnderlyingNode<SimpleNameSyntax, ValueSyntax>)((IAstNode<Internal.ValueSyntax>)this).GetUnderlying().Name).MakePublic(this);
+                return ((IAstUnderlyingNode<SimpleNameSyntax, ValueSyntax>)((IAstNode<Internal.ValueSyntax>)this).GetUnderlying().SimpleName).MakePublic(this);
             }
         }
         public Maybe<NameSyntax> Base
@@ -386,14 +387,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
-            dispatch(new[] { Name });
+            dispatch(new[] { SimpleName });
         }
 
-        public SimpleNameSyntax Name
+        public SimpleNameSyntax SimpleName
         {
             get
             {
-                return ((IAstUnderlyingNode<SimpleNameSyntax, ValuePropertySyntax>)((IAstNode<Internal.ValuePropertySyntax>)this).GetUnderlying().Name).MakePublic(this);
+                return ((IAstUnderlyingNode<SimpleNameSyntax, ValuePropertySyntax>)((IAstNode<Internal.ValuePropertySyntax>)this).GetUnderlying().SimpleName).MakePublic(this);
             }
         }
         public TypeReferenceSyntax Type
@@ -625,14 +626,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         internal class AggregateSyntax : INamespaceMember, IType, IAstUnderlyingNode<SyntacticModel.AggregateSyntax, SyntacticModel.NamespaceSyntax>
         {
-            private readonly SimpleNameSyntax _name;
+            private readonly SimpleNameSyntax _simpleName;
             private readonly Maybe<NameSyntax> _identifierType;
             private readonly Maybe<NameSyntax> _base;
             private readonly IEnumerable<AggregateEventSyntax> _events;
 
-            public AggregateSyntax(SimpleNameSyntax name, Maybe<NameSyntax> identifierType, Maybe<NameSyntax> @base, IEnumerable<AggregateEventSyntax> events)
+            public AggregateSyntax(SimpleNameSyntax simpleName, Maybe<NameSyntax> identifierType, Maybe<NameSyntax> @base, IEnumerable<AggregateEventSyntax> events)
             {
-                _name = name;
+                _simpleName = simpleName;
                 _identifierType = identifierType;
                 _base = @base;
                 _events = events;
@@ -648,20 +649,20 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return new SyntacticModel.AggregateSyntax(parent, this);
             }
 
-            public SimpleNameSyntax Name { get { return _name; } }
+            public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public Maybe<NameSyntax> IdentifierType { get { return _identifierType; } }
             public Maybe<NameSyntax> Base { get { return _base; } }
             public IEnumerable<AggregateEventSyntax> Events { get { return _events; } }
         }
 
-        internal class AggregateEventSyntax : ISymbol, IAstUnderlyingNode<SyntacticModel.AggregateEventSyntax, SyntacticModel.AggregateSyntax>
+        internal class AggregateEventSyntax : IType, IAstUnderlyingNode<SyntacticModel.AggregateEventSyntax, SyntacticModel.AggregateSyntax>
         {
-            private readonly SimpleNameSyntax _name;
+            private readonly SimpleNameSyntax _simpleName;
             private readonly IEnumerable<AggregateEventPropertySyntax> _properties;
 
-            public AggregateEventSyntax(SimpleNameSyntax name, IEnumerable<AggregateEventPropertySyntax> properties)
+            public AggregateEventSyntax(SimpleNameSyntax simpleName, IEnumerable<AggregateEventPropertySyntax> properties)
             {
-                _name = name;
+                _simpleName = simpleName;
                 _properties = properties;
             }
 
@@ -675,18 +676,18 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return new SyntacticModel.AggregateEventSyntax(parent, this);
             }
 
-            public SimpleNameSyntax Name { get { return _name; } }
+            public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public IEnumerable<AggregateEventPropertySyntax> Properties { get { return _properties; } }
         }
 
         internal class AggregateEventPropertySyntax : ISymbol, IAstUnderlyingNode<SyntacticModel.AggregateEventPropertySyntax, SyntacticModel.AggregateEventSyntax>
         {
-            private readonly SimpleNameSyntax _name;
+            private readonly SimpleNameSyntax _simpleName;
             private readonly TypeReferenceSyntax _type;
 
-            public AggregateEventPropertySyntax(SimpleNameSyntax name, TypeReferenceSyntax type)
+            public AggregateEventPropertySyntax(SimpleNameSyntax simpleName, TypeReferenceSyntax type)
             {
-                _name = name;
+                _simpleName = simpleName;
                 _type = type;
             }
 
@@ -700,21 +701,21 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return new SyntacticModel.AggregateEventPropertySyntax(parent, this);
             }
 
-            public SimpleNameSyntax Name { get { return _name; } }
+            public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public TypeReferenceSyntax Type { get { return _type; } }
         }
 
         internal class ValueSyntax : INamespaceMember, IType, IAstUnderlyingNode<SyntacticModel.ValueSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly Boolean _isAbstract;
-            private readonly SimpleNameSyntax _name;
+            private readonly SimpleNameSyntax _simpleName;
             private readonly Maybe<NameSyntax> _base;
             private readonly IEnumerable<ValuePropertySyntax> _properties;
 
-            public ValueSyntax(Boolean isAbstract, SimpleNameSyntax name, Maybe<NameSyntax> @base, IEnumerable<ValuePropertySyntax> properties)
+            public ValueSyntax(Boolean isAbstract, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<ValuePropertySyntax> properties)
             {
                 _isAbstract = isAbstract;
-                _name = name;
+                _simpleName = simpleName;
                 _base = @base;
                 _properties = properties;
             }
@@ -730,19 +731,19 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             }
 
             public Boolean IsAbstract { get { return _isAbstract; } }
-            public SimpleNameSyntax Name { get { return _name; } }
+            public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public Maybe<NameSyntax> Base { get { return _base; } }
             public IEnumerable<ValuePropertySyntax> Properties { get { return _properties; } }
         }
 
         internal class ValuePropertySyntax : ISymbol, IAstUnderlyingNode<SyntacticModel.ValuePropertySyntax, SyntacticModel.ValueSyntax>
         {
-            private readonly SimpleNameSyntax _name;
+            private readonly SimpleNameSyntax _simpleName;
             private readonly TypeReferenceSyntax _type;
 
-            public ValuePropertySyntax(SimpleNameSyntax name, TypeReferenceSyntax type)
+            public ValuePropertySyntax(SimpleNameSyntax simpleName, TypeReferenceSyntax type)
             {
-                _name = name;
+                _simpleName = simpleName;
                 _type = type;
             }
 
@@ -756,7 +757,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return new SyntacticModel.ValuePropertySyntax(parent, this);
             }
 
-            public SimpleNameSyntax Name { get { return _name; } }
+            public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public TypeReferenceSyntax Type { get { return _type; } }
         }
 

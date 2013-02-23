@@ -31,7 +31,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
     public abstract partial class NameSyntax : IEquatable<NameSyntax>
     {
-        public static NameSyntax operator+(NameSyntax left, NameSyntax right)
+        public static NameSyntax operator +(NameSyntax left, NameSyntax right)
         {
             if (left == null)
                 return right;
@@ -43,7 +43,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             if (simpleName != null)
                 return Syntax.QualifiedName(left, simpleName);
 
-            var qns = (QualifiedNameSyntax) right;
+            var qns = (QualifiedNameSyntax)right;
             return qns.Parts.Aggregate(left, Syntax.QualifiedName);
         }
 
@@ -69,7 +69,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             return ToString().GetHashCode();
         }
 
-        public static bool operator==(NameSyntax left, NameSyntax right)
+        public static bool operator ==(NameSyntax left, NameSyntax right)
         {
             if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
             return ReferenceEquals(left, null) || left.Equals(right);
@@ -85,10 +85,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             return name.ToString();
         }
 
-        public static implicit operator NameSyntax(String name)
+        public static explicit operator NameSyntax(String name)
         {
             return Parser.Name.Parse(name);
         }
+
+        public abstract NameSyntax Parent { get; }
 
         public abstract SimpleNameSyntax SimpleName { get; }
         public abstract IEnumerable<SimpleNameSyntax> Parts { get; }

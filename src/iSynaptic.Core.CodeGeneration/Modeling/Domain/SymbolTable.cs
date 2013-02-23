@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
 using iSynaptic.Commons.Linq;
 
@@ -60,6 +61,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                     return resolution;
             }
 
+            var contextualResolution = context.FullName
+                   .Recurse(x => x.Parent)
+                   .Skip(1)
+                   .SelectMaybe(x => _map.TryGetValue(x + name))
+                   .Select(x => new SymbolResolution(x))
+                   .TryFirst(x => x.Status == SymbolResolutionStatus.Found)
+                   .ValueOrDefault();
+
+            if (contextualResolution.Status != SymbolResolutionStatus.NotFound)
+                return contextualResolution;
+
             var parentSymbol = context.Parent as ISymbol;
             if (parentSymbol != null)
                 return Resolve(parentSymbol, name);
@@ -73,8 +85,30 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         private SymbolResolution ResolveViaUsings(NameSyntax baseName, NameSyntax name, IUsingsContainer usingsContainer)
         {
+            if (!(name is SimpleNameSyntax))
+                return default(SymbolResolution);
+
+            if (baseName != null)
+            {
+                return baseName.Recurse(x => x.Parent)
+                    .Select(ns => usingsContainer.UsingStatements
+                        .SelectMaybe(u =>
+                        {
+                            var n = ns + u.Namespace + name;
+                            return _map.TryGetValue(n); 
+                        })
+                        .Select(x => new SymbolResolution(x))
+                        .Aggregate(default(SymbolResolution), (l, r) => l & r))
+                    .TryFirst(x => x.Status != SymbolResolutionStatus.NotFound)
+                    .ValueOrDefault();
+            }
+
             return usingsContainer.UsingStatements
-                .SelectMaybe(x => _map.TryGetValue(baseName + x.Namespace + name))
+                .SelectMaybe(u =>
+                {
+                    var n = u.Namespace + name;
+                    return _map.TryGetValue(n); 
+                })
                 .Select(x => new SymbolResolution(x))
                 .Aggregate(default(SymbolResolution), (l, r) => l & r);
         }

@@ -74,7 +74,6 @@
     <Compile Include="Modeling\Domain\SyntacticModel\NameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\QualifiedNameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\SimpleNameSyntax.cs" />
-    <Compile Include="Modeling\Domain\SyntacticModel\Temp.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\TypeCardinalitySyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\TypeReferenceSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\ValuePropertySyntax.cs" />
