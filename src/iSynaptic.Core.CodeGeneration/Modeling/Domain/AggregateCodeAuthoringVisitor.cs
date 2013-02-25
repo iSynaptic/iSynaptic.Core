@@ -36,17 +36,16 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected void Visit(AggregateSyntax aggregate)
         {
-            var genericIdType = aggregate.Identifier
-                                         .OfType<GenericAggregateIdentifierSyntax>()
-                                         .Select(x => x.Name)
-                                         .OfType<NameSyntax>();
+            var genericId = aggregate.Identifier
+                                     .OfType<GenericAggregateIdentifierSyntax>();
 
             var baseAggregate = aggregate.Base
                                          .Select(x => SymbolTable.Resolve(aggregate, x))
                                          .Select(x => x.Symbol)
                                          .Cast<AggregateSyntax>();
 
-            var genericSuffix = genericIdType
+            var genericSuffix = genericId
+                .Select(x => x.Name)
                 .Select(n => String.Format("<{0}>", n))
                 .ValueOrDefault("");
 
@@ -58,7 +57,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                                   .Cast<NamedAggregateIdentifierSyntax>()
                                   .Select(x => x.Type.Name);
 
-            var baseGenericSuffix = genericIdType
+            var baseGenericSuffix = genericId
+                .Select(x => x.Name)
+                .Cast<NameSyntax>()
                 .Or(idType)
                 .Where(x => !baseAggregate.HasValue ||
                             baseAggregate.SelectMaybe(y => y.Identifier)
@@ -74,11 +75,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                        baseName, 
                        baseGenericSuffix);
 
-            if (genericIdType.HasValue)
+            if (genericId.HasValue)
             {
                 using (WithIndentation())
                 {
-                    WriteLine("where {0} : IEquatable<{0}>", genericIdType.Value);
+                    WriteLine("where {0} : {1}IEquatable<{0}>", 
+                        genericId.Value.Name,
+                        genericId.Value.ConstrainedType.Select(x => x.Name + ", ").ValueOrDefault(""));
                 }
             }
 

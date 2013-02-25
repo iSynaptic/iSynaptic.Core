@@ -27,51 +27,26 @@ namespace iSynaptic.TestDomain
 {
     // This is a poor example of an aggregate since it is devoid of much logic and exposes state.
     // It exists only to facilitate testing of the framework around aggregates
-    public class HomogeneousRole<TRoleIdentifier> : Aggregate<TRoleIdentifier>, IHomogeneousRole<TRoleIdentifier>
-        where TRoleIdentifier : RoleIdentifier, IEquatable<TRoleIdentifier>
+    public partial class HomogeneousRole<TRoleIdentifier> : IHomogeneousRole<TRoleIdentifier>
     {
         public HomogeneousRole(TRoleIdentifier id, String name)
+            : this(new Registered(name, id, 1))
         {
-            ApplyEvent(new Registered(id, name));
         }
-
-        #region Events
-        
-        public class Registered : AggregateEvent<TRoleIdentifier>
-        {
-            public Registered(TRoleIdentifier id, String name) : base(id, 1)
-            {
-                Name = name;
-            }
-
-            public string Name { get; private set; }
-        }
-
-        public class StatusChanged : AggregateEvent<TRoleIdentifier>
-        {
-            public StatusChanged(TRoleIdentifier id, int version, HomogeneousRoleStatus status) : base(id, version)
-            {
-                Status = status;
-            }
-
-            public HomogeneousRoleStatus Status { get; private set; }
-        }
-
-        #endregion
 
         public void StartApproval()
         {
-            ApplyEvent((id, ver) => new StatusChanged(id, ver, HomogeneousRoleStatus.PendingApproval));
+            ApplyEvent((id, ver) => new StatusChanged(HomogeneousRoleStatus.PendingApproval, id, ver));
         }
 
         public void Approve()
         {
-            ApplyEvent((id, ver) => new StatusChanged(id, ver, HomogeneousRoleStatus.Approved));
+            ApplyEvent((id, ver) => new StatusChanged(HomogeneousRoleStatus.Approved, id, ver));
         }
 
         public void Retire()
         {
-            ApplyEvent((id, ver) => new StatusChanged(id, ver, HomogeneousRoleStatus.Retired));
+            ApplyEvent((id, ver) => new StatusChanged(HomogeneousRoleStatus.Retired, id, ver));
         }
 
         private void On(Registered @event)
@@ -100,13 +75,5 @@ namespace iSynaptic.TestDomain
         // these exists ONLY for testing purposes; aggregates should not expose state
         String Name { get; }
         HomogeneousRoleStatus Status { get; }
-    }
-
-    public enum HomogeneousRoleStatus
-    {
-        New,
-        PendingApproval,
-        Approved,
-        Retired
     }
 }

@@ -56,6 +56,19 @@ namespace iSynaptic.TestDomain
         }
     }
 
+    aggregate<TRoleIdentifier:RoleIdentifier> HomogeneousRole
+    {
+        event Registered
+        {
+            String Name;
+        }
+
+        event StatusChanged
+        {
+            HomogeneousRoleStatus Status;
+        }
+    }
+
     value CommunicationThreadSnapshot
     {
         Int32 ThreadId;
@@ -74,5 +87,13 @@ namespace iSynaptic.TestDomain
         Low,
         Normal,
         High
+    }
+
+    enum HomogeneousRoleStatus
+    {
+        New,
+        PendingApproval,
+        Approved,
+        Retired
     }
 }

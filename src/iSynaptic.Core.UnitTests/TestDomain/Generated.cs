@@ -218,6 +218,40 @@ namespace iSynaptic.TestDomain
         }
     }
 
+    public partial class HomogeneousRole<TRoleIdentifier> : Aggregate<TRoleIdentifier>
+        where TRoleIdentifier : RoleIdentifier, IEquatable<TRoleIdentifier>
+    {
+        protected HomogeneousRole(AggregateEvent<TRoleIdentifier> startEvent) { ApplyEvent(startEvent); }
+        public class Registered : AggregateEvent<TRoleIdentifier>
+        {
+            private readonly String _name;
+
+            public Registered(String name, TRoleIdentifier id, Int32 version)
+                : base(id, version)
+            {
+                if (ReferenceEquals(name, null)) throw new ArgumentNullException("name");
+
+                _name = name;
+            }
+
+            public String Name { get { return _name; } }
+        }
+        public class StatusChanged : AggregateEvent<TRoleIdentifier>
+        {
+            private readonly HomogeneousRoleStatus _status;
+
+            public StatusChanged(HomogeneousRoleStatus status, TRoleIdentifier id, Int32 version)
+                : base(id, version)
+            {
+                if (ReferenceEquals(status, null)) throw new ArgumentNullException("status");
+
+                _status = status;
+            }
+
+            public HomogeneousRoleStatus Status { get { return _status; } }
+        }
+    }
+
     public class CommunicationThreadSnapshot : IEquatable<CommunicationThreadSnapshot>
     {
         private readonly Int32 _threadId;
@@ -288,6 +322,14 @@ namespace iSynaptic.TestDomain
         Low,
         Normal,
         High
+    }
+
+    public enum HomogeneousRoleStatus
+    {
+        New,
+        PendingApproval,
+        Approved,
+        Retired
     }
 }
 
