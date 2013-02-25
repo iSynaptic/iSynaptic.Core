@@ -30,16 +30,16 @@ using iSynaptic.Commons.Text;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
-    public class AggregateEventCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
+    public class AggregateSnapshotCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
     {
-        public AggregateEventCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable)
+        public AggregateSnapshotCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable)
             : base(writer, symbolTable)
         {
         }
 
         protected override bool NotInterestedIn(IVisitable subject, string state)
         {
-            return subject is MoleculeSyntax && !(subject is AggregateEventSyntax);
+            return subject is MoleculeSyntax && !(subject is AggregateSnapshotSyntax);
         }
 
         protected override IEnumerable<AtomInfo> GetBaseAtomInfo(MoleculeSyntax molecule, Maybe<MoleculeSyntax> baseValue)
@@ -52,18 +52,19 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 .Concat(new[]
                 {
                     new AtomInfo(Syntax.IdentifierName("id"), new TypeReferenceSyntax(id, new TypeCardinalitySyntax(1, 1)), true), 
-                    new AtomInfo(Syntax.IdentifierName("version"), new TypeReferenceSyntax(Syntax.IdentifierName("Int32"), new TypeCardinalitySyntax(1, 1)), true), 
+                    new AtomInfo(Syntax.IdentifierName("version"), new TypeReferenceSyntax(Syntax.IdentifierName("Int32"), new TypeCardinalitySyntax(1, 1)), true),
+                    new AtomInfo(Syntax.IdentifierName("takenAt"), new TypeReferenceSyntax(Syntax.IdentifierName("DateTime"), new TypeCardinalitySyntax(1, 1)), true)
                 });
         }
 
-        protected override Maybe<String> GetBaseMolecule(MoleculeSyntax molecule)
+        protected override Maybe<string> GetBaseMolecule(MoleculeSyntax molecule)
         {
             var aggregate = (AggregateSyntax)molecule.Parent;
 
             var id = aggregate.GetIdTypeName(SymbolTable);
 
             return base.GetBaseMolecule(molecule)
-                .Or(String.Format("AggregateEvent<{0}>", id));
+                       .Or(String.Format("AggregateSnapshot<{0}>", id));
         }
 
         protected override bool ShouldBeEquatable(MoleculeSyntax molecule)

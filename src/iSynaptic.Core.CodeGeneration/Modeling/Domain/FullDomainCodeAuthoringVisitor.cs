@@ -44,7 +44,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 Syntax.UsingStatement((NameSyntax)"System.Collections.Generic"),
                 Syntax.UsingStatement((NameSyntax)"System.Linq"),
                 Syntax.UsingStatement((NameSyntax)"iSynaptic.Commons"),
-                Syntax.UsingStatement((NameSyntax)"iSynaptic.Modeling")
+                Syntax.UsingStatement((NameSyntax)"iSynaptic.Modeling.Domain")
 
             }).Distinct(x => x.Namespace));
             WriteLine();

@@ -67,9 +67,32 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 .Select(x => String.Format("<{0}>", x))
                 .ValueOrDefault("");
 
-            using (WriteBlock("public class {0}{1} : {2}{3}", aggregate.Name, genericSuffix, baseName, baseGenericSuffix))
+            WriteLine("public {0} partial class {1}{2} : {3}{4}",
+                       aggregate.IsAbstract ? "abstract " : "",
+                       aggregate.Name,
+                       genericSuffix, 
+                       baseName, 
+                       baseGenericSuffix);
+
+            if (genericIdType.HasValue)
             {
-                new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate.Events);
+                using (WithIndentation())
+                {
+                    WriteLine("where {0} : IEquatable<{0}>", genericIdType.Value);
+                }
+            }
+
+            using (WithBlock())
+            {
+                var id = aggregate.GetIdTypeName(SymbolTable);
+
+                if(baseAggregate.HasValue)
+                    WriteLine("protected {0} (AggregateEvent<{1}> startEvent) : base(startEvent) {{ }}", aggregate.Name, id);
+                else
+                    WriteLine("protected {0} (AggregateEvent<{1}> startEvent) {{ ApplyEvent(startEvent); }}", aggregate.Name, id);
+
+                new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate.Members);
+                new AggregateSnapshotCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate.Members);
             }
         }
     }

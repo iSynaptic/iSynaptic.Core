@@ -24,6 +24,15 @@ namespace iSynaptic.TestDomain
 
     aggregate<Guid> ServiceCase : Base
     {
+        snapshot Snapshot
+        {
+            Int32 LastThreadId;
+            CommunicationThreadSnapshot* ThreadSnapshots;
+            String Title;
+            String Description;
+            ServiceCasePriority Priority;
+        }
+
         event Opened
         {
             String Title;
@@ -45,6 +54,13 @@ namespace iSynaptic.TestDomain
             String Content;
             DateTime CommunicationTime;
         }
+    }
+
+    value CommunicationThreadSnapshot
+    {
+        Int32 ThreadId;
+        String Topic;
+        String Description;
     }
 
     enum CommunicationDirection

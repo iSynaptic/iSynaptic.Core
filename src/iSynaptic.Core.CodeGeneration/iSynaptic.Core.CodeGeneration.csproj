@@ -58,6 +58,7 @@
     <Compile Include="Modeling\AbstractSyntaxTree\SymbolTableConstructionVisitor.cs" />
     <Compile Include="Modeling\Domain\AggregateCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\AggregateEventCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\AggregateSnapshotCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\FullDomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Modeling\Domain\SymbolTableConstructionVisitor.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateEventPropertySyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateEventSyntax.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\AggregateSnapshotSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\BuiltInType.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\EnumSyntax.cs" />

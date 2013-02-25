@@ -48,10 +48,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected String GetTypeString(NameSyntax type, ISymbol relativeTo)
         {
-            return GetTypeString(new TypeReferenceSyntax(type, new TypeCardinalitySyntax(1, 1)), relativeTo);
+            return GetTypeString(new TypeReferenceSyntax(type, new TypeCardinalitySyntax(1, 1)));
         }
 
-        protected String GetTypeString(TypeReferenceSyntax reference, ISymbol relativeTo)
+        protected String GetTypeString(TypeReferenceSyntax reference)
         {
             if (reference.Cardinality.IsMany)
                 return String.Format("IEnumerable<{0}>", reference.Name);

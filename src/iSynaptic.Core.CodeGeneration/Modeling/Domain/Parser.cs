@@ -104,11 +104,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         public static readonly Parser<ValueSyntax> Value
             = from isAbstract in Flag("abstract")
+              from isPartial in Flag("partial")
               from keyword in Parse.String("value")
               from name in SimpleName
               from @base in InheritsFrom(Name).Optional()
               from atoms in Blocked(Atom.Many())
-              select Syntax.Value(isAbstract, name, @base, atoms);
+              select Syntax.Value(isAbstract, isPartial, name, @base, atoms);
 
         public static readonly Parser<Maybe<TypeReferenceSyntax>> AggregateIdentifierConstraint
             = (from type in Name
@@ -125,19 +126,34 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         public static readonly Parser<AggregateEventSyntax> AggregateEvent
             = from isAbstract in Flag("abstract")
+              from isPartial in Flag("partial")
               from keyword in Parse.String("event")
               from name in IdentifierName
               from @base in InheritsFrom(Name).Optional()
               from atoms in Blocked(Atom.Many())
-              select Syntax.AggregateEvent(isAbstract, name, @base, atoms);
+              select Syntax.AggregateEvent(isAbstract, isPartial, name, @base, atoms);
+
+        public static readonly Parser<AggregateSnapshotSyntax> AggregateSnapshot
+            = from isAbstract in Flag("abstract")
+              from isPartial in Flag("partial")
+              from keyword in Parse.String("snapshot")
+              from name in IdentifierName
+              from @base in InheritsFrom(Name).Optional()
+              from atoms in Blocked(Atom.Many())
+              select Syntax.AggregateSnapshot(isAbstract,isPartial, name, @base, atoms);
+
+        public static readonly Parser<IAggregateMember> AggregateMember
+            = AggregateEvent
+            .Or<IAggregateMember>(AggregateSnapshot);
 
         public static readonly Parser<AggregateSyntax> Aggregate
-            = from keyword in Parse.String("aggregate")
+            = from isAbstract in Flag("abstract")
+              from keyword in Parse.String("aggregate")
               from identifier in AggregateIdentifier.Surround('<', '>').Optional()
               from name in SimpleName
               from baseAggregate in InheritsFrom(Name).Optional()
-              from events in Blocked(AggregateEvent.Many())
-              select Syntax.Aggregate(name, identifier, baseAggregate, events);
+              from members in Blocked(AggregateMember.Many())
+              select Syntax.Aggregate(isAbstract, name, identifier, baseAggregate, members);
 
         public static readonly Parser<NamespaceSyntax> Namespace
             = from keyword in Parse.String("namespace")

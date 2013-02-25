@@ -23,6 +23,8 @@
         Boolean HasValueSemantics;
     }
 
+    contract IAggregateMember : INode { }
+
     node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer
     {
         UsingStatementSyntax* UsingStatements;
@@ -63,6 +65,7 @@
     abstract partial node MoleculeSyntax("Molecule", ISymbol) : IType
     {
         Boolean IsAbstract;
+        Boolean IsPartial;
         SimpleNameSyntax SimpleName;
         NameSyntax? Base;
 
@@ -77,14 +80,19 @@
 
     partial node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType
     {
+        Boolean IsAbstract;
         SimpleNameSyntax SimpleName;
         AggregateIdentifierSyntax? Identifier;
         NameSyntax? Base;
 
-        AggregateEventSyntax* Events;
+        IAggregateMember* Members;
     }
 
-    partial node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : MoleculeSyntax
+    partial node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : MoleculeSyntax, IAggregateMember
+    {
+    }
+
+    partial node AggregateSnapshotSyntax("AggregateSnapshot", AggregateSyntax) : MoleculeSyntax, IAggregateMember
     {
     }
 

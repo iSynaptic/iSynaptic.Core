@@ -21,42 +21,11 @@
 // THE SOFTWARE.
 
 using System;
-using iSynaptic.Commons;
-using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    public partial class AggregateSyntax
+    public partial class AggregateSnapshotSyntax
     {
-        public NameSyntax GetIdTypeName(SymbolTable symbolTable)
-        {
-            var aggregateId = this.Recurse(x => x.Base.Select(y => symbolTable.Resolve(x, y).Symbol).Cast<AggregateSyntax>())
-                     .SelectMaybe(x => x.Identifier)
-                     .TryFirst();
-
-            return aggregateId.OfType<GenericAggregateIdentifierSyntax>()
-                .Select(x => x.Name)
-                .OfType<NameSyntax>()
-                .Or<NameSyntax>(aggregateId.OfType<NamedAggregateIdentifierSyntax>().Select(x => x.Type.Name))
-                .Value;
-        }
-
-        public NameSyntax Name { get { return SimpleName; } }
-
-        public NameSyntax FullName
-        {
-            get
-            {
-                var parent = Parent as ISymbol;
-
-                if (parent != null)
-                    return parent.FullName + Name;
-
-                return Name;
-            }
-        }
-
-        public Boolean IsValueType { get { return false; } }
-        public Boolean HasValueSemantics { get { return false; } }
+        public override Boolean HasValueSemantics { get { return false; } }
     }
 }

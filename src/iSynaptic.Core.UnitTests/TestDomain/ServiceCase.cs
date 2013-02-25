@@ -30,7 +30,7 @@ namespace iSynaptic.TestDomain
 {
     // This is a poor example of an aggregate since it is devoid of much logic and exposes state.
     // It exists only to facilitate testing of the framework around aggregates
-    public class ServiceCase : Aggregate<Guid>
+    public partial class ServiceCase
     {
         public static class SampleContent
         {
@@ -44,92 +44,6 @@ namespace iSynaptic.TestDomain
         private Int32 _lastThreadId;
         private List<CommunicationThread> _threads;
 
-        #region Events
-
-        public class Opened : AggregateEvent<Guid>
-        {
-            public Opened(String title, String description, ServiceCasePriority priority) : base(Guid.NewGuid(), 1)
-            {
-                Title = title;
-                Description = description;
-                Priority = priority;
-            }
-
-            public String Title { get; private set; }
-            public String Description { get; private set; }
-            public ServiceCasePriority Priority { get; private set; }
-        }
-
-        public class CommunicationThreadStarted : AggregateEvent<Guid>
-        {
-            public CommunicationThreadStarted(Guid id, Int32 version, Int32 threadId, String topic, String description) : base(id, version)
-            {
-                ThreadId = threadId;
-                Topic = topic;
-                Description = description;
-            }
-
-            public Int32 ThreadId { get; private set; }
-            public String Topic { get; private set; }
-            public String Description { get; private set; }
-        }
-
-        public class CommunicationRecorded : AggregateEvent<Guid>
-        {
-            public CommunicationRecorded(Guid id, Int32 version, Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime) : base(id, version)
-            {
-                ThreadId = threadId;
-                Direction = direction;
-                Content = content;
-                CommunicationTime = communicationTime;
-            }
-
-            public int ThreadId { get; private set; }
-            public CommunicationDirection Direction { get; private set; }
-            public string Content { get; private set; }
-            public DateTime CommunicationTime { get; private set; }
-        }
-
-
-        #endregion
-
-        #region Snapshots
-
-        public class Snapshot : AggregateSnapshot<Guid>
-        {
-            public Snapshot(Guid id, Int32 version, DateTime takenAt, Int32 lastThreadId, IEnumerable<CommunicationThreadSnapshot> theadSnapshots, String title, String description, ServiceCasePriority priority)
-                : base(id, version, takenAt)
-            {
-                LastThreadId = lastThreadId;
-                TheadSnapshots = theadSnapshots.ToArray();
-                Title = title;
-                Description = description;
-                Priority = priority;
-            }
-
-            public Int32 LastThreadId { get; private set; }
-            public IEnumerable<CommunicationThreadSnapshot> TheadSnapshots { get; private set; }
-            public String Title { get; private set; }
-            public string Description { get; private set; }
-            public ServiceCasePriority Priority { get; private set; }
-        }
-
-        public class CommunicationThreadSnapshot
-        {
-            public CommunicationThreadSnapshot(Int32 threadId, String topic, String description)
-            {
-                ThreadId = threadId;
-                Topic = topic;
-                Description = description;
-            }
-
-            public int ThreadId { get; private set; }
-            public string Topic { get; private set; }
-            public string Description { get; private set; }
-        }
-
-        #endregion
-        
         #region Entities
 
         private class CommunicationThread : ICommunicationThread
@@ -146,7 +60,7 @@ namespace iSynaptic.TestDomain
 
             public void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime)
             {
-                _serviceCase.ApplyEvent((id, ver) => new CommunicationRecorded(id, ver, ThreadId, direction, content, communicationTime));
+                _serviceCase.ApplyEvent((id, ver) => new CommunicationRecorded(ThreadId, direction, content, communicationTime, id, ver));
             }
 
             // these exists ONLY for testing purposes; aggregates should not expose state
@@ -158,8 +72,8 @@ namespace iSynaptic.TestDomain
         #endregion
 
         public ServiceCase(String title, String description, ServiceCasePriority priority)
+            : this(new Opened(title, description, priority, Guid.NewGuid(), 1))
         {
-            ApplyEvent(new Opened(title, description, priority));
         }
 
         protected override void OnInitialize()
@@ -170,20 +84,20 @@ namespace iSynaptic.TestDomain
 
         public override IAggregateSnapshot<Guid> TakeSnapshot()
         {
-            return new Snapshot(Id, 
-                                Version, 
-                                SystemClock.UtcNow, 
-                                _lastThreadId, 
-                                _threads.Select(x => new CommunicationThreadSnapshot(x.ThreadId, x.Topic, x.Description)), 
-                                Title, 
-                                Description, 
-                                Priority);
+            return new Snapshot(_lastThreadId,
+                                _threads.Select(x => new CommunicationThreadSnapshot(x.ThreadId, x.Topic, x.Description)),
+                                Title,
+                                Description,
+                                Priority,
+                                Id,
+                                Version,
+                                SystemClock.UtcNow);
         }
 
         private void Apply(Snapshot snapshot)
         {
             _lastThreadId = snapshot.LastThreadId;
-            _threads = snapshot.TheadSnapshots.Select(x => new CommunicationThread(this, x.ThreadId, x.Topic, x.Description)).ToList();
+            _threads = snapshot.ThreadSnapshots.Select(x => new CommunicationThread(this, x.ThreadId, x.Topic, x.Description)).ToList();
             Title = snapshot.Title;
             Description = snapshot.Description;
             Priority = snapshot.Priority;
@@ -195,7 +109,7 @@ namespace iSynaptic.TestDomain
         {
             Int32 newThreadId = _lastThreadId + 1;
 
-            ApplyEvent((id, ver) => new CommunicationThreadStarted(id, ver, newThreadId, topic, description));
+            ApplyEvent((id, ver) => new CommunicationThreadStarted(newThreadId, topic, description, id, ver));
 
             return _threads.Single(x => x.ThreadId == newThreadId);
         }
@@ -237,18 +151,5 @@ namespace iSynaptic.TestDomain
         Int32 ThreadId { get; }
         String Topic { get; }
         String Description { get; }
-    }
-
-    public enum CommunicationDirection
-    {
-        Incoming,
-        Outgoing
-    }
-
-    public enum ServiceCasePriority
-    {
-        Low,
-        Normal,
-        High
     }
 }

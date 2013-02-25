@@ -57,23 +57,21 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 yield return String.Format("IEquatable<{0}>", molecule.Name);
         }
 
-        protected void Visit(MoleculeSyntax molecule)
+        protected virtual void Visit(MoleculeSyntax molecule)
         {
             var baseValue = molecule.Base
                 .Select(x => SymbolTable.Resolve(molecule.Parent, x).Symbol)
-                .Cast<ValueSyntax>();
+                .Cast<MoleculeSyntax>();
 
-            var baseProperties = baseValue
-                .Recurse(x => x.Base.Select(b => SymbolTable.Resolve(molecule, b).Symbol).Cast<ValueSyntax>())
-                .SelectMany(x => x.Atoms)
-                .ToArray();
+            var baseAtoms = GetBaseAtomInfo(molecule, baseValue).ToArray();
 
             String baseTypes = GetInheritedTypes(molecule).Delimit(", ");
             if (baseTypes.Length > 0)
                 baseTypes = String.Format(" : {0}", baseTypes);
 
-            using (WriteBlock("public {0}class {1}{2}", 
-                              molecule.IsAbstract ? "abstract " : "", 
+            using (WriteBlock("public {0}{1}class {2}{3}", 
+                              molecule.IsAbstract ? "abstract " : "",
+                              molecule.IsPartial ? "partial " : "",
                               molecule.Name,
                               baseTypes))
             {
@@ -81,13 +79,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 WriteLine();
 
                 Write("{0} {1}(", molecule.IsAbstract ? "protected" : "public", molecule.Name);
-                Delimit(molecule.Atoms.Concat(baseProperties), "parameter", ", ");
+                Delimit(molecule.Atoms.Select(GetAtomInfo).Concat(baseAtoms), "parameter", ", ");
                 WriteLine(")");
 
-                if (baseValue.HasValue)
+                if (baseAtoms.Length > 0)
                 {
                     Write("    : base(");
-                    Delimit(baseProperties, "argument", ", ");
+                    Delimit(baseAtoms, "argument", ", ");
                     WriteLine(")");
                 }
 
@@ -107,6 +105,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
                 Dispatch(molecule.Atoms, "property");
             }
+        }
+
+        protected virtual IEnumerable<AtomInfo> GetBaseAtomInfo(MoleculeSyntax molecule, Maybe<MoleculeSyntax> baseValue)
+        {
+            return baseValue
+                .Recurse(x => x.Base.Select(b => SymbolTable.Resolve(molecule, b).Symbol).Cast<MoleculeSyntax>())
+                .SelectMany(x => x.Atoms)
+                .Select(GetAtomInfo);
         }
 
         private void WriteEquatableImplementation(MoleculeSyntax molecule, Boolean hasBase)
@@ -162,20 +168,50 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             }
         }
 
-        protected void Visit(AtomSyntax atom, String mode)
+        protected class AtomInfo : IVisitable
         {
-            var cardinality = atom.Type.Cardinality;
+            private readonly SimpleNameSyntax _name;
+            private readonly TypeReferenceSyntax _type;
+            private readonly Boolean _isValueType;
 
+            public AtomInfo(SimpleNameSyntax name, TypeReferenceSyntax type, Boolean isValueType)
+            {
+                _name = name;
+                _type = type;
+                _isValueType = isValueType;
+            }
+
+            public SimpleNameSyntax Name { get { return _name; } }
+            public TypeReferenceSyntax Type { get { return _type; } }
+            public Boolean IsValueType { get { return _isValueType; } }
+
+            public void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch) { }
+        }
+
+        protected AtomInfo GetAtomInfo(AtomSyntax atom)
+        {
             var typeSymbol = SymbolTable.Resolve(atom, atom.Type.Name).Symbol;
             var type = typeSymbol as IType;
 
-            if(type == null)
+            if (type == null)
                 throw new InvalidOperationException("Unable to find type of property.");
 
-            if(!type.HasValueSemantics)
+            if (!type.HasValueSemantics)
                 throw new InvalidOperationException("Only types with value semantics can be used in molecule atoms.");
 
-            String typeString = GetTypeString(atom.Type, atom);
+            return new AtomInfo(atom.SimpleName, atom.Type, type.IsValueType);
+        }
+
+        protected void Visit(AtomSyntax atom, String mode)
+        {
+            this.Dispatch(GetAtomInfo(atom), mode);
+        }
+
+        protected void Visit(AtomInfo atom, String mode)
+        {
+            var cardinality = atom.Type.Cardinality;
+
+            String typeString = GetTypeString(atom.Type);
             String fieldName = String.Format("_{0}", Camelize(atom.Name));
             String argumentName = SafeIdentifier(Camelize(atom.Name));
             String propertyName = Pascalize(atom.Name);
@@ -188,7 +224,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
             if (mode == "validateArgument")
             {
-                if(cardinality.IsMany|| (!cardinality.IsOptional && !type.IsValueType))
+                if(cardinality.IsMany|| (!cardinality.IsOptional && !atom.IsValueType))
                     WriteLine("if(ReferenceEquals({0}, null)) throw new ArgumentNullException(\"{0}\");", argumentName);
             }
 

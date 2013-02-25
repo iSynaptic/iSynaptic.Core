@@ -57,7 +57,7 @@ namespace iSynaptic
             registry.AddMapping(new LogicalType("tst", "ServiceCase.Opened"), typeof(ServiceCase.Opened));
             registry.AddMapping(new LogicalType("tst", "ServiceCase.Snapshot"), typeof(ServiceCase.Snapshot));
             registry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationThreadStarted"), typeof(ServiceCase.CommunicationThreadStarted));
-            registry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationThreadSnapshot"), typeof(ServiceCase.CommunicationThreadSnapshot));
+            registry.AddMapping(new LogicalType("tst", "CommunicationThreadSnapshot"), typeof(CommunicationThreadSnapshot));
             registry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationRecorded"), typeof(ServiceCase.CommunicationRecorded));
 
             return registry;
