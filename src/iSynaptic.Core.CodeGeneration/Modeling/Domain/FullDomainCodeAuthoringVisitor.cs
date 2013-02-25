@@ -26,7 +26,6 @@ using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
-using iSynaptic.Commons.Text;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
@@ -44,7 +43,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 Syntax.UsingStatement((NameSyntax)"System"),
                 Syntax.UsingStatement((NameSyntax)"System.Collections.Generic"),
                 Syntax.UsingStatement((NameSyntax)"System.Linq"),
-                Syntax.UsingStatement((NameSyntax)"iSynaptic.Commons")
+                Syntax.UsingStatement((NameSyntax)"iSynaptic.Commons"),
+                Syntax.UsingStatement((NameSyntax)"iSynaptic.Modeling")
 
             }).Distinct(x => x.Namespace));
             WriteLine();
@@ -66,6 +66,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             }
         }
 
+        protected void Visit(EnumSyntax @enum)
+        {
+            using (WriteBlock("public enum {0}", @enum.Name))
+            {
+                WriteLine(@enum.Values.Select(x => x.SimpleName).Delimit(",\r\n"));
+            }
+        }
+
         protected void Visit(UsingStatementSyntax @using)
         {
             WriteLine("using {0};", @using.Namespace);
@@ -79,53 +87,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         protected void Visit(AggregateSyntax aggregate)
         {
             new AggregateCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate);
-        }
-    }
-
-    public class AggregateCodeAuthoringVisitor : DomainCodeAuthoringVisitor<String>
-    {
-        public AggregateCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable) 
-            : base(writer, symbolTable)
-        {
-        }
-
-        protected void Visit(AggregateSyntax aggregate)
-        {
-            var genericIdType = aggregate.Identifier
-                    .OfType<GenericAggregateIdentifierSyntax>()
-                    .Select(x => x.Name)
-                    .OfType<NameSyntax>();
-
-            var baseAggregate = aggregate.Base
-                .Select(x => SymbolTable.Resolve(aggregate, x))
-                .Select(x => x.Symbol)
-                .Cast<AggregateSyntax>();
-
-            var genericSuffix = genericIdType
-                .Select(n => String.Format("<{0}>", n))
-                .ValueOrDefault("");
-
-            var baseName = aggregate.Base
-                .Select(x => x.ToString())
-                .ValueOrDefault("Aggregate");
-
-            var idType = aggregate.Identifier
-                .Cast<NamedAggregateIdentifierSyntax>()
-                .Select(x => x.Type.Name);
-
-            var baseGenericSuffix = genericIdType
-                .Or(idType)
-                .Where(x => !baseAggregate.HasValue ||
-                             baseAggregate.SelectMaybe(y => y.Identifier)
-                             .Select(y => y is GenericAggregateIdentifierSyntax)
-                             .ValueOrDefault())
-                .Select(x => String.Format("<{0}>", x))
-                .ValueOrDefault("");
-
-            using (WriteBlock("public class {0}{1} : {2}{3}", aggregate.Name, genericSuffix, baseName, baseGenericSuffix))
-            {
-                
-            }
         }
     }
 }

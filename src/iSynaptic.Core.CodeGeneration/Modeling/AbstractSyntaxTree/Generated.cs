@@ -15,9 +15,9 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         }
 
 
-        public static AstNode Node(Boolean isAbstract, String simpleName, String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+        public static AstNode Node(Boolean isAbstract, Boolean isPartial, String simpleName, String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
         {
-            return new AstNode(null, new SyntacticModel.Internal.AstNode(isAbstract, simpleName, typeName, parentType, baseTypes, properties.Select(x => ((IAstNode<SyntacticModel.Internal.AstNodeProperty>)x).GetUnderlying())));
+            return new AstNode(null, new SyntacticModel.Internal.AstNode(isAbstract, isPartial, simpleName, typeName, parentType, baseTypes, properties.Select(x => ((IAstNode<SyntacticModel.Internal.AstNodeProperty>)x).GetUnderlying())));
         }
 
         public static AstNodeContract Contract(String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
@@ -38,7 +38,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
 
     internal interface IAstUnderlyingNode<out T, in TParent> { T MakePublic(TParent parent); }
 
-    public partial class AstNodeFamily : IAstNode<Internal.AstNodeFamily>
+    public class AstNodeFamily : IAstNode<Internal.AstNodeFamily>
     {
         private readonly Internal.AstNodeFamily _underlying;
 
@@ -79,7 +79,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         AstNodeFamily Parent { get; }
     }
 
-    public partial class AstNode : IAstConcept, IAstNode<Internal.AstNode>
+    public class AstNode : IAstConcept, IAstNode<Internal.AstNode>
     {
         private readonly AstNodeFamily _parent;
         private readonly Internal.AstNode _underlying;
@@ -104,6 +104,13 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
             get
             {
                 return ((IAstNode<Internal.AstNode>)this).GetUnderlying().IsAbstract;
+            }
+        }
+        public Boolean IsPartial
+        {
+            get
+            {
+                return ((IAstNode<Internal.AstNode>)this).GetUnderlying().IsPartial;
             }
         }
         public String SimpleName
@@ -143,7 +150,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         }
     }
 
-    public partial class AstNodeContract : IAstConcept, IAstNode<Internal.AstNodeContract>
+    public class AstNodeContract : IAstConcept, IAstNode<Internal.AstNodeContract>
     {
         private readonly AstNodeFamily _parent;
         private readonly Internal.AstNodeContract _underlying;
@@ -193,7 +200,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         }
     }
 
-    public partial class AstNodeProperty : IAstNode<Internal.AstNodeProperty>
+    public class AstNodeProperty : IAstNode<Internal.AstNodeProperty>
     {
         private readonly IAstConcept _parent;
         private readonly Internal.AstNodeProperty _underlying;
@@ -268,15 +275,17 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         internal class AstNode : IAstConcept, IAstUnderlyingNode<SyntacticModel.AstNode, SyntacticModel.AstNodeFamily>
         {
             private readonly Boolean _isAbstract;
+            private readonly Boolean _isPartial;
             private readonly String _simpleName;
             private readonly String _typeName;
             private readonly Maybe<String> _parentType;
             private readonly IEnumerable<String> _baseTypes;
             private readonly IEnumerable<AstNodeProperty> _properties;
 
-            public AstNode(Boolean isAbstract, String simpleName, String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
+            public AstNode(Boolean isAbstract, Boolean isPartial, String simpleName, String typeName, Maybe<String> parentType, IEnumerable<String> baseTypes, IEnumerable<AstNodeProperty> properties)
             {
                 _isAbstract = isAbstract;
+                _isPartial = isPartial;
                 _simpleName = simpleName;
                 _typeName = typeName;
                 _parentType = parentType;
@@ -295,6 +304,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
             }
 
             public Boolean IsAbstract { get { return _isAbstract; } }
+            public Boolean IsPartial { get { return _isPartial; } }
             public String SimpleName { get { return _simpleName; } }
             public String TypeName { get { return _typeName; } }
             public Maybe<String> ParentType { get { return _parentType; } }

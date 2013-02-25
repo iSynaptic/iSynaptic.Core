@@ -24,5 +24,39 @@ namespace iSynaptic.TestDomain
 
     aggregate<Guid> ServiceCase : Base
     {
+        event Opened
+        {
+            String Title;
+            String Description;
+            ServiceCasePriority Priority;
+        }
+
+        event CommunicationThreadStarted
+        {
+            Int32 ThreadId;
+            String Topic;
+            String Description;
+        }
+
+        event CommunicationRecorded
+        {
+            Int32 ThreadId;
+            CommunicationDirection Direction;
+            String Content;
+            DateTime CommunicationTime;
+        }
+    }
+
+    enum CommunicationDirection
+    {
+        Incoming,
+        Outgoing
+    }
+
+    enum ServiceCasePriority
+    {
+        Low,
+        Normal,
+        High
     }
 }

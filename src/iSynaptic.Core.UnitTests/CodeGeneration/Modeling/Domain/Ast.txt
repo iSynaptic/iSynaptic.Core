@@ -20,15 +20,16 @@
     {
         SimpleNameSyntax SimpleName;
         Boolean IsValueType;
+        Boolean HasValueSemantics;
     }
 
-    node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer, INode
+    node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer
     {
         UsingStatementSyntax* UsingStatements;
         NamespaceSyntax* Namespaces;
     }
 
-    node NamespaceSyntax("Namespace", INamespaceParent) : INamespaceParent, INamespaceMember, IUsingsContainer, ISymbol
+    partial node NamespaceSyntax("Namespace", INamespaceParent) : INamespaceParent, INamespaceMember, IUsingsContainer, ISymbol
     {
         NameSyntax Name;
 
@@ -48,7 +49,18 @@
         TypeReferenceSyntax? ConstrainedType;
     }
 
-    abstract node MoleculeSyntax("Molecule", ISymbol) : IType
+    partial node EnumSyntax("Enum", NamespaceSyntax) : INamespaceMember, IType
+    {
+        SimpleNameSyntax SimpleName;
+        EnumValueSyntax* Values;
+    }
+
+    node EnumValueSyntax("EnumValue", EnumSyntax)
+    {
+        IdentifierNameSyntax SimpleName;
+    }
+
+    abstract partial node MoleculeSyntax("Molecule", ISymbol) : IType
     {
         Boolean IsAbstract;
         SimpleNameSyntax SimpleName;
@@ -57,13 +69,13 @@
         AtomSyntax* Atoms;
     }
 
-    node AtomSyntax("Atom", MoleculeSyntax)
+    partial node AtomSyntax("Atom", MoleculeSyntax) : ISymbol
     {
         SimpleNameSyntax SimpleName;
         TypeReferenceSyntax Type;
     }
 
-    node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType
+    partial node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType
     {
         SimpleNameSyntax SimpleName;
         AggregateIdentifierSyntax? Identifier;
@@ -72,17 +84,17 @@
         AggregateEventSyntax* Events;
     }
 
-    node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : MoleculeSyntax
+    partial node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : MoleculeSyntax
     {
     }
 
-    node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax) : ISymbol
+    partial node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax) : ISymbol
     {
         SimpleNameSyntax SimpleName;
         TypeReferenceSyntax Type;
     }
 
-    node ValueSyntax("Value", NamespaceSyntax) : MoleculeSyntax, INamespaceMember
+    partial node ValueSyntax("Value", NamespaceSyntax) : MoleculeSyntax, INamespaceMember
     {
     }
 
@@ -91,23 +103,23 @@
         NameSyntax Namespace;
     }
 
-    abstract node NameSyntax("Name")
+    abstract partial node NameSyntax("Name")
     {
     }
 
-    abstract node SimpleNameSyntax("SimpleName") : NameSyntax
+    abstract partial node SimpleNameSyntax("SimpleName") : NameSyntax
     {
         String Identifier;
     }
 
-    node IdentifierNameSyntax("IdentifierName") : SimpleNameSyntax { }
+    partial node IdentifierNameSyntax("IdentifierName") : SimpleNameSyntax { }
 
-    node GenericNameSyntax("GenericName") : SimpleNameSyntax
+    partial node GenericNameSyntax("GenericName") : SimpleNameSyntax
     {
         NameSyntax* TypeArguments;
     }
 
-    node QualifiedNameSyntax("QualifiedName") : NameSyntax
+    partial node QualifiedNameSyntax("QualifiedName") : NameSyntax
     {
         NameSyntax Left;
         SimpleNameSyntax Right ;

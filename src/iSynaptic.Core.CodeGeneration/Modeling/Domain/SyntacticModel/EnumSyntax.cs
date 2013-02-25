@@ -19,9 +19,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+using System;
+
 namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    public partial class AtomSyntax
+    public partial class EnumSyntax
     {
         public NameSyntax Name { get { return SimpleName; } }
 
@@ -29,13 +32,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                var parent = Parent as ISymbol;
-
-                if (parent != null)
-                    return parent.FullName + Name;
+                if (Parent != null)
+                    return Parent.FullName + Name;
 
                 return Name;
             }
         }
+
+        public Boolean IsValueType { get { return false; } }
+        public Boolean HasValueSemantics { get { return true; } }
     }
 }

@@ -58,6 +58,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         public INode Parent { get { return null; } }
 
         public Boolean IsValueType { get { return ActualType.IsValueType; } }
+        public Boolean HasValueSemantics { get { return true; } }
 
         public Type ActualType { get { return _actualType; } }
         public NameSyntax FullName { get { return _fullName; } }

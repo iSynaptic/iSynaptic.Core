@@ -54,6 +54,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
   node AstNode(""Node"", AstNodeFamily) : IAstConcept
   {
     Boolean IsAbstract;
+    Boolean IsPartial;
     String SimpleName;
     String TypeName;
     String? ParentType;

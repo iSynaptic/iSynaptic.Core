@@ -20,15 +20,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
+using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
+using iSynaptic.Commons;
+using iSynaptic.Commons.Linq;
 using iSynaptic.Commons.Text;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
-    public class ValueCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
+    public class AggregateEventCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
     {
-        public ValueCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable) 
+        public AggregateEventCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable) 
             : base(writer, symbolTable)
         {
+        }
+
+        protected override Maybe<String> GetBaseMolecule(MoleculeSyntax molecule)
+        {
+            var aggregate = (AggregateSyntax)molecule.Parent;
+
+            var aggregateId = aggregate.Recurse(x => x.Base.Select(y => SymbolTable.Resolve(x, y).Symbol).Cast<AggregateSyntax>())
+                     .SelectMaybe(x => x.Identifier)
+                     .TryFirst();
+
+            var idString = aggregateId.OfType<GenericAggregateIdentifierSyntax>()
+                .Select(x => x.Name)
+                .OfType<NameSyntax>()
+                .Or<NameSyntax>(aggregateId.OfType<NamedAggregateIdentifierSyntax>().Select(x => x.Type.Name))
+                .Select(x => x.ToString())
+                .Value;
+
+            return base.GetBaseMolecule(molecule)
+                .Or(String.Format("AggregateEvent<{0}>", idString));
+        }
+
+        protected override bool ShouldBeEquatable(MoleculeSyntax molecule)
+        {
+            return false;
         }
     }
 }

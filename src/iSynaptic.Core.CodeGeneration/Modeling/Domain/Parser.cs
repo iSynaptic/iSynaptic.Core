@@ -27,7 +27,6 @@ using Sprache;
 
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
-using Result = Sprache.Result;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
@@ -38,17 +37,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             = from id in IdentifierOrKeyword
               select Syntax.IdentifierName(id);
 
-        public static readonly Parser<GenericNameSyntax> GenericName
-            = from id in IdentifierOrKeyword
-              from names in Name.Delimit(',').Surround('<', '>')
-              select Syntax.GenericName(names, id);
-
-        public static readonly Parser<SimpleNameSyntax> SimpleName
-            = GenericName
-            .Or<SimpleNameSyntax>(IdentifierName);
 
         private static readonly Parser<IEnumerable<SimpleNameSyntax>> NamesParser
-            = SimpleName.Delimit(".");
+            = Parse.Ref(() => SimpleName).Delimit(".");
 
         public static readonly Parser<NameSyntax> Name = input =>
         {
@@ -64,11 +55,20 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                         current = name;
                 }
 
-                return Result.Success(current, names.Remainder);
+                return Sprache.Result.Success(current, names.Remainder);
             }
 
-            return Result.Failure<QualifiedNameSyntax>(names.Remainder, names.Message, names.Expectations);
+            return Sprache.Result.Failure<QualifiedNameSyntax>(names.Remainder, names.Message, names.Expectations);
         };
+
+        public static readonly Parser<GenericNameSyntax> GenericName
+            = from id in IdentifierOrKeyword
+              from names in Name.Delimit(',').Surround('<', '>')
+              select Syntax.GenericName(names, id);
+
+        public static readonly Parser<SimpleNameSyntax> SimpleName
+            = GenericName
+            .Or<SimpleNameSyntax>(IdentifierName);
 
         public static readonly Parser<UsingStatementSyntax> UsingStatement
             = from keyword in Parse.String("using")
@@ -87,24 +87,28 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               from cardinality in TypeCardinality
               select new TypeReferenceSyntax(name, cardinality);
 
-        public static readonly Parser<ValuePropertySyntax> ValueProperty
+        public static readonly Parser<AtomSyntax> Atom
             = from type in TypeReference
               from name in SimpleName
               from end in StatementEnd
-              select Syntax.ValueProperty(name, type);
+              select Syntax.Atom(name, type);
+
+        public static readonly Parser<EnumValueSyntax> EnumValue
+            = IdentifierName.Select(Syntax.EnumValue);
+
+        public static readonly Parser<EnumSyntax> Enum
+            = from keyword in Parse.String("enum")
+              from name in SimpleName
+              from values in Blocked(EnumValue.Delimit(",").Optional())
+              select Syntax.Enum(name, values);
 
         public static readonly Parser<ValueSyntax> Value
             = from isAbstract in Flag("abstract")
               from keyword in Parse.String("value")
               from name in SimpleName
-              from @base in
-                  (
-                        from op in InheritsOperator
-                        from n in Name
-                        select n
-                  ).Optional()
-              from properties in Blocked(ValueProperty.Many())
-              select Syntax.Value(isAbstract, name, @base, properties);
+              from @base in InheritsFrom(Name).Optional()
+              from atoms in Blocked(Atom.Many())
+              select Syntax.Value(isAbstract, name, @base, atoms);
 
         public static readonly Parser<Maybe<TypeReferenceSyntax>> AggregateIdentifierConstraint
             = (from type in Name
@@ -115,24 +119,25 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         public static readonly Parser<AggregateIdentifierSyntax> AggregateIdentifier
             = (from name in IdentifierName
-              from _ in InheritsOperator
-              from constraint in AggregateIdentifierConstraint
+              from constraint in InheritsFrom(AggregateIdentifierConstraint)
               select Syntax.GenericAggregateIdentifier(name, constraint))
               .Or<AggregateIdentifierSyntax>(TypeReference.Select(Syntax.NamedAggregateIdentifier));
+
+        public static readonly Parser<AggregateEventSyntax> AggregateEvent
+            = from isAbstract in Flag("abstract")
+              from keyword in Parse.String("event")
+              from name in IdentifierName
+              from @base in InheritsFrom(Name).Optional()
+              from atoms in Blocked(Atom.Many())
+              select Syntax.AggregateEvent(isAbstract, name, @base, atoms);
 
         public static readonly Parser<AggregateSyntax> Aggregate
             = from keyword in Parse.String("aggregate")
               from identifier in AggregateIdentifier.Surround('<', '>').Optional()
               from name in SimpleName
-              from baseAggregate in
-                  (
-                        from op in InheritsOperator
-                        from baseName in Name
-                        select baseName
-                  ).Optional()
-              from blockStart in BlockStart
-              from blockEnd in BlockEnd
-              select Syntax.Aggregate(name, identifier, baseAggregate, Enumerable.Empty<AggregateEventSyntax>());
+              from baseAggregate in InheritsFrom(Name).Optional()
+              from events in Blocked(AggregateEvent.Many())
+              select Syntax.Aggregate(name, identifier, baseAggregate, events);
 
         public static readonly Parser<NamespaceSyntax> Namespace
             = from keyword in Parse.String("namespace")
@@ -145,6 +150,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         public static readonly Parser<INamespaceMember> NamespaceMember = ((Parser<INamespaceMember>)
                     Namespace)
+                .Or(Enum)
                 .Or(Value)
                 .Or(Aggregate);
 

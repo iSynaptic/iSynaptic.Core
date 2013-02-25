@@ -100,7 +100,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "public")
             {
-                var publicBaseTypes = baseTypes.Concat(new[] {"IVisitable"}).Delimit(", ");
+                var publicBaseTypes = baseTypes.Or(new[] {"IVisitable"}).Delimit(", ");
 
                 using (WriteBlock("public interface {0} : {1}", contract.TypeName, publicBaseTypes))
                 {
@@ -130,24 +130,20 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         protected String Visit(AstNode node, String mode)
         {
             var conceptHierarchy = node.Recurse<IAstConcept>(x => x.BaseTypes.SelectMaybe(y => Resolve(x, y))).ToArray();
-            var nodeHierarcy = conceptHierarchy.OfType<AstNode>();
+            var nodeHierarcy = conceptHierarchy.OfType<AstNode>().ToArray();
 
             var parentHierarcy = nodeHierarcy.SelectMaybe(x => x.ParentType).SelectMaybe(x => Resolve(node, x)).ToArray();
             bool parentDefinedByNode = parentHierarcy.Any();
 
             if(!parentDefinedByNode)
                 parentHierarcy = conceptHierarchy.SelectMaybe(x => x.ParentType).SelectMaybe(x => Resolve(node, x)).ToArray();
-            ;
+            
             var baseNode = nodeHierarcy.Skip(1).TryFirst();
             var parentNode = parentHierarcy.TryFirst();
+            
 
-            var lowestBaseNode = nodeHierarcy.Last();
-            var lowestParentNode = parentHierarcy.TryLast();
-
-            var contractsWithParent = conceptHierarchy
-                .OfType<AstNodeContract>()
-                .Distinct()
-                .Where(x => x.ParentType.HasValue);
+            var farthestBaseNode = nodeHierarcy.Last();
+            var farthestParentNode = parentHierarcy.TryLast();
             
             var baseTypes = node.BaseTypes.Concat(new[]{String.Format("IAstNode<Internal.{0}>", node.TypeName)});
 
@@ -155,7 +151,11 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             {
                 String baseTypesSuffix = String.Format(" : {0}", baseTypes.Delimit(", "));
 
-                using (WriteBlock("public {0}partial class {1}{2}", node.IsAbstract ? "abstract " : "", node.TypeName, baseTypesSuffix))
+                using (WriteBlock("public {0}{1} class {2}{3}", 
+                                  node.IsAbstract ? "abstract " : "", 
+                                  node.IsPartial ? "partial " : "",
+                                  node.TypeName, 
+                                  baseTypesSuffix))
                 {
                     if (parentNode.HasValue)
                         WriteLine("private readonly {0} _parent;", parentNode.Value.TypeName);
@@ -181,16 +181,25 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
                     WriteLine();
 
-                    if (parentNode.HasValue)
+                    if (parentNode.HasValue && parentDefinedByNode)
                     {
-                        if (parentDefinedByNode && lowestParentNode.HasValue && parentNode.Value != lowestParentNode.Value)
+                        if (farthestParentNode.HasValue && parentNode.Value != farthestParentNode.Value)
                             WriteLine("public new {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
-                        else if(parentDefinedByNode)
+                        else if(node.ParentType.HasValue)
                             WriteLine("public {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
                     }
 
-                    foreach (var contractWithParent in contractsWithParent)
-                        WriteLine("{0} {1}.Parent {{ get {{ return _parent; }} }}", contractWithParent.ParentType.Value, contractWithParent.TypeName);
+                    if (!baseNode.HasValue)
+                    {
+                        var contractsWithParent = conceptHierarchy
+                            .OfType<AstNodeContract>()
+                            .Distinct()
+                            .Where(x => x.ParentType.HasValue);
+
+
+                        foreach (var contractWithParent in contractsWithParent)
+                            WriteLine("{0} {1}.Parent {{ get {{ return _parent; }} }}", contractWithParent.ParentType.Value, contractWithParent.TypeName);
+                    }
 
                     WriteLine("Internal.{0} IAstNode<Internal.{0}>.GetUnderlying() {{ return _underlying; }}", node.TypeName);
                     WriteLine();
@@ -257,37 +266,37 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                         WriteLine();
                     }
 
-                    String makePublicInheritanceModifier = lowestBaseNode == node ? "" : "new ";
+                    String makePublicInheritanceModifier = farthestBaseNode == node ? "" : "new ";
                     using (WriteBlock("public {0}SyntacticModel.{1} MakePublic({2} parent)", makePublicInheritanceModifier, node.TypeName, parentType))
                     {
-                        WriteLine(lowestBaseNode == node
+                        WriteLine(farthestBaseNode == node
                                     ? "return BuildPublic(parent);"
                                     : "return (SyntacticModel.{0}) BuildPublic(parent);", 
                                   node.TypeName);
                     }
                     WriteLine();
 
-                    String buildParentParameter = lowestParentNode.HasValue
-                        ? String.Format("SyntacticModel.{0} parent", lowestParentNode.Value.TypeName)
+                    String buildParentParameter = farthestParentNode.HasValue
+                        ? String.Format("SyntacticModel.{0} parent", farthestParentNode.Value.TypeName)
                         : "Object parent";
 
                     String buildParentArgument = "";
 
                     if (parentNode.HasValue)
                     {
-                        buildParentArgument = parentNode.Value != lowestParentNode.Value 
+                        buildParentArgument = parentNode.Value != farthestParentNode.Value 
                             ? String.Format("(SyntacticModel.{0}) parent, ", parentNode.Value.TypeName) 
                             : "parent, ";
                     }
 
-                    if (node.IsAbstract && lowestBaseNode == node)
+                    if (node.IsAbstract && farthestBaseNode == node)
                     {
-                        WriteLine("protected abstract SyntacticModel.{0} BuildPublic({1});", lowestBaseNode.TypeName, buildParentParameter);
+                        WriteLine("protected abstract SyntacticModel.{0} BuildPublic({1});", farthestBaseNode.TypeName, buildParentParameter);
                     }
                     else if (!node.IsAbstract)
                     {
-                        String buildPublicInheritanceModifier = lowestBaseNode == node ? "virtual" : "override";
-                        using (WriteBlock("protected {0} SyntacticModel.{1} BuildPublic({2})", buildPublicInheritanceModifier, lowestBaseNode.TypeName, buildParentParameter))
+                        String buildPublicInheritanceModifier = farthestBaseNode == node ? "virtual" : "override";
+                        using (WriteBlock("protected {0} SyntacticModel.{1} BuildPublic({2})", buildPublicInheritanceModifier, farthestBaseNode.TypeName, buildParentParameter))
                         {
                             WriteLine("return new SyntacticModel.{0}({1} this);", node.TypeName, buildParentArgument);
                         }

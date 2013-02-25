@@ -62,6 +62,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
         public static Parser<AstNode> Node()
         {
             return from isAbstract in Flag("abstract")
+                   from isPartial in Flag("partial")
                    from keyword in Parse.String("node")
                    from typeName in IdentifierOrKeyword
                    from startParen in Parse.Char('(')
@@ -87,6 +88,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                    from blockEnd in Parse.Char('}')
                    select Syntax.Node(
                             isAbstract,
+                            isPartial,
                             name,
                             typeName,
                             parent,

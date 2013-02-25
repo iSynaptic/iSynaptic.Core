@@ -24,7 +24,7 @@ using System;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
-    public partial class ValueSyntax
+    public partial class MoleculeSyntax
     {
         public NameSyntax Name { get { return SimpleName; } }
 
@@ -32,15 +32,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             get
             {
-                var parent = Parent as ISymbol;
-
-                if (parent != null)
-                    return parent.FullName + Name;
+                if (Parent != null)
+                    return Parent.FullName + Name;
 
                 return Name;
             }
         }
 
         public Boolean IsValueType { get { return false; } }
+        public abstract Boolean HasValueSemantics { get; }
     }
 }

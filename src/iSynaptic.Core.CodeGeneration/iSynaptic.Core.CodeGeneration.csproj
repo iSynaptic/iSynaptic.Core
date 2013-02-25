@@ -56,6 +56,8 @@
     <Compile Include="Modeling\AbstractSyntaxTree\Generated.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\Parser.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\SymbolTableConstructionVisitor.cs" />
+    <Compile Include="Modeling\Domain\AggregateCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\AggregateEventCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\FullDomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateEventSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\BuiltInType.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\EnumSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\GenericNameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\IdentifierNameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\NamespaceSyntax.cs" />
@@ -78,6 +81,8 @@
     <Compile Include="Modeling\Domain\SyntacticModel\TypeReferenceSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\AtomSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\MoleculeSyntax.cs" />
+    <Compile Include="Modeling\Domain\MoleculeCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\ValueSyntax.cs" />
     <Compile Include="Modeling\Domain\ValueCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\ParserExtensions.cs" />
     <Compile Include="Modeling\StandardLanguageParser.cs" />

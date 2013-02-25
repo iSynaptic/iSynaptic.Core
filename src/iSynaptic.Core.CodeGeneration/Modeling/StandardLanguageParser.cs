@@ -24,8 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using Sprache;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
@@ -120,6 +118,13 @@ namespace iSynaptic.CodeGeneration.Modeling
                 .Or(Parse.Char('@').Then(__ => identifier.Select(x => "@" + x)))
               select id;
 
+        protected static Parser<T> InheritsFrom<T>(Parser<T> parser)
+        {
+            return from op in InheritsOperator
+                   from result in parser
+                   select result;
+        }
+
         protected static Parser<Boolean> Flag(String text)
         {
             return Parse.String(text)
@@ -160,7 +165,7 @@ namespace iSynaptic.CodeGeneration.Modeling
                    from id in IdentifierOrKeyword
 
                    from @base in canInherit
-                        ? InheritsOperator.Interleave().Then(_ => IdentifierOrKeyword).Optional()
+                        ? InheritsFrom(IdentifierOrKeyword).Optional()
                         : Parse.Return(Maybe<String>.NoValue)
 
                    from def in definition
