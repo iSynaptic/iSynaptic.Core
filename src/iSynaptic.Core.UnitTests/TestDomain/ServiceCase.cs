@@ -24,10 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using iSynaptic.Commons;
-using iSynaptic.Modeling;
 using iSynaptic.Modeling.Domain;
 
-namespace iSynaptic.TestAggregates
+namespace iSynaptic.TestDomain
 {
     // This is a poor example of an aggregate since it is devoid of much logic and exposes state.
     // It exists only to facilitate testing of the framework around aggregates

@@ -1,37 +1,28 @@
 ﻿using System;
 
-namespace iSynaptic.Modeling.Domain.Test
+namespace iSynaptic.TestDomain
 {
-    namespace Inner
+    abstract value RoleIdentifier
     {
-        value Message
-        {
-            Guid Id;
-        }
-
-        value DerivedMessage : Message
-        {
-            String Content;
-        }
-
-        value Test
-        {
-            String Name;
-            String? Message;
-            String+ Foos;
-            String* OtherFoos;
-        }
-
-        aggregate<Guid> ServiceCase : Foo.Base
-        {
-        }
+        String BaseIdentifier;
+        String IdentifierType;
     }
-    
-    namespace Inner.Foo
-    {
-        aggregate Base
-        {
-        }
 
+    value CustomerRoleIdentifier : RoleIdentifier
+    {
+    }
+
+    value CustomerAgentRoleIdentifier : RoleIdentifier
+    {
+    }
+
+    value CustomerServiceRepresentativeRoleIdentifier : RoleIdentifier
+    {
+    }
+
+    aggregate<T:*> Base { }
+
+    aggregate<Guid> ServiceCase : Base
+    {
     }
 }

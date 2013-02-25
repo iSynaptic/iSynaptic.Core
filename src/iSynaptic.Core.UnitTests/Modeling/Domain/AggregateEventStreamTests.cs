@@ -25,7 +25,7 @@ using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using iSynaptic.Commons;
-using iSynaptic.TestAggregates;
+using iSynaptic.TestDomain;
 
 namespace iSynaptic.Modeling.Domain
 {

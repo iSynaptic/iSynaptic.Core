@@ -185,7 +185,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                     {
                         if (parentDefinedByNode && lowestParentNode.HasValue && parentNode.Value != lowestParentNode.Value)
                             WriteLine("public new {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
-                        else
+                        else if(parentDefinedByNode)
                             WriteLine("public {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
                     }
 

@@ -76,8 +76,8 @@
     <Compile Include="Modeling\Domain\SyntacticModel\SimpleNameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\TypeCardinalitySyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\TypeReferenceSyntax.cs" />
-    <Compile Include="Modeling\Domain\SyntacticModel\ValuePropertySyntax.cs" />
-    <Compile Include="Modeling\Domain\SyntacticModel\ValueSyntax.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\AtomSyntax.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\MoleculeSyntax.cs" />
     <Compile Include="Modeling\Domain\ValueCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\ParserExtensions.cs" />
     <Compile Include="Modeling\StandardLanguageParser.cs" />

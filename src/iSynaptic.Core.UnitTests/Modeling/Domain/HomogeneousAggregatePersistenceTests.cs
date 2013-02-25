@@ -25,7 +25,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using iSynaptic.Core.Persistence;
 using iSynaptic.Serialization;
-using iSynaptic.TestAggregates;
+using iSynaptic.TestDomain;
 
 namespace iSynaptic.Modeling.Domain
 {

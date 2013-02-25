@@ -94,6 +94,7 @@
     <Compile Include="CodeGeneration\Modeling\Domain\AstGeneration.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\DomainCodeAuthoringVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\ParserTests.cs" />
+    <Compile Include="TestDomain\Generated.cs" />
     <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
     <Compile Include="Modeling\Domain\AggregateEventStreamTests.cs" />
     <Compile Include="Modeling\Domain\AggregateMementoTests.cs" />
@@ -109,12 +110,8 @@
     <Compile Include="Serialization\MaybeJsonConverterTests.cs" />
     <Compile Include="Serialization\OutcomeJsonConverterTests.cs" />
     <Compile Include="Serialization\ResultJsonConverterTests.cs" />
-    <Compile Include="TestAggregates\CustomerAgentRoleIdentifier.cs" />
-    <Compile Include="TestAggregates\CustomerRoleIdentifier.cs" />
-    <Compile Include="TestAggregates\CustomerServiceRepresentativeRoleIdentifier.cs" />
-    <Compile Include="TestAggregates\HomogeneousRole.cs" />
-    <Compile Include="TestAggregates\RoleIdentifier.cs" />
-    <Compile Include="TestAggregates\ServiceCase.cs" />
+    <Compile Include="TestDomain\HomogeneousRole.cs" />
+    <Compile Include="TestDomain\ServiceCase.cs" />
     <Compile Include="Persistence\InMemoryAggregateRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

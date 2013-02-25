@@ -26,6 +26,7 @@ using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
+using iSynaptic.Commons.Text;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
@@ -77,22 +78,53 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected void Visit(AggregateSyntax aggregate)
         {
-            var baseAggregateSymbol = aggregate.Base
+            new AggregateCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate);
+        }
+    }
+
+    public class AggregateCodeAuthoringVisitor : DomainCodeAuthoringVisitor<String>
+    {
+        public AggregateCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable) 
+            : base(writer, symbolTable)
+        {
+        }
+
+        protected void Visit(AggregateSyntax aggregate)
+        {
+            var genericIdType = aggregate.Identifier
+                    .OfType<GenericAggregateIdentifierSyntax>()
+                    .Select(x => x.Name)
+                    .OfType<NameSyntax>();
+
+            var baseAggregate = aggregate.Base
                 .Select(x => SymbolTable.Resolve(aggregate, x))
-                .Select(x => x.Symbol);
+                .Select(x => x.Symbol)
+                .Cast<AggregateSyntax>();
 
-            if (baseAggregateSymbol.HasValue && (baseAggregateSymbol.Value == aggregate || !(baseAggregateSymbol.Value is AggregateSyntax)))
-                throw new InvalidOperationException("Aggregate cannot be it's own base or use non-aggregates as a base.");
+            var genericSuffix = genericIdType
+                .Select(n => String.Format("<{0}>", n))
+                .ValueOrDefault("");
 
-            String baseAggregate = baseAggregateSymbol
-                .Select(x => x.FullName)
-                .Select(x => GetRelativeName(x, aggregate.Parent))
+            var baseName = aggregate.Base
                 .Select(x => x.ToString())
-                .ValueOrDefault("Aggregate<Guid>");
+                .ValueOrDefault("Aggregate");
 
-            using (WriteBlock("public class {0} : {1}", aggregate.Name, baseAggregate))
+            var idType = aggregate.Identifier
+                .Cast<NamedAggregateIdentifierSyntax>()
+                .Select(x => x.Type.Name);
+
+            var baseGenericSuffix = genericIdType
+                .Or(idType)
+                .Where(x => !baseAggregate.HasValue ||
+                             baseAggregate.SelectMaybe(y => y.Identifier)
+                             .Select(y => y is GenericAggregateIdentifierSyntax)
+                             .ValueOrDefault())
+                .Select(x => String.Format("<{0}>", x))
+                .ValueOrDefault("");
+
+            using (WriteBlock("public class {0}{1} : {2}{3}", aggregate.Name, genericSuffix, baseName, baseGenericSuffix))
             {
-
+                
             }
         }
     }

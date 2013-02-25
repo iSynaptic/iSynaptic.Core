@@ -53,24 +53,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected String GetTypeString(TypeReferenceSyntax reference, ISymbol relativeTo)
         {
-            String elementalType = GetElementalTypeString(reference, relativeTo);
-
             if (reference.Cardinality.IsMany)
-                return String.Format("IEnumerable<{0}>", elementalType);
+                return String.Format("IEnumerable<{0}>", reference.Name);
 
             if (reference.Cardinality.IsOptional)
-                return String.Format("Maybe<{0}>", elementalType);
+                return String.Format("Maybe<{0}>", reference.Name);
 
-            return elementalType;
-        }
-
-        protected String GetElementalTypeString(TypeReferenceSyntax reference, ISymbol relativeTo)
-        {
-            var resolvedType = SymbolTable.Resolve(relativeTo, reference.Name);
-
-            return resolvedType.Status == SymbolResolutionStatus.NotFound
-                ? reference.Name.ToString()
-                : (String)GetRelativeName(resolvedType.Symbol.FullName, relativeTo);
+            return reference.Name;
         }
 
         protected NameSyntax GetRelativeName(NameSyntax name, ISymbol relativeTo)

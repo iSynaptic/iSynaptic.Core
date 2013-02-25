@@ -47,18 +47,15 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 .SelectMany(x => x.Properties)
                 .ToArray();
 
-            var baseTypeString = baseValue
-                .Select(x => GetTypeString(x.FullName, value));
-
             using (WriteBlock("public {0}class {1} : {2}IEquatable<{1}>", 
                               value.IsAbstract ? "abstract " : "", 
                               value.Name, 
-                              baseTypeString.Select(x => x + ", ").ValueOrDefault("")))
+                              value.Base.Select(x => x + ", ").ValueOrDefault("")))
             {
                 Dispatch(value.Properties, "field");
                 WriteLine();
 
-                Write("public {0}(", value.Name);
+                Write("{0} {1}(", value.IsAbstract ? "protected" : "public", value.Name);
                 Delimit(value.Properties.Concat(baseProperties), "parameter", ", ");
                 WriteLine(")");
 
@@ -71,6 +68,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
                 using (WithBlock())
                 {
+                    Dispatch(value.Properties, "validateArgument");
+                    WriteLine();
                     Dispatch(value.Properties, "assignToField");
                 }
                 WriteLine();
@@ -86,38 +85,53 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
             using (WriteBlock("public Boolean Equals({0} other)", value.Name))
             {
-                WriteLine("if (ReferenceEquals(other, null)) return false;");
-                WriteLine("if (GetType() != other.GetType()) return false;");
-                WriteLine();
-
-                Dispatch(value.Properties, "equalsCheck");
-                WriteLine(hasBase ? "return base.Equals(other);" : "return true;");
+                WriteLine("return Equals((Object)other);");
             }
             WriteLine();
 
-            WriteLine("public override Boolean Equals(object obj) {{ return Equals(obj as {0}); }}", value.Name);
-            WriteLine();
-
-            using (WriteBlock("public override Int32 GetHashCode()"))
+            if (value.Properties.Any())
             {
-                WriteLine(hasBase ? "int hash = base.GetHashCode();" : "int hash = 1;");
+                using (WriteBlock("public override Boolean Equals(Object obj)"))
+                {
+                    WriteLine("{0} other = obj as {0};", value.Name);
+                    WriteLine();
+
+                    WriteLine("if (ReferenceEquals(other, null)) return false;");
+                    WriteLine("if (GetType() != other.GetType()) return false;");
+                    WriteLine();
+
+                    Dispatch(value.Properties, "equalsCheck");
+                    WriteLine();
+
+                    WriteLine(hasBase ? "return base.Equals(obj);" : "return true;");
+                }
                 WriteLine();
 
-                Dispatch(value.Properties, "mixInHash");
+                using (WriteBlock("public override Int32 GetHashCode()"))
+                {
+                    WriteLine(hasBase ? "int hash = base.GetHashCode();" : "int hash = 1;");
+                    WriteLine();
+
+                    Dispatch(value.Properties, "mixInHash");
+
+                    WriteLine();
+                    WriteLine("return hash;");
+                }
 
                 WriteLine();
-                WriteLine("return hash;");
             }
-            WriteLine();
-            
-            using (WriteBlock("public static bool operator ==({0} left, {0} right)", value.Name))
+
+            if (!hasBase)
             {
-                WriteLine("if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;");
-                WriteLine("return ReferenceEquals(left, null) || left.Equals(right);");
-            }
-            WriteLine();
+                using (WriteBlock("public static bool operator ==({0} left, {0} right)", value.Name))
+                {
+                    WriteLine("if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;");
+                    WriteLine("return ReferenceEquals(left, null) || left.Equals(right);");
+                }
+                WriteLine();
 
-            WriteLine("public static bool operator !=({0} left, {0} right) {{ return !(left == right); }}", value.Name);
+                WriteLine("public static bool operator !=({0} left, {0} right) {{ return !(left == right); }}", value.Name);
+            }
         }
 
         protected void Visit(ValuePropertySyntax property, String mode)
@@ -133,7 +147,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if(!(type is BuiltInType || type is ValueSyntax))
                 throw new InvalidOperationException("Only built-in or value types can be used in value properties.");
 
-            String elementalTypeString = GetElementalTypeString(property.Type, property);
             String typeString = GetTypeString(property.Type, property);
             String fieldName = String.Format("_{0}", Camelize(property.Name));
             String argumentName = SafeIdentifier(Camelize(property.Name));
@@ -145,6 +158,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if(mode == "property")
                 WriteLine("public {0} {1} {{ get {{ return {2}; }} }}", typeString, propertyName, fieldName);
 
+            if (mode == "validateArgument")
+            {
+                if(cardinality.IsMany|| (!cardinality.IsOptional && !type.IsValueType))
+                    WriteLine("if(ReferenceEquals({0}, null)) throw new ArgumentNullException(\"{0}\");", argumentName);
+            }
+
             if(mode == "parameter")
                 Write("{0} {1}", typeString, argumentName);
 
@@ -152,12 +171,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 Write(argumentName);
 
             if (mode == "assignToField")
-            {
-                if(cardinality.IsMany)
-                    WriteLine("{0} = {1} ?? Enumerable.Empty<{2}>();", fieldName, argumentName, elementalTypeString);
-                else
-                    WriteLine("{0} = {1};", fieldName, argumentName);
-            }
+                WriteLine("{0} = {1};", fieldName, argumentName);
 
             if (mode == "equalsCheck")
             {
@@ -166,15 +180,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                     String prefix = "";
                     if (cardinality.IsOptional)
                     {
-                        prefix = string.Format(type.IsValueType
-                                    ? "{0}.HasValue && "
-                                    : "!ReferenceEquals({0}, null) && ",
-                                propertyName);
-
-                        WriteLine(type.IsValueType
-                                ? "if ({0}.HasValue != other.{0}.HasValue) return false;"
-                                : "if (ReferenceEquals({0}, null) != ReferenceEquals(other.{0}, null)) return false;",
-                            propertyName);
+                        prefix = String.Format("{0}.HasValue && ", propertyName);
+                        WriteLine("if ({0}.HasValue != other.{0}.HasValue) return false;", propertyName);
                     }
 
                     WriteLine("if({0}!{1}.Equals(other.{1})) return false;", prefix, propertyName);
@@ -186,17 +193,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if (mode == "mixInHash")
             {
                 if (!cardinality.IsMany)
-                {
-                    if (cardinality.IsOptional)
-                    {
-                        WriteLine(type.IsValueType
-                                      ? "hash = HashCode.MixJenkins32(hash + ({0}.HasValue ? {0}.GetHashCode() : 0));"
-                                      : "hash = HashCode.MixJenkins32(hash + (!ReferenceEquals({0}, null) ? {0}.GetHashCode() : 0));",
-                                  propertyName);
-                    }
-                    else
-                        WriteLine("hash = HashCode.MixJenkins32(hash + {0}.GetHashCode());", propertyName);
-                }
+                    WriteLine("hash = HashCode.MixJenkins32(hash + {0}.GetHashCode());", propertyName);
                 else
                     WriteLine("hash = {0}.Aggregate(hash, (h, item) => HashCode.MixJenkins32(h + item.GetHashCode()));", propertyName);
             }

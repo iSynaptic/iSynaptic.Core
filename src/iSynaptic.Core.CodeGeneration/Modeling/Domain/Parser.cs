@@ -36,12 +36,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
     {
         public static readonly Parser<IdentifierNameSyntax> IdentifierName
             = from id in IdentifierOrKeyword
-                   select Syntax.IdentifierName(id);
+              select Syntax.IdentifierName(id);
 
         public static readonly Parser<GenericNameSyntax> GenericName
             = from id in IdentifierOrKeyword
-                   from names in Name.Delimit(',').Surround('<', '>')
-                   select Syntax.GenericName(names, id);
+              from names in Name.Delimit(',').Surround('<', '>')
+              select Syntax.GenericName(names, id);
 
         public static readonly Parser<SimpleNameSyntax> SimpleName
             = GenericName
@@ -98,27 +98,41 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               from keyword in Parse.String("value")
               from name in SimpleName
               from @base in
-              (
-                    from op in Parse.Char(':')
-                    from n in Name
-                    select n
-              ).Optional()
+                  (
+                        from op in InheritsOperator
+                        from n in Name
+                        select n
+                  ).Optional()
               from properties in Blocked(ValueProperty.Many())
               select Syntax.Value(isAbstract, name, @base, properties);
 
+        public static readonly Parser<Maybe<TypeReferenceSyntax>> AggregateIdentifierConstraint
+            = (from type in Name
+              let reference = new TypeReferenceSyntax(type, new TypeCardinalitySyntax(1, 1))
+              select reference.ToMaybe())
+              .Or(from _ in Parse.Char('*')
+                  select Maybe<TypeReferenceSyntax>.NoValue);
+
+        public static readonly Parser<AggregateIdentifierSyntax> AggregateIdentifier
+            = (from name in IdentifierName
+              from _ in InheritsOperator
+              from constraint in AggregateIdentifierConstraint
+              select Syntax.GenericAggregateIdentifier(name, constraint))
+              .Or<AggregateIdentifierSyntax>(TypeReference.Select(Syntax.NamedAggregateIdentifier));
+
         public static readonly Parser<AggregateSyntax> Aggregate
             = from keyword in Parse.String("aggregate")
-              from identifierType in Name.Surround('<', '>').Optional()
+              from identifier in AggregateIdentifier.Surround('<', '>').Optional()
               from name in SimpleName
-              from baseAggregate in 
-              (
-                    from op in InheritsOperator
-                    from baseName in Name
-                    select baseName
-              ).Optional()
+              from baseAggregate in
+                  (
+                        from op in InheritsOperator
+                        from baseName in Name
+                        select baseName
+                  ).Optional()
               from blockStart in BlockStart
               from blockEnd in BlockEnd
-              select Syntax.Aggregate(name, identifierType, baseAggregate, Enumerable.Empty<AggregateEventSyntax>());
+              select Syntax.Aggregate(name, identifier, baseAggregate, Enumerable.Empty<AggregateEventSyntax>());
 
         public static readonly Parser<NamespaceSyntax> Namespace
             = from keyword in Parse.String("namespace")

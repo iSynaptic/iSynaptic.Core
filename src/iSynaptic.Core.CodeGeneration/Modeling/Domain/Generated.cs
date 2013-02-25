@@ -25,9 +25,20 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return new NamespaceSyntax(null, new SyntacticModel.Internal.NamespaceSyntax(((IAstNode<SyntacticModel.Internal.NameSyntax>)name).GetUnderlying(), usingStatements.Select(x => ((IAstNode<SyntacticModel.Internal.UsingStatementSyntax>)x).GetUnderlying()), members.Select(x => ((IAstNode<SyntacticModel.Internal.INamespaceMember>)x).GetUnderlying())));
         }
 
-        public static AggregateSyntax Aggregate(SimpleNameSyntax simpleName, Maybe<NameSyntax> identifierType, Maybe<NameSyntax> @base, IEnumerable<AggregateEventSyntax> events)
+
+        public static NamedAggregateIdentifierSyntax NamedAggregateIdentifier(TypeReferenceSyntax type)
         {
-            return new AggregateSyntax(null, new SyntacticModel.Internal.AggregateSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), identifierType.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), events.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateEventSyntax>)x).GetUnderlying())));
+            return new NamedAggregateIdentifierSyntax(null, new SyntacticModel.Internal.NamedAggregateIdentifierSyntax(type));
+        }
+
+        public static GenericAggregateIdentifierSyntax GenericAggregateIdentifier(IdentifierNameSyntax name, Maybe<TypeReferenceSyntax> constrainedType)
+        {
+            return new GenericAggregateIdentifierSyntax(null, new SyntacticModel.Internal.GenericAggregateIdentifierSyntax(((IAstNode<SyntacticModel.Internal.IdentifierNameSyntax>)name).GetUnderlying(), constrainedType));
+        }
+
+        public static AggregateSyntax Aggregate(SimpleNameSyntax simpleName, Maybe<AggregateIdentifierSyntax> identifier, Maybe<NameSyntax> @base, IEnumerable<AggregateEventSyntax> events)
+        {
+            return new AggregateSyntax(null, new SyntacticModel.Internal.AggregateSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), identifier.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateIdentifierSyntax>)x).GetUnderlying()), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), events.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateEventSyntax>)x).GetUnderlying())));
         }
 
         public static AggregateEventSyntax AggregateEvent(SimpleNameSyntax simpleName, IEnumerable<AggregateEventPropertySyntax> properties)
@@ -121,7 +132,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             _underlying = underlying;
         }
 
-        public INode Parent { get { return _parent; } }
         INode INode.Parent { get { return _parent; } }
         Internal.SyntaxTree IAstNode<Internal.SyntaxTree>.GetUnderlying() { return _underlying; }
 
@@ -192,6 +202,87 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
     }
 
+    public abstract partial class AggregateIdentifierSyntax : IAstNode<Internal.AggregateIdentifierSyntax>
+    {
+        private readonly AggregateSyntax _parent;
+        private readonly Internal.AggregateIdentifierSyntax _underlying;
+
+        internal AggregateIdentifierSyntax(AggregateSyntax parent, Internal.AggregateIdentifierSyntax underlying)
+        {
+            _parent = parent;
+            _underlying = underlying;
+        }
+
+        public AggregateSyntax Parent { get { return _parent; } }
+        Internal.AggregateIdentifierSyntax IAstNode<Internal.AggregateIdentifierSyntax>.GetUnderlying() { return _underlying; }
+
+        public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+        {
+        }
+
+    }
+
+    public partial class NamedAggregateIdentifierSyntax : AggregateIdentifierSyntax, IAstNode<Internal.NamedAggregateIdentifierSyntax>
+    {
+        private readonly AggregateSyntax _parent;
+        private readonly Internal.NamedAggregateIdentifierSyntax _underlying;
+
+        internal NamedAggregateIdentifierSyntax(AggregateSyntax parent, Internal.NamedAggregateIdentifierSyntax underlying)
+            : base(parent, underlying)
+        {
+            _parent = parent;
+            _underlying = underlying;
+        }
+
+        public AggregateSyntax Parent { get { return _parent; } }
+        Internal.NamedAggregateIdentifierSyntax IAstNode<Internal.NamedAggregateIdentifierSyntax>.GetUnderlying() { return _underlying; }
+
+        public TypeReferenceSyntax Type
+        {
+            get
+            {
+                return ((IAstNode<Internal.NamedAggregateIdentifierSyntax>)this).GetUnderlying().Type;
+            }
+        }
+    }
+
+    public partial class GenericAggregateIdentifierSyntax : AggregateIdentifierSyntax, IAstNode<Internal.GenericAggregateIdentifierSyntax>
+    {
+        private readonly AggregateSyntax _parent;
+        private readonly Internal.GenericAggregateIdentifierSyntax _underlying;
+
+        internal GenericAggregateIdentifierSyntax(AggregateSyntax parent, Internal.GenericAggregateIdentifierSyntax underlying)
+            : base(parent, underlying)
+        {
+            _parent = parent;
+            _underlying = underlying;
+        }
+
+        public AggregateSyntax Parent { get { return _parent; } }
+        Internal.GenericAggregateIdentifierSyntax IAstNode<Internal.GenericAggregateIdentifierSyntax>.GetUnderlying() { return _underlying; }
+
+        public override void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+        {
+            dispatch(new[] { Name });
+            base.AcceptChildren(dispatch);
+        }
+
+        public IdentifierNameSyntax Name
+        {
+            get
+            {
+                return ((IAstUnderlyingNode<IdentifierNameSyntax, GenericAggregateIdentifierSyntax>)((IAstNode<Internal.GenericAggregateIdentifierSyntax>)this).GetUnderlying().Name).MakePublic(this);
+            }
+        }
+        public Maybe<TypeReferenceSyntax> ConstrainedType
+        {
+            get
+            {
+                return ((IAstNode<Internal.GenericAggregateIdentifierSyntax>)this).GetUnderlying().ConstrainedType;
+            }
+        }
+    }
+
     public partial class AggregateSyntax : INamespaceMember, IType, IAstNode<Internal.AggregateSyntax>
     {
         private readonly NamespaceSyntax _parent;
@@ -210,7 +301,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
         {
             dispatch(new[] { SimpleName });
-            dispatch(IdentifierType.ToEnumerable());
+            dispatch(Identifier.ToEnumerable());
             dispatch(Base.ToEnumerable());
             dispatch(Events);
         }
@@ -222,11 +313,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return ((IAstUnderlyingNode<SimpleNameSyntax, AggregateSyntax>)((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().SimpleName).MakePublic(this);
             }
         }
-        public Maybe<NameSyntax> IdentifierType
+        public Maybe<AggregateIdentifierSyntax> Identifier
         {
             get
             {
-                return ((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().IdentifierType.Select(x => ((IAstUnderlyingNode<NameSyntax, AggregateSyntax>)x).MakePublic(this));
+                return ((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().Identifier.Select(x => ((IAstUnderlyingNode<AggregateIdentifierSyntax, AggregateSyntax>)x).MakePublic(this));
             }
         }
         public Maybe<NameSyntax> Base
@@ -624,17 +715,75 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IEnumerable<INamespaceMember> Members { get { return _members; } }
         }
 
+        internal abstract class AggregateIdentifierSyntax : IAstUnderlyingNode<SyntacticModel.AggregateIdentifierSyntax, SyntacticModel.AggregateSyntax>
+        {
+
+            public SyntacticModel.AggregateIdentifierSyntax MakePublic(SyntacticModel.AggregateSyntax parent)
+            {
+                return BuildPublic(parent);
+            }
+
+            protected abstract SyntacticModel.AggregateIdentifierSyntax BuildPublic(SyntacticModel.AggregateSyntax parent);
+        }
+
+        internal class NamedAggregateIdentifierSyntax : AggregateIdentifierSyntax, IAstUnderlyingNode<SyntacticModel.NamedAggregateIdentifierSyntax, SyntacticModel.AggregateSyntax>
+        {
+            private readonly TypeReferenceSyntax _type;
+
+            public NamedAggregateIdentifierSyntax(TypeReferenceSyntax type)
+            {
+                _type = type;
+            }
+
+            public new SyntacticModel.NamedAggregateIdentifierSyntax MakePublic(SyntacticModel.AggregateSyntax parent)
+            {
+                return (SyntacticModel.NamedAggregateIdentifierSyntax)BuildPublic(parent);
+            }
+
+            protected override SyntacticModel.AggregateIdentifierSyntax BuildPublic(SyntacticModel.AggregateSyntax parent)
+            {
+                return new SyntacticModel.NamedAggregateIdentifierSyntax(parent, this);
+            }
+
+            public TypeReferenceSyntax Type { get { return _type; } }
+        }
+
+        internal class GenericAggregateIdentifierSyntax : AggregateIdentifierSyntax, IAstUnderlyingNode<SyntacticModel.GenericAggregateIdentifierSyntax, SyntacticModel.AggregateSyntax>
+        {
+            private readonly IdentifierNameSyntax _name;
+            private readonly Maybe<TypeReferenceSyntax> _constrainedType;
+
+            public GenericAggregateIdentifierSyntax(IdentifierNameSyntax name, Maybe<TypeReferenceSyntax> constrainedType)
+            {
+                _name = name;
+                _constrainedType = constrainedType;
+            }
+
+            public new SyntacticModel.GenericAggregateIdentifierSyntax MakePublic(SyntacticModel.AggregateSyntax parent)
+            {
+                return (SyntacticModel.GenericAggregateIdentifierSyntax)BuildPublic(parent);
+            }
+
+            protected override SyntacticModel.AggregateIdentifierSyntax BuildPublic(SyntacticModel.AggregateSyntax parent)
+            {
+                return new SyntacticModel.GenericAggregateIdentifierSyntax(parent, this);
+            }
+
+            public IdentifierNameSyntax Name { get { return _name; } }
+            public Maybe<TypeReferenceSyntax> ConstrainedType { get { return _constrainedType; } }
+        }
+
         internal class AggregateSyntax : INamespaceMember, IType, IAstUnderlyingNode<SyntacticModel.AggregateSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly SimpleNameSyntax _simpleName;
-            private readonly Maybe<NameSyntax> _identifierType;
+            private readonly Maybe<AggregateIdentifierSyntax> _identifier;
             private readonly Maybe<NameSyntax> _base;
             private readonly IEnumerable<AggregateEventSyntax> _events;
 
-            public AggregateSyntax(SimpleNameSyntax simpleName, Maybe<NameSyntax> identifierType, Maybe<NameSyntax> @base, IEnumerable<AggregateEventSyntax> events)
+            public AggregateSyntax(SimpleNameSyntax simpleName, Maybe<AggregateIdentifierSyntax> identifier, Maybe<NameSyntax> @base, IEnumerable<AggregateEventSyntax> events)
             {
                 _simpleName = simpleName;
-                _identifierType = identifierType;
+                _identifier = identifier;
                 _base = @base;
                 _events = events;
             }
@@ -650,7 +799,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             }
 
             public SimpleNameSyntax SimpleName { get { return _simpleName; } }
-            public Maybe<NameSyntax> IdentifierType { get { return _identifierType; } }
+            public Maybe<AggregateIdentifierSyntax> Identifier { get { return _identifier; } }
             public Maybe<NameSyntax> Base { get { return _base; } }
             public IEnumerable<AggregateEventSyntax> Events { get { return _events; } }
         }

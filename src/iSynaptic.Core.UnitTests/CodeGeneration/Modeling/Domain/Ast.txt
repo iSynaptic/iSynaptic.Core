@@ -36,19 +36,44 @@
         INamespaceMember* Members;
     }
 
+    abstract node AggregateIdentifierSyntax("AggregateIdentifier", AggregateSyntax) { }
+    node NamedAggregateIdentifierSyntax("NamedAggregateIdentifier") : AggregateIdentifierSyntax
+    {
+        TypeReferenceSyntax Type;
+    }
+
+    node GenericAggregateIdentifierSyntax("GenericAggregateIdentifier") : AggregateIdentifierSyntax
+    {
+        IdentifierNameSyntax Name;
+        TypeReferenceSyntax? ConstrainedType;
+    }
+
+    abstract node MoleculeSyntax("Molecule", ISymbol) : IType
+    {
+        Boolean IsAbstract;
+        SimpleNameSyntax SimpleName;
+        NameSyntax? Base;
+
+        AtomSyntax* Atoms;
+    }
+
+    node AtomSyntax("Atom", MoleculeSyntax)
+    {
+        SimpleNameSyntax SimpleName;
+        TypeReferenceSyntax Type;
+    }
+
     node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType
     {
         SimpleNameSyntax SimpleName;
-        NameSyntax? IdentifierType;
+        AggregateIdentifierSyntax? Identifier;
         NameSyntax? Base;
 
         AggregateEventSyntax* Events;
     }
 
-    node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : IType
+    node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : MoleculeSyntax
     {
-        SimpleNameSyntax SimpleName;
-        AggregateEventPropertySyntax* Properties;
     }
 
     node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax) : ISymbol
@@ -57,19 +82,8 @@
         TypeReferenceSyntax Type;
     }
 
-    node ValueSyntax("Value", NamespaceSyntax) : INamespaceMember, IType
+    node ValueSyntax("Value", NamespaceSyntax) : MoleculeSyntax, INamespaceMember
     {
-        Boolean IsAbstract;
-        SimpleNameSyntax SimpleName;
-        NameSyntax? Base;
-
-        ValuePropertySyntax* Properties;
-    }
-
-    node ValuePropertySyntax("ValueProperty", ValueSyntax) : ISymbol
-    {
-        SimpleNameSyntax SimpleName;
-        TypeReferenceSyntax Type;
     }
 
     node UsingStatementSyntax("UsingStatement")
