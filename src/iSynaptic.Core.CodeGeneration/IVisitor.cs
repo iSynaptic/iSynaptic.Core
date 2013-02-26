@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using iSynaptic.Commons;
 
@@ -27,17 +28,17 @@ namespace iSynaptic.CodeGeneration
 {
     public interface IVisitor
     {
-        void Dispatch(IEnumerable<IVisitable> subjects);
+        void Dispatch<T>(IEnumerable<T> subjects);
     }
     
     public interface IVisitor<TState> : IVisitor
     {
-        TState Dispatch(IEnumerable<IVisitable> subjects, TState state);
+        TState Dispatch<T>(IEnumerable<T> subjects, TState state);
     }
 
     public static class VisitorExtensions
     {
-        public static void Dispatch(this IVisitor @this, IVisitable subject)
+        public static void Dispatch(this IVisitor @this, Object subject)
         {
             Guard.NotNull(@this, "this");
             Guard.NotNull(subject, "subject");
@@ -45,7 +46,7 @@ namespace iSynaptic.CodeGeneration
             @this.Dispatch(new[]{subject});
         }
 
-        public static TState Dispatch<TState>(this IVisitor<TState> @this, IVisitable subject, TState state)
+        public static TState Dispatch<TState>(this IVisitor<TState> @this, Object subject, TState state)
         {
             Guard.NotNull(@this, "this");
             Guard.NotNull(subject, "subject");

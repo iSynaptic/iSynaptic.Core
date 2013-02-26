@@ -31,7 +31,7 @@ namespace iSynaptic.CodeGeneration
     [TestFixture]
     public class VisitorTests
     {
-        private class TestSubject : IVisitable
+        private class TestSubject : IVisitableChildren
         {
             public TestSubject(Int32 value)
                 : this(value, null)
@@ -44,7 +44,7 @@ namespace iSynaptic.CodeGeneration
                 Children = children ?? Enumerable.Empty<TestSubject>();
             }
 
-            public void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+            public void AcceptChildren(Action<IEnumerable<Object>> dispatch)
             {
                 dispatch(Children);
             }

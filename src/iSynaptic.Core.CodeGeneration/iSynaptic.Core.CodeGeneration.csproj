@@ -30,10 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iSynaptic.Commons, Version=0.4.19.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="iSynaptic.Commons, Version=0.4.20.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.19\lib\iSynaptic.Commons.dll</HintPath>
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.20\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Sprache">
       <HintPath>..\..\packages\Sprache.1.10.0.22\lib\net40\Sprache.dll</HintPath>
     </Reference>
@@ -49,7 +51,7 @@
     <Compile Include="CodeAuthoringVisitor.cs" />
     <Compile Include="CSharpCodeAuthoringVisitor.cs" />
     <Compile Include="ICodeGenerator.cs" />
-    <Compile Include="IVisitable.cs" />
+    <Compile Include="IVisitableChildren.cs" />
     <Compile Include="IVisitor.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\AstGeneratingVisitor.cs" />
     <Compile Include="Modeling\AbstractSyntaxTree\AstNodePropertyCardinality.cs" />

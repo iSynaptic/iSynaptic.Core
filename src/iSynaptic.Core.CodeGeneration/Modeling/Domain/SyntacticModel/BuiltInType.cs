@@ -53,7 +53,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             _fullName = Parser.Name.Parse(actualType.FullName);
         }
 
-        public void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch) { }
+        public void AcceptChildren(Action<IEnumerable<Object>> dispatch) { }
 
         public INode Parent { get { return null; } }
 

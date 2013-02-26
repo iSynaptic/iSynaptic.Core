@@ -171,7 +171,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             }
         }
 
-        protected class AtomInfo : IVisitable
+        protected class AtomInfo
         {
             private readonly SimpleNameSyntax _name;
             private readonly TypeReferenceSyntax _type;
@@ -187,8 +187,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             public SimpleNameSyntax Name { get { return _name; } }
             public TypeReferenceSyntax Type { get { return _type; } }
             public Boolean IsValueType { get { return _isValueType; } }
-
-            public void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch) { }
         }
 
         protected AtomInfo GetAtomInfo(AtomSyntax atom)

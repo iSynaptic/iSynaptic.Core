@@ -68,7 +68,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             using (WriteBlock("namespace {0}.SyntacticModel", family.Namespace))
             {
-                WriteLine("internal interface IAstNode<out T> : IVisitable { T GetUnderlying(); }");
+                WriteLine("internal interface IAstNode<out T> : IVisitableChildren { T GetUnderlying(); }");
                 WriteLine();
 
                 WriteLine("internal interface IAstUnderlyingNode<out T, in TParent> { T MakePublic(TParent parent); }");
@@ -100,7 +100,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "public")
             {
-                var publicBaseTypes = baseTypes.Or(new[] {"IVisitable"}).Delimit(", ");
+                var publicBaseTypes = baseTypes.Or(new[] {"IVisitableChildren"}).Delimit(", ");
 
                 using (WriteBlock("public interface {0} : {1}", contract.TypeName, publicBaseTypes))
                 {
@@ -127,20 +127,32 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             return mode;
         }
 
+        private IEnumerable<T> GetConceptHierarchy<T>(Maybe<T> concept)
+            where T : IAstConcept
+        {
+            return concept.Recurse(x => x.BaseTypes.SelectMaybe(y => Resolve(x, y)).OfType<T>());
+        }
+
+        private IEnumerable<IAstConcept> GetParentHierarchy<T>(IEnumerable<T> conceptHierarchy)
+            where T : IAstConcept
+        {
+            return conceptHierarchy.SelectMaybe(x => x.ParentType.SelectMaybe(y => Resolve(x, y)));
+        }
+
         protected String Visit(AstNode node, String mode)
         {
-            var conceptHierarchy = node.Recurse<IAstConcept>(x => x.BaseTypes.SelectMaybe(y => Resolve(x, y))).ToArray();
+            var conceptHierarchy = GetConceptHierarchy(node.ToMaybe<IAstConcept>()).ToArray();
             var nodeHierarcy = conceptHierarchy.OfType<AstNode>().ToArray();
 
-            var parentHierarcy = nodeHierarcy.SelectMaybe(x => x.ParentType).SelectMaybe(x => Resolve(node, x)).ToArray();
+            var parentHierarcy = GetParentHierarchy(nodeHierarcy).ToArray();
             bool parentDefinedByNode = parentHierarcy.Any();
 
             if(!parentDefinedByNode)
-                parentHierarcy = conceptHierarchy.SelectMaybe(x => x.ParentType).SelectMaybe(x => Resolve(node, x)).ToArray();
+                parentHierarcy = GetParentHierarchy(conceptHierarchy).ToArray();
             
             var baseNode = nodeHierarcy.Skip(1).TryFirst();
             var parentNode = parentHierarcy.TryFirst();
-            
+            var closestParentNode = GetParentHierarchy(nodeHierarcy.Skip(1)).TryFirst();
 
             var farthestBaseNode = nodeHierarcy.Last();
             var farthestParentNode = parentHierarcy.TryLast();
@@ -157,7 +169,10 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                                   node.TypeName, 
                                   baseTypesSuffix))
                 {
-                    if (parentNode.HasValue)
+                    bool generatePrivateField = parentNode.HasValue &&
+                                                ((closestParentNode.HasValue && parentNode != closestParentNode) ||
+                                                 (!closestParentNode.HasValue));
+                    if (generatePrivateField)
                         WriteLine("private readonly {0} _parent;", parentNode.Value.TypeName);
 
                     WriteLine("private readonly Internal.{0} _underlying;", node.TypeName);
@@ -173,7 +188,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
                     using (WriteBlock(ctor, parentNode.Select(x => x.TypeName).ValueOrDefault(), node.TypeName))
                     {
-                        if (parentNode.HasValue)
+                        if (generatePrivateField)
                             WriteLine("_parent = parent;");
 
                         WriteLine("_underlying = underlying;");
@@ -181,11 +196,11 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
                     WriteLine();
 
-                    if (parentNode.HasValue && parentDefinedByNode)
+                    if (parentNode.HasValue)
                     {
-                        if (farthestParentNode.HasValue && parentNode.Value != farthestParentNode.Value)
+                        if (closestParentNode.HasValue && parentNode != closestParentNode)
                             WriteLine("public new {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
-                        else if(node.ParentType.HasValue)
+                        else if (!closestParentNode.HasValue)
                             WriteLine("public {0} Parent {{ get {{ return _parent; }} }}", parentNode.Value.TypeName);
                     }
 
@@ -198,7 +213,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
 
                         foreach (var contractWithParent in contractsWithParent)
-                            WriteLine("{0} {1}.Parent {{ get {{ return _parent; }} }}", contractWithParent.ParentType.Value, contractWithParent.TypeName);
+                            WriteLine("{0} {1}.Parent {{ get {{ return Parent; }} }}", contractWithParent.ParentType.Value, contractWithParent.TypeName);
                     }
 
                     WriteLine("Internal.{0} IAstNode<Internal.{0}>.GetUnderlying() {{ return _underlying; }}", node.TypeName);
@@ -210,7 +225,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
                     if (!baseNode.HasValue || hasNodeProperties)
                     {
-                        using (WriteBlock("public {0} void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)", acceptChildrenModifier))
+                        using (WriteBlock("public {0} void AcceptChildren(Action<IEnumerable<Object>> dispatch)", acceptChildrenModifier))
                         {
                             DispatchChildren(node, "dispatchInvoke");
 
@@ -266,7 +281,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                         WriteLine();
                     }
 
-                    String makePublicInheritanceModifier = farthestBaseNode == node ? "" : "new ";
+                    String makePublicInheritanceModifier = !baseNode.HasValue || closestParentNode != parentNode ? "" : "new ";
                     using (WriteBlock("public {0}SyntacticModel.{1} MakePublic({2} parent)", makePublicInheritanceModifier, node.TypeName, parentType))
                     {
                         WriteLine(farthestBaseNode == node

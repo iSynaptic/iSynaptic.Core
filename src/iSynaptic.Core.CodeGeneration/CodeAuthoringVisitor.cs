@@ -105,13 +105,11 @@ namespace iSynaptic.CodeGeneration
         }
 
         protected TState Delimit<T>(IEnumerable<T> subjects, TState state, String delimiter)
-            where T : IVisitable
         {
             return Delimit(subjects, state, (st, t1, t2) => delimiter);
         }
 
         protected TState Delimit<T>(IEnumerable<T> subjects, TState state, Func<TState, T, T, String> delimiter)
-            where T : IVisitable
         {
             return Dispatch(subjects, state, (st, t1, t2) => { Write(delimiter(st, t1, t2)); return st; });
         }

@@ -25,8 +25,8 @@ using System.Collections.Generic;
 
 namespace iSynaptic.CodeGeneration
 {
-    public interface IVisitable
+    public interface IVisitableChildren
     {
-        void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch);
+        void AcceptChildren(Action<IEnumerable<Object>> dispatch);
     }
 }

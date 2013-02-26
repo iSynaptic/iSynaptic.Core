@@ -35,7 +35,7 @@ namespace iSynaptic.CodeGeneration
     public abstract class Visitor : Visitor<Object>
     {
         public void Dispatch<T>(IEnumerable<T> subjects, Action<T, T> interleave)
-            where T : IVisitable
+            where T : IVisitableChildren
         {
             Dispatch(subjects, null, (st, l, r) =>
             {
@@ -47,7 +47,7 @@ namespace iSynaptic.CodeGeneration
 
     public abstract class Visitor<TState> : IVisitor<TState>
     {
-        public delegate TState VisitorDispatcher(Visitor<TState> visitor, IVisitable subject, TState state);
+        public delegate TState VisitorDispatcher(Visitor<TState> visitor, Object subject, TState state);
 
         private static readonly TypeHierarchyComparer _typeHierarchyComparer
             = new TypeHierarchyComparer();
@@ -68,7 +68,7 @@ namespace iSynaptic.CodeGeneration
 
             return _dispatchers.GetOrAdd(visitorType, t =>
             {
-                var subjectType = typeof(IVisitable);
+                var subjectType = typeof(Object);
                 var stateType = typeof(TState);
 
                 var baseDispatcher = baseVisitorType.IsAssignableFrom(t.BaseType)
@@ -140,7 +140,15 @@ namespace iSynaptic.CodeGeneration
                     .ToArray();
 
                 if (applicators.Length <= 0)
-                    return baseDispatcher ?? (VisitorDispatcher)((v, s, st) => v.DispatchChildren(s, st) );
+                {
+                    return baseDispatcher ?? (VisitorDispatcher) ((v, s, st) =>
+                    {
+                        var visitable = s as IVisitableChildren;
+                        return visitable != null 
+                            ? v.DispatchChildren(visitable, st) 
+                            : st;
+                    });
+                }
 
                 if (baseDispatcher != null)
                     applicators = applicators.Concat(new[]
@@ -156,23 +164,22 @@ namespace iSynaptic.CodeGeneration
             });
         }
 
-        protected virtual TState Interleave(TState state, IVisitable left, IVisitable right)
+        protected virtual TState Interleave(TState state, Object left, Object right)
         {
             return state;
         }
 
-        public void Dispatch(IEnumerable<IVisitable> subjects)
+        public void Dispatch<T>(IEnumerable<T> subjects)
         {
             Dispatch(subjects, default(TState));
         }
 
-        public TState Dispatch(IEnumerable<IVisitable> subjects, TState state)
+        public TState Dispatch<T>(IEnumerable<T> subjects, TState state)
         {
-            return Dispatch(subjects, state, (Func<TState, IVisitable, IVisitable, TState>)Interleave);
+            return Dispatch(subjects, state, (st, l, r) => Interleave(st, l, r));
         }
 
         public TState Dispatch<T>(IEnumerable<T> subjects, TState state, Action<TState, T, T> interleave)
-            where T : IVisitable
         {
             return Dispatch(subjects, state, (st, l, r) =>
             {
@@ -182,7 +189,6 @@ namespace iSynaptic.CodeGeneration
         }
 
         public TState Dispatch<T>(IEnumerable<T> subjects, TState state, Func<TState, T, T, TState> interleave)
-            where T : IVisitable
         {
             Guard.NotNull(subjects, "subjects");
             Guard.NotNull(interleave, "interleave");
@@ -205,43 +211,43 @@ namespace iSynaptic.CodeGeneration
             return state;
         }
 
-        protected TState DispatchChildren(IVisitable subject)
+        protected TState DispatchChildren(IVisitableChildren subject)
         {
             return DispatchChildren(new[] {subject});
         }
 
-        protected TState DispatchChildren(IVisitable subject, TState state)
+        protected TState DispatchChildren(IVisitableChildren subject, TState state)
         {
             return DispatchChildren(new[] {subject}, state);
         }
 
-        protected TState DispatchChildren(IVisitable subject, TState state, Func<TState, IVisitable, IVisitable, TState> interleave)
+        protected TState DispatchChildren(IVisitableChildren subject, TState state, Func<TState, Object, Object, TState> interleave)
         {
             return DispatchChildren(new[] {subject}, state, interleave);
         }
 
-        protected TState DispatchChildren(IEnumerable<IVisitable> subjects)
+        protected TState DispatchChildren(IEnumerable<IVisitableChildren> subjects)
         {
             return DispatchChildren(subjects, default(TState));
         }
 
-        protected TState DispatchChildren(IEnumerable<IVisitable> subjects, TState state)
+        protected TState DispatchChildren(IEnumerable<IVisitableChildren> subjects, TState state)
         {
             return DispatchChildren(subjects, state, (st, l, r) => st);
         }
 
-        protected TState DispatchChildren(IEnumerable<IVisitable> subjects, TState state, Func<TState, IVisitable, IVisitable, TState> interleave)
+        protected TState DispatchChildren(IEnumerable<IVisitableChildren> subjects, TState state, Func<TState, Object, Object, TState> interleave)
         {
             Guard.NotNull(subjects, "subjects");
             Guard.NotNull(interleave, "interleave");
 
-            var allChildren = new List<IVisitable>();
+            var allChildren = new List<Object>();
             subjects.Run(subject => subject.AcceptChildren(allChildren.AddRange));
 
             return Dispatch(allChildren, state, interleave);
         }
 
-        protected virtual Boolean NotInterestedIn(IVisitable subject, TState state) { return false; }
+        protected virtual Boolean NotInterestedIn(Object subject, TState state) { return false; }
     }
 
 }

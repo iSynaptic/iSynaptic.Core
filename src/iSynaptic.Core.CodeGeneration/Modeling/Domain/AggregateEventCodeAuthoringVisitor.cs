@@ -37,7 +37,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
         }
 
-        protected override bool NotInterestedIn(IVisitable subject, string state)
+        protected override bool NotInterestedIn(Object subject, string state)
         {
             return subject is MoleculeSyntax && !(subject is AggregateEventSyntax);
         }

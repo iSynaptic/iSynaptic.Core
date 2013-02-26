@@ -34,7 +34,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
 {
-    internal interface IAstNode<out T> : IVisitable { T GetUnderlying(); }
+    internal interface IAstNode<out T> : IVisitableChildren { T GetUnderlying(); }
 
     internal interface IAstUnderlyingNode<out T, in TParent> { T MakePublic(TParent parent); }
 
@@ -49,7 +49,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
 
         Internal.AstNodeFamily IAstNode<Internal.AstNodeFamily>.GetUnderlying() { return _underlying; }
 
-        public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+        public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
         {
             dispatch(Concepts);
         }
@@ -70,7 +70,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         }
     }
 
-    public interface IAstConcept : IVisitable
+    public interface IAstConcept : IVisitableChildren
     {
         String TypeName { get; }
         IEnumerable<String> BaseTypes { get; }
@@ -94,7 +94,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         AstNodeFamily IAstConcept.Parent { get { return _parent; } }
         Internal.AstNode IAstNode<Internal.AstNode>.GetUnderlying() { return _underlying; }
 
-        public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+        public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
         {
             dispatch(Properties);
         }
@@ -165,7 +165,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         AstNodeFamily IAstConcept.Parent { get { return _parent; } }
         Internal.AstNodeContract IAstNode<Internal.AstNodeContract>.GetUnderlying() { return _underlying; }
 
-        public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+        public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
         {
             dispatch(Properties);
         }
@@ -214,7 +214,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel
         public IAstConcept Parent { get { return _parent; } }
         Internal.AstNodeProperty IAstNode<Internal.AstNodeProperty>.GetUnderlying() { return _underlying; }
 
-        public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+        public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
         {
         }
 
