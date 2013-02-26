@@ -29,25 +29,40 @@ using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
-    public class FullDomainCodeAuthoringVisitor : DomainCodeAuthoringVisitor<Unit>
+    public class CompiliationCodeAuthoringVisitor : DomainCodeAuthoringVisitor<Unit>
     {
-        public FullDomainCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable) 
+        public CompiliationCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable) 
             : base(writer, symbolTable)
         {
         }
 
+        protected void Visit(Compilation compilation)
+        {
+            var topLevelUsings = new[]
+            {
+                Syntax.UsingStatement((NameSyntax) "System"),
+                Syntax.UsingStatement((NameSyntax) "System.Collections.Generic"),
+                Syntax.UsingStatement((NameSyntax) "System.Linq"),
+                Syntax.UsingStatement((NameSyntax) "iSynaptic.Commons"),
+                Syntax.UsingStatement((NameSyntax) "iSynaptic.Modeling.Domain")
+
+            }
+            .Concat(compilation.Trees.SelectMany(x => x.UsingStatements))
+            .Distinct(x => x.Namespace);
+
+            Dispatch(topLevelUsings);
+            WriteLine();
+
+            DispatchChildren(compilation);
+        }
+
         protected void Visit(SyntaxTree tree)
         {
-            Dispatch(tree.UsingStatements.Concat(new[]
+            if (tree.Parent == null && tree.UsingStatements.Any())
             {
-                Syntax.UsingStatement((NameSyntax)"System"),
-                Syntax.UsingStatement((NameSyntax)"System.Collections.Generic"),
-                Syntax.UsingStatement((NameSyntax)"System.Linq"),
-                Syntax.UsingStatement((NameSyntax)"iSynaptic.Commons"),
-                Syntax.UsingStatement((NameSyntax)"iSynaptic.Modeling.Domain")
-
-            }).Distinct(x => x.Namespace));
-            WriteLine();
+                Dispatch(tree.UsingStatements);
+                WriteLine();
+            }
 
             Dispatch(tree.Namespaces);
         }

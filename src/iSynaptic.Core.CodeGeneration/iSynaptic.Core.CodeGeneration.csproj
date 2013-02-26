@@ -60,7 +60,7 @@
     <Compile Include="Modeling\Domain\AggregateEventCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\AggregateSnapshotCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
-    <Compile Include="Modeling\Domain\FullDomainCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\CompiliationCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
     <Compile Include="Modeling\Domain\Parser.cs" />
     <Compile Include="Modeling\Domain\SymbolResolution.cs" />

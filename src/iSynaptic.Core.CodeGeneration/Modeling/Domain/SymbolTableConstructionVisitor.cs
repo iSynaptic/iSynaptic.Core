@@ -28,10 +28,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
     {
         private SymbolTableConstructionVisitor() { }
 
-        public static SymbolTable BuildSymbolTable(SyntaxTree tree)
+        public static SymbolTable BuildSymbolTable(INode startNode)
         {
             return new SymbolTableConstructionVisitor()
-                .Dispatch(tree, new SymbolTable());
+                .Dispatch(startNode, new SymbolTable());
         }
 
         protected void Visit(NamespaceSyntax @namespace, SymbolTable table)

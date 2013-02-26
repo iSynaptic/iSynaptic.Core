@@ -69,6 +69,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if (baseTypes.Length > 0)
                 baseTypes = String.Format(" : {0}", baseTypes);
 
+            if(molecule is ValueSyntax)
+                WriteLine("[ValueObject]");
+
             using (WriteBlock("public {0}{1}class {2}{3}", 
                               molecule.IsAbstract ? "abstract " : "",
                               molecule.IsPartial ? "partial " : "",

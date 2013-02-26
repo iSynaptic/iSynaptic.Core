@@ -16,6 +16,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
 
 
+        public static Compilation Compilation(IEnumerable<SyntaxTree> trees)
+        {
+            return new Compilation(null, new SyntacticModel.Internal.Compilation(trees.Select(x => ((IAstNode<SyntacticModel.Internal.SyntaxTree>)x).GetUnderlying())));
+        }
+
         public static SyntaxTree SyntaxTree(IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces)
         {
             return new SyntaxTree(null, new SyntacticModel.Internal.SyntaxTree(usingStatements.Select(x => ((IAstNode<SyntacticModel.Internal.UsingStatementSyntax>)x).GetUnderlying()), namespaces.Select(x => ((IAstNode<SyntacticModel.Internal.NamespaceSyntax>)x).GetUnderlying())));
@@ -143,17 +148,46 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
     }
 
-    public class SyntaxTree : INamespaceParent, IUsingsContainer, IAstNode<Internal.SyntaxTree>
+    public class Compilation : INode, IAstNode<Internal.Compilation>
     {
         private readonly INode _parent;
-        private readonly Internal.SyntaxTree _underlying;
+        private readonly Internal.Compilation _underlying;
 
-        internal SyntaxTree(INode parent, Internal.SyntaxTree underlying)
+        internal Compilation(INode parent, Internal.Compilation underlying)
         {
             _parent = parent;
             _underlying = underlying;
         }
 
+        INode INode.Parent { get { return _parent; } }
+        Internal.Compilation IAstNode<Internal.Compilation>.GetUnderlying() { return _underlying; }
+
+        public virtual void AcceptChildren(Action<IEnumerable<IVisitable>> dispatch)
+        {
+            dispatch(Trees);
+        }
+
+        public IEnumerable<SyntaxTree> Trees
+        {
+            get
+            {
+                return ((IAstNode<Internal.Compilation>)this).GetUnderlying().Trees.Select(x => ((IAstUnderlyingNode<SyntaxTree, Compilation>)x).MakePublic(this));
+            }
+        }
+    }
+
+    public class SyntaxTree : INamespaceParent, IUsingsContainer, IAstNode<Internal.SyntaxTree>
+    {
+        private readonly Compilation _parent;
+        private readonly Internal.SyntaxTree _underlying;
+
+        internal SyntaxTree(Compilation parent, Internal.SyntaxTree underlying)
+        {
+            _parent = parent;
+            _underlying = underlying;
+        }
+
+        public Compilation Parent { get { return _parent; } }
         INode INode.Parent { get { return _parent; } }
         Internal.SyntaxTree IAstNode<Internal.SyntaxTree>.GetUnderlying() { return _underlying; }
 
@@ -779,7 +813,29 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
         }
 
-        internal class SyntaxTree : INamespaceParent, IUsingsContainer, IAstUnderlyingNode<SyntacticModel.SyntaxTree, SyntacticModel.INode>
+        internal class Compilation : INode, IAstUnderlyingNode<SyntacticModel.Compilation, SyntacticModel.INode>
+        {
+            private readonly IEnumerable<SyntaxTree> _trees;
+
+            public Compilation(IEnumerable<SyntaxTree> trees)
+            {
+                _trees = trees;
+            }
+
+            public SyntacticModel.Compilation MakePublic(SyntacticModel.INode parent)
+            {
+                return BuildPublic(parent);
+            }
+
+            protected virtual SyntacticModel.Compilation BuildPublic(SyntacticModel.INode parent)
+            {
+                return new SyntacticModel.Compilation(parent, this);
+            }
+
+            public IEnumerable<SyntaxTree> Trees { get { return _trees; } }
+        }
+
+        internal class SyntaxTree : INamespaceParent, IUsingsContainer, IAstUnderlyingNode<SyntacticModel.SyntaxTree, SyntacticModel.Compilation>
         {
             private readonly IEnumerable<UsingStatementSyntax> _usingStatements;
             private readonly IEnumerable<NamespaceSyntax> _namespaces;
@@ -790,12 +846,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 _namespaces = namespaces;
             }
 
-            public SyntacticModel.SyntaxTree MakePublic(SyntacticModel.INode parent)
+            public SyntacticModel.SyntaxTree MakePublic(SyntacticModel.Compilation parent)
             {
                 return BuildPublic(parent);
             }
 
-            protected virtual SyntacticModel.SyntaxTree BuildPublic(SyntacticModel.INode parent)
+            protected virtual SyntacticModel.SyntaxTree BuildPublic(SyntacticModel.Compilation parent)
             {
                 return new SyntacticModel.SyntaxTree(parent, this);
             }

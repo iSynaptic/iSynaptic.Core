@@ -92,7 +92,7 @@
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\AstGeneratingVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\ParserTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\AstGeneration.cs" />
-    <Compile Include="CodeGeneration\Modeling\Domain\DomainCodeAuthoringVisitorTests.cs" />
+    <Compile Include="CodeGeneration\Modeling\Domain\CompiliationCodeAuthoringVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\ParserTests.cs" />
     <Compile Include="TestDomain\Generated.cs" />
     <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
@@ -151,13 +151,24 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\CustomerAgentRoleIdentifier.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\CustomerServiceRepresentativeRoleIdentifier.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\Base.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\ServiceCase.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\HomogeneousRole.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\CommunicationThreadSnapshot.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\CommunicationDirection.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\ServiceCasePriority.dom" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="CodeGeneration\Modeling\Domain\Ast.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain.txt" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\HomogeneousRoleStatus.dom" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\RoleIdentifier.dom" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

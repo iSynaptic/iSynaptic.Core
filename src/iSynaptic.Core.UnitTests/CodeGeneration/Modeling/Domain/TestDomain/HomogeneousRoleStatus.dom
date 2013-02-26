@@ -1,0 +1,12 @@
+﻿using System;
+
+namespace iSynaptic.TestDomain
+{
+    enum HomogeneousRoleStatus
+    {
+        New,
+        PendingApproval,
+        Approved,
+        Retired
+    }
+}

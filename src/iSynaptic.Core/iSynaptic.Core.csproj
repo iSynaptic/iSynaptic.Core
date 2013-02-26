@@ -65,6 +65,7 @@
     <Compile Include="Modeling\Domain\IAggregateMemento.cs" />
     <Compile Include="Modeling\Domain\IAggregateRepository.cs" />
     <Compile Include="Modeling\Domain\IAggregateSnapshot.cs" />
+    <Compile Include="Modeling\Domain\ValueObjectAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

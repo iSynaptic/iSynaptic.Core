@@ -1,0 +1,11 @@
+﻿using System;
+
+namespace iSynaptic.TestDomain
+{
+    enum ServiceCasePriority
+    {
+        Low,
+        Normal,
+        High
+    }
+}

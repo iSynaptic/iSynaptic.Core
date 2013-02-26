@@ -25,7 +25,12 @@
 
     contract IAggregateMember : INode { }
 
-    node SyntaxTree("SyntaxTree") : INamespaceParent, IUsingsContainer
+    node Compilation("Compilation") : INode
+    {
+        SyntaxTree* Trees;
+    }
+
+    node SyntaxTree("SyntaxTree", Compilation) : INamespaceParent, IUsingsContainer
     {
         UsingStatementSyntax* UsingStatements;
         NamespaceSyntax* Namespaces;

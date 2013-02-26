@@ -21,32 +21,11 @@
 // THE SOFTWARE.
 
 using System;
-using System.IO;
-using System.Reflection;
-using NUnit.Framework;
 
-using Sprache;
-
-namespace iSynaptic.CodeGeneration.Modeling.Domain
+namespace iSynaptic.Modeling.Domain
 {
-    [TestFixture]
-    public class DomainCodeAuthoringVisitorTests
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
+    public class ValueObjectAttribute : Attribute
     {
-        [Test]
-        public void CanGenerateCode()
-        {
-            string input;
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("iSynaptic.CodeGeneration.Modeling.Domain.TestDomain.txt"))
-            using (var reader = new StreamReader(stream))
-            {
-                input = reader.ReadToEnd();
-            }
-
-            var tree = Parser.SyntaxTree.Parse(input);
-            var symbolTable = SymbolTableConstructionVisitor.BuildSymbolTable(tree);
-
-            var visitor = new FullDomainCodeAuthoringVisitor(Console.Out, symbolTable);
-            visitor.Dispatch(tree);
-        }
     }
 }

@@ -1,0 +1,11 @@
+﻿using System;
+
+namespace iSynaptic.TestDomain
+{
+    value CommunicationThreadSnapshot
+    {
+        Int32 ThreadId;
+        String Topic;
+        String Description;
+    }
+}

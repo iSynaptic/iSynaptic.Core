@@ -1,0 +1,17 @@
+﻿using System;
+
+namespace iSynaptic.TestDomain
+{
+    aggregate<TRoleIdentifier:RoleIdentifier> HomogeneousRole
+    {
+        event Registered
+        {
+            String Name;
+        }
+
+        event StatusChanged
+        {
+            HomogeneousRoleStatus Status;
+        }
+    }
+}

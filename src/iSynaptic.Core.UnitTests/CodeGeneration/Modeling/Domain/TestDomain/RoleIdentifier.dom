@@ -1,0 +1,10 @@
+﻿using System;
+
+namespace iSynaptic.TestDomain
+{
+    abstract value RoleIdentifier
+    {
+        String BaseIdentifier;
+        String IdentifierType;
+    }
+}
