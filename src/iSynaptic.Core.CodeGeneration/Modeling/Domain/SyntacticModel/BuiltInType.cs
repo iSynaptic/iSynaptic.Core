@@ -30,6 +30,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         public static readonly IEnumerable<BuiltInType> Types = new[]
         {
+            new BuiltInType(typeof(Boolean)),
             new BuiltInType(typeof(Int16)),
             new BuiltInType(typeof(Int32)),
             new BuiltInType(typeof(Int64)),

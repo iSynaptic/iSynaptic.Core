@@ -95,10 +95,26 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 using (WithBlock())
                 {
                     Dispatch(molecule.Atoms, "validateArgument");
+
+                    if (molecule.IsPartial)
+                    {
+                        Write("Validate(");
+                        Delimit(molecule.Atoms, "argument", ", ");
+                        WriteLine(");");
+                    }
+
                     WriteLine();
                     Dispatch(molecule.Atoms, "assignToField");
                 }
                 WriteLine();
+
+                if (molecule.IsPartial)
+                {
+                    Write("partial void Validate(");
+                    Delimit(molecule.Atoms, "parameter", ", ");
+                    WriteLine(");");
+                    WriteLine();
+                }
 
                 if (ShouldBeEquatable(molecule))
                 {
@@ -156,18 +172,18 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 }
 
                 WriteLine();
-            }
 
-            if (!hasBase)
-            {
-                using (WriteBlock("public static bool operator ==({0} left, {0} right)", molecule.Name))
+                if (!hasBase)
                 {
-                    WriteLine("if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;");
-                    WriteLine("return ReferenceEquals(left, null) || left.Equals(right);");
-                }
-                WriteLine();
+                    using (WriteBlock("public static bool operator ==({0} left, {0} right)", molecule.Name))
+                    {
+                        WriteLine("if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;");
+                        WriteLine("return ReferenceEquals(left, null) || left.Equals(right);");
+                    }
+                    WriteLine();
 
-                WriteLine("public static bool operator !=({0} left, {0} right) {{ return !(left == right); }}", molecule.Name);
+                    WriteLine("public static bool operator !=({0} left, {0} right) {{ return !(left == right); }}", molecule.Name);
+                }
             }
         }
 
@@ -191,7 +207,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected AtomInfo GetAtomInfo(AtomSyntax atom)
         {
-            var typeSymbol = SymbolTable.Resolve(atom, atom.Type.Name).Symbol;
+            var typeSymbol = SymbolTable.Resolve(atom.Parent.Parent, atom.Type.Name).Symbol;
             var type = typeSymbol as IType;
 
             if (type == null)

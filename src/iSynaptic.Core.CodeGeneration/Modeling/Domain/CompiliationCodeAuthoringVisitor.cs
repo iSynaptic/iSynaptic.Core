@@ -43,6 +43,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 Syntax.UsingStatement((NameSyntax) "System"),
                 Syntax.UsingStatement((NameSyntax) "System.Collections.Generic"),
                 Syntax.UsingStatement((NameSyntax) "System.Linq"),
+                Syntax.UsingStatement((NameSyntax) "iSynaptic"),
                 Syntax.UsingStatement((NameSyntax) "iSynaptic.Commons"),
                 Syntax.UsingStatement((NameSyntax) "iSynaptic.Modeling.Domain")
 

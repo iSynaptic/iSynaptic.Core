@@ -1,0 +1,13 @@
+﻿using System;
+
+namespace iSynaptic.TestDomain
+{
+    value ServiceCaseDetails
+    {
+        Int32 LastThreadId;
+        CommunicationThreadSnapshot* ThreadSnapshots;
+        String Title;
+        String Description;
+        ServiceCasePriority ServiceCasePriority;
+    }
+}

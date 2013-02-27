@@ -159,6 +159,7 @@
     <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\CommunicationThreadSnapshot.dom" />
     <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\CommunicationDirection.dom" />
     <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\ServiceCasePriority.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\ServiceCaseDetails.dom" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
