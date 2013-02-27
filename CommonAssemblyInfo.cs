@@ -33,7 +33,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © Jordan Terrell 2011")]
 
 [assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
 
 [assembly: AssemblyVersion("0.1.2.0")]
 [assembly: AssemblyFileVersion("0.1.2.0")]

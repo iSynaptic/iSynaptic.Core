@@ -2,6 +2,11 @@
 {
     contract INode(INode) { }
 
+    contract IAnnotatableNode(INode) 
+    {
+        AnnotationSyntax* Annotations;
+    }
+
     contract INamespaceParent : INode { }
     contract INamespaceMember : INode { }
     
@@ -24,6 +29,18 @@
     }
 
     contract IAggregateMember : INode { }
+
+    node AnnotationSyntax("Annotation", INode) : INode
+    {
+        IdentifierNameSyntax Name;
+        AnnotationPairSyntax* Pairs;
+    }
+
+    node AnnotationPairSyntax("AnnotationPair", AnnotationSyntax) : INode
+    {
+        IdentifierNameSyntax Name;
+        String Value;
+    }
 
     node Compilation("Compilation") : INode
     {
@@ -56,10 +73,12 @@
         TypeReferenceSyntax? ConstrainedType;
     }
 
-    partial node EnumSyntax("Enum", NamespaceSyntax) : INamespaceMember, IType
+    partial node EnumSyntax("Enum", NamespaceSyntax) : INamespaceMember, IType, IAnnotatableNode
     {
         SimpleNameSyntax SimpleName;
         EnumValueSyntax* Values;
+
+        AnnotationSyntax* Annotations;
     }
 
     node EnumValueSyntax("EnumValue", EnumSyntax)
@@ -67,7 +86,7 @@
         IdentifierNameSyntax SimpleName;
     }
 
-    abstract partial node MoleculeSyntax("Molecule", ISymbol) : IType
+    abstract partial node MoleculeSyntax("Molecule", ISymbol) : IType, IAnnotatableNode
     {
         Boolean IsAbstract;
         Boolean IsPartial;
@@ -75,15 +94,18 @@
         NameSyntax? Base;
 
         AtomSyntax* Atoms;
+        AnnotationSyntax* Annotations;
     }
 
-    partial node AtomSyntax("Atom", MoleculeSyntax) : ISymbol
+    partial node AtomSyntax("Atom", MoleculeSyntax) : ISymbol, IAnnotatableNode
     {
         SimpleNameSyntax SimpleName;
         TypeReferenceSyntax Type;
+
+        AnnotationSyntax* Annotations;
     }
 
-    partial node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType
+    partial node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType, IAnnotatableNode
     {
         Boolean IsAbstract;
         SimpleNameSyntax SimpleName;
@@ -91,6 +113,7 @@
         NameSyntax? Base;
 
         IAggregateMember* Members;
+        AnnotationSyntax* Annotations;
     }
 
     partial node AggregateEventSyntax("AggregateEvent", AggregateSyntax) : MoleculeSyntax, IAggregateMember
@@ -101,10 +124,22 @@
     {
     }
 
-    partial node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax) : ISymbol
+    partial node AggregateEventPropertySyntax("AggregateEventProperty", AggregateEventSyntax) : ISymbol, IAnnotatableNode
     {
         SimpleNameSyntax SimpleName;
         TypeReferenceSyntax Type;
+
+        AnnotationSyntax* Annotations;
+    }
+
+    partial node ScalarValueSyntax("ScalarValue", NamespaceSyntax) : INamespaceMember, IType, IAnnotatableNode
+    {
+        Boolean IsAbstract;
+        Boolean IsPartial;
+        SimpleNameSyntax SimpleName;
+        NameSyntax Base;
+
+        AnnotationSyntax* Annotations;
     }
 
     partial node ValueSyntax("Value", NamespaceSyntax) : MoleculeSyntax, INamespaceMember

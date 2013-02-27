@@ -2,8 +2,10 @@
 
 namespace iSynaptic.TestDomain
 {
+    [Annotation(Key = "Value")]
     value CommunicationThreadSnapshot
     {
+        [Annotation(Key = "Value")]
         Int32 ThreadId;
         String Topic;
         String Description;

@@ -39,7 +39,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             }
         }
 
-        public Boolean IsValueType { get { return false; } }
+        public Boolean IsValueType { get { return true; } }
         public Boolean HasValueSemantics { get { return true; } }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace iSynaptic.TestDomain
 {
+    [Annotation(Key = "Value")]
     enum CommunicationDirection
     {
         Incoming,

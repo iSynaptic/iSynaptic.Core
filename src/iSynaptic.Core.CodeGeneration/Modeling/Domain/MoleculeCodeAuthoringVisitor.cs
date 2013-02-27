@@ -142,49 +142,47 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             }
             WriteLine();
 
-            if (molecule.Atoms.Any())
+            if (!molecule.Atoms.Any() && hasBase) 
+                return;
+
+            using (WriteBlock("public override Boolean Equals(Object obj)"))
             {
-                using (WriteBlock("public override Boolean Equals(Object obj)"))
-                {
-                    WriteLine("{0} other = obj as {0};", molecule.Name);
-                    WriteLine();
-
-                    WriteLine("if (ReferenceEquals(other, null)) return false;");
-                    WriteLine("if (GetType() != other.GetType()) return false;");
-                    WriteLine();
-
-                    Dispatch(molecule.Atoms, "equalsCheck");
-                    WriteLine();
-
-                    WriteLine(hasBase ? "return base.Equals(obj);" : "return true;");
-                }
+                WriteLine("{0} other = obj as {0};", molecule.Name);
                 WriteLine();
 
-                using (WriteBlock("public override Int32 GetHashCode()"))
-                {
-                    WriteLine(hasBase ? "int hash = base.GetHashCode();" : "int hash = 1;");
-                    WriteLine();
-
-                    Dispatch(molecule.Atoms, "mixInHash");
-
-                    WriteLine();
-                    WriteLine("return hash;");
-                }
-
+                WriteLine("if (ReferenceEquals(other, null)) return false;");
+                WriteLine("if (GetType() != other.GetType()) return false;");
                 WriteLine();
 
-                if (!hasBase)
-                {
-                    using (WriteBlock("public static bool operator ==({0} left, {0} right)", molecule.Name))
-                    {
-                        WriteLine("if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;");
-                        WriteLine("return ReferenceEquals(left, null) || left.Equals(right);");
-                    }
-                    WriteLine();
+                Dispatch(molecule.Atoms, "equalsCheck");
+                WriteLine();
 
-                    WriteLine("public static bool operator !=({0} left, {0} right) {{ return !(left == right); }}", molecule.Name);
-                }
+                WriteLine(hasBase ? "return base.Equals(obj);" : "return true;");
             }
+
+            WriteLine();
+
+            using (WriteBlock("public override Int32 GetHashCode()"))
+            {
+                WriteLine(hasBase ? "int hash = base.GetHashCode();" : "int hash = 1;");
+                WriteLine();
+
+                Dispatch(molecule.Atoms, "mixInHash");
+
+                WriteLine();
+                WriteLine("return hash;");
+            }
+
+            WriteLine();
+
+            using (WriteBlock("public static Boolean operator ==({0} left, {0} right)", molecule.Name))
+            {
+                WriteLine("if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;");
+                WriteLine("return ReferenceEquals(left, null) || left.Equals(right);");
+            }
+            WriteLine();
+
+            WriteLine("public static Boolean operator !=({0} left, {0} right) {{ return !(left == right); }}", molecule.Name);
         }
 
         protected class AtomInfo
@@ -205,7 +203,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             public Boolean IsValueType { get { return _isValueType; } }
         }
 
-        protected AtomInfo GetAtomInfo(AtomSyntax atom)
+        protected virtual AtomInfo GetAtomInfo(AtomSyntax atom)
         {
             var typeSymbol = SymbolTable.Resolve(atom.Parent.Parent, atom.Type.Name).Symbol;
             var type = typeSymbol as IType;
@@ -219,12 +217,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return new AtomInfo(atom.SimpleName, atom.Type, type.IsValueType);
         }
 
-        protected void Visit(AtomSyntax atom, String mode)
+        protected virtual void Visit(AtomSyntax atom, String mode)
         {
             this.Dispatch(GetAtomInfo(atom), mode);
         }
 
-        protected void Visit(AtomInfo atom, String mode)
+        protected virtual void Visit(AtomInfo atom, String mode)
         {
             var cardinality = atom.Type.Cardinality;
 

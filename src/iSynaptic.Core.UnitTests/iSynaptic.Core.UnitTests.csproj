@@ -160,6 +160,8 @@
     <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\CommunicationDirection.dom" />
     <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\ServiceCasePriority.dom" />
     <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\ServiceCaseDetails.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\ServiceCaseId.dom" />
+    <EmbeddedResource Include="CodeGeneration\Modeling\Domain\TestDomain\CustomerRoleIdentifier.dom" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

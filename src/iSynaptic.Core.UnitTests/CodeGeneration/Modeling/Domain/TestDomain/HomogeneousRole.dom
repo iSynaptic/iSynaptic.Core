@@ -2,10 +2,13 @@
 
 namespace iSynaptic.TestDomain
 {
+    [Annotation(Key = "Value")]
     aggregate<TRoleIdentifier:RoleIdentifier> HomogeneousRole
     {
+        [Annotation(Key = "Value")]
         event Registered
         {
+            [Annotation(Key = "Value")]
             String Name;
         }
 

@@ -60,7 +60,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
             var symbolTable = SymbolTableConstructionVisitor.BuildSymbolTable(compilation);
 
-            var visitor = new CompiliationCodeAuthoringVisitor(Console.Out, symbolTable);
+            var visitor = new CompilationCodeAuthoringVisitor(Console.Out, symbolTable);
             visitor.Dispatch(compilation);
         }
     }

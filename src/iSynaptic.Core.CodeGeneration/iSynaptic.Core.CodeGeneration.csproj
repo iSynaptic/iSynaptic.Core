@@ -62,9 +62,10 @@
     <Compile Include="Modeling\Domain\AggregateEventCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\AggregateSnapshotCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
-    <Compile Include="Modeling\Domain\CompiliationCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\CompilationCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
     <Compile Include="Modeling\Domain\Parser.cs" />
+    <Compile Include="Modeling\Domain\ScalarValueCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\SymbolResolution.cs" />
     <Compile Include="Modeling\Domain\SymbolResolutionStatus.cs" />
     <Compile Include="Modeling\Domain\SymbolTable.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateSnapshotSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\AggregateSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\BuiltInType.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\ScalarValueSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\EnumSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\GenericNameSyntax.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\IdentifierNameSyntax.cs" />

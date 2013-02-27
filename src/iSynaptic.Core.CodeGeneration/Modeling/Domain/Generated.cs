@@ -16,6 +16,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
 
 
+
+        public static AnnotationSyntax Annotation(IdentifierNameSyntax name, IEnumerable<AnnotationPairSyntax> pairs)
+        {
+            return new AnnotationSyntax(null, new SyntacticModel.Internal.AnnotationSyntax(((IAstNode<SyntacticModel.Internal.IdentifierNameSyntax>)name).GetUnderlying(), pairs.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationPairSyntax>)x).GetUnderlying())));
+        }
+
+        public static AnnotationPairSyntax AnnotationPair(IdentifierNameSyntax name, String value)
+        {
+            return new AnnotationPairSyntax(null, new SyntacticModel.Internal.AnnotationPairSyntax(((IAstNode<SyntacticModel.Internal.IdentifierNameSyntax>)name).GetUnderlying(), value));
+        }
+
         public static Compilation Compilation(IEnumerable<SyntaxTree> trees)
         {
             return new Compilation(null, new SyntacticModel.Internal.Compilation(trees.Select(x => ((IAstNode<SyntacticModel.Internal.SyntaxTree>)x).GetUnderlying())));
@@ -42,9 +53,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return new GenericAggregateIdentifierSyntax(null, new SyntacticModel.Internal.GenericAggregateIdentifierSyntax(((IAstNode<SyntacticModel.Internal.IdentifierNameSyntax>)name).GetUnderlying(), constrainedType));
         }
 
-        public static EnumSyntax Enum(SimpleNameSyntax simpleName, IEnumerable<EnumValueSyntax> values)
+        public static EnumSyntax Enum(SimpleNameSyntax simpleName, IEnumerable<EnumValueSyntax> values, IEnumerable<AnnotationSyntax> annotations)
         {
-            return new EnumSyntax(null, new SyntacticModel.Internal.EnumSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), values.Select(x => ((IAstNode<SyntacticModel.Internal.EnumValueSyntax>)x).GetUnderlying())));
+            return new EnumSyntax(null, new SyntacticModel.Internal.EnumSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), values.Select(x => ((IAstNode<SyntacticModel.Internal.EnumValueSyntax>)x).GetUnderlying()), annotations.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationSyntax>)x).GetUnderlying())));
         }
 
         public static EnumValueSyntax EnumValue(IdentifierNameSyntax simpleName)
@@ -53,34 +64,39 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         }
 
 
-        public static AtomSyntax Atom(SimpleNameSyntax simpleName, TypeReferenceSyntax type)
+        public static AtomSyntax Atom(SimpleNameSyntax simpleName, TypeReferenceSyntax type, IEnumerable<AnnotationSyntax> annotations)
         {
-            return new AtomSyntax(null, new SyntacticModel.Internal.AtomSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), type));
+            return new AtomSyntax(null, new SyntacticModel.Internal.AtomSyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), type, annotations.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationSyntax>)x).GetUnderlying())));
         }
 
-        public static AggregateSyntax Aggregate(Boolean isAbstract, SimpleNameSyntax simpleName, Maybe<AggregateIdentifierSyntax> identifier, Maybe<NameSyntax> @base, IEnumerable<IAggregateMember> members)
+        public static AggregateSyntax Aggregate(Boolean isAbstract, SimpleNameSyntax simpleName, Maybe<AggregateIdentifierSyntax> identifier, Maybe<NameSyntax> @base, IEnumerable<IAggregateMember> members, IEnumerable<AnnotationSyntax> annotations)
         {
-            return new AggregateSyntax(null, new SyntacticModel.Internal.AggregateSyntax(isAbstract, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), identifier.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateIdentifierSyntax>)x).GetUnderlying()), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), members.Select(x => ((IAstNode<SyntacticModel.Internal.IAggregateMember>)x).GetUnderlying())));
+            return new AggregateSyntax(null, new SyntacticModel.Internal.AggregateSyntax(isAbstract, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), identifier.Select(x => ((IAstNode<SyntacticModel.Internal.AggregateIdentifierSyntax>)x).GetUnderlying()), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), members.Select(x => ((IAstNode<SyntacticModel.Internal.IAggregateMember>)x).GetUnderlying()), annotations.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationSyntax>)x).GetUnderlying())));
         }
 
-        public static AggregateEventSyntax AggregateEvent(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms)
+        public static AggregateEventSyntax AggregateEvent(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
         {
-            return new AggregateEventSyntax(null, new SyntacticModel.Internal.AggregateEventSyntax(isAbstract, isPartial, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), atoms.Select(x => ((IAstNode<SyntacticModel.Internal.AtomSyntax>)x).GetUnderlying())));
+            return new AggregateEventSyntax(null, new SyntacticModel.Internal.AggregateEventSyntax(isAbstract, isPartial, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), atoms.Select(x => ((IAstNode<SyntacticModel.Internal.AtomSyntax>)x).GetUnderlying()), annotations.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationSyntax>)x).GetUnderlying())));
         }
 
-        public static AggregateSnapshotSyntax AggregateSnapshot(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms)
+        public static AggregateSnapshotSyntax AggregateSnapshot(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
         {
-            return new AggregateSnapshotSyntax(null, new SyntacticModel.Internal.AggregateSnapshotSyntax(isAbstract, isPartial, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), atoms.Select(x => ((IAstNode<SyntacticModel.Internal.AtomSyntax>)x).GetUnderlying())));
+            return new AggregateSnapshotSyntax(null, new SyntacticModel.Internal.AggregateSnapshotSyntax(isAbstract, isPartial, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), atoms.Select(x => ((IAstNode<SyntacticModel.Internal.AtomSyntax>)x).GetUnderlying()), annotations.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationSyntax>)x).GetUnderlying())));
         }
 
-        public static AggregateEventPropertySyntax AggregateEventProperty(SimpleNameSyntax simpleName, TypeReferenceSyntax type)
+        public static AggregateEventPropertySyntax AggregateEventProperty(SimpleNameSyntax simpleName, TypeReferenceSyntax type, IEnumerable<AnnotationSyntax> annotations)
         {
-            return new AggregateEventPropertySyntax(null, new SyntacticModel.Internal.AggregateEventPropertySyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), type));
+            return new AggregateEventPropertySyntax(null, new SyntacticModel.Internal.AggregateEventPropertySyntax(((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), type, annotations.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationSyntax>)x).GetUnderlying())));
         }
 
-        public static ValueSyntax Value(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms)
+        public static ScalarValueSyntax ScalarValue(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, NameSyntax @base, IEnumerable<AnnotationSyntax> annotations)
         {
-            return new ValueSyntax(null, new SyntacticModel.Internal.ValueSyntax(isAbstract, isPartial, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), atoms.Select(x => ((IAstNode<SyntacticModel.Internal.AtomSyntax>)x).GetUnderlying())));
+            return new ScalarValueSyntax(null, new SyntacticModel.Internal.ScalarValueSyntax(isAbstract, isPartial, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), ((IAstNode<SyntacticModel.Internal.NameSyntax>)@base).GetUnderlying(), annotations.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationSyntax>)x).GetUnderlying())));
+        }
+
+        public static ValueSyntax Value(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
+        {
+            return new ValueSyntax(null, new SyntacticModel.Internal.ValueSyntax(isAbstract, isPartial, ((IAstNode<SyntacticModel.Internal.SimpleNameSyntax>)simpleName).GetUnderlying(), @base.Select(x => ((IAstNode<SyntacticModel.Internal.NameSyntax>)x).GetUnderlying()), atoms.Select(x => ((IAstNode<SyntacticModel.Internal.AtomSyntax>)x).GetUnderlying()), annotations.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationSyntax>)x).GetUnderlying())));
         }
 
         public static UsingStatementSyntax UsingStatement(NameSyntax @namespace)
@@ -118,6 +134,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         INode Parent { get; }
     }
 
+    public interface IAnnotatableNode : IVisitableChildren
+    {
+        IEnumerable<AnnotationSyntax> Annotations { get; }
+        INode Parent { get; }
+    }
+
     public interface INamespaceParent : INode
     {
     }
@@ -146,6 +168,79 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
     public interface IAggregateMember : INode
     {
+    }
+
+    public class AnnotationSyntax : INode, IAstNode<Internal.AnnotationSyntax>
+    {
+        private readonly INode _parent;
+        private readonly Internal.AnnotationSyntax _underlying;
+
+        internal AnnotationSyntax(INode parent, Internal.AnnotationSyntax underlying)
+        {
+            _parent = parent;
+            _underlying = underlying;
+        }
+
+        public INode Parent { get { return _parent; } }
+        INode INode.Parent { get { return Parent; } }
+        Internal.AnnotationSyntax IAstNode<Internal.AnnotationSyntax>.GetUnderlying() { return _underlying; }
+
+        public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
+        {
+            dispatch(new[] { Name });
+            dispatch(Pairs);
+        }
+
+        public IdentifierNameSyntax Name
+        {
+            get
+            {
+                return ((IAstUnderlyingNode<IdentifierNameSyntax, AnnotationSyntax>)((IAstNode<Internal.AnnotationSyntax>)this).GetUnderlying().Name).MakePublic(this);
+            }
+        }
+        public IEnumerable<AnnotationPairSyntax> Pairs
+        {
+            get
+            {
+                return ((IAstNode<Internal.AnnotationSyntax>)this).GetUnderlying().Pairs.Select(x => ((IAstUnderlyingNode<AnnotationPairSyntax, AnnotationSyntax>)x).MakePublic(this));
+            }
+        }
+    }
+
+    public class AnnotationPairSyntax : INode, IAstNode<Internal.AnnotationPairSyntax>
+    {
+        private readonly AnnotationSyntax _parent;
+        private readonly Internal.AnnotationPairSyntax _underlying;
+
+        internal AnnotationPairSyntax(AnnotationSyntax parent, Internal.AnnotationPairSyntax underlying)
+        {
+            _parent = parent;
+            _underlying = underlying;
+        }
+
+        public AnnotationSyntax Parent { get { return _parent; } }
+        INode INode.Parent { get { return Parent; } }
+        Internal.AnnotationPairSyntax IAstNode<Internal.AnnotationPairSyntax>.GetUnderlying() { return _underlying; }
+
+        public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
+        {
+            dispatch(new[] { Name });
+        }
+
+        public IdentifierNameSyntax Name
+        {
+            get
+            {
+                return ((IAstUnderlyingNode<IdentifierNameSyntax, AnnotationPairSyntax>)((IAstNode<Internal.AnnotationPairSyntax>)this).GetUnderlying().Name).MakePublic(this);
+            }
+        }
+        public String Value
+        {
+            get
+            {
+                return ((IAstNode<Internal.AnnotationPairSyntax>)this).GetUnderlying().Value;
+            }
+        }
     }
 
     public class Compilation : INode, IAstNode<Internal.Compilation>
@@ -334,7 +429,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
     }
 
-    public partial class EnumSyntax : INamespaceMember, IType, IAstNode<Internal.EnumSyntax>
+    public partial class EnumSyntax : INamespaceMember, IType, IAnnotatableNode, IAstNode<Internal.EnumSyntax>
     {
         private readonly NamespaceSyntax _parent;
         private readonly Internal.EnumSyntax _underlying;
@@ -347,12 +442,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public NamespaceSyntax Parent { get { return _parent; } }
         INode INode.Parent { get { return Parent; } }
+        INode IAnnotatableNode.Parent { get { return Parent; } }
         Internal.EnumSyntax IAstNode<Internal.EnumSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
         {
             dispatch(new[] { SimpleName });
             dispatch(Values);
+            dispatch(Annotations);
         }
 
         public SimpleNameSyntax SimpleName
@@ -367,6 +464,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             get
             {
                 return ((IAstNode<Internal.EnumSyntax>)this).GetUnderlying().Values.Select(x => ((IAstUnderlyingNode<EnumValueSyntax, EnumSyntax>)x).MakePublic(this));
+            }
+        }
+        public IEnumerable<AnnotationSyntax> Annotations
+        {
+            get
+            {
+                return ((IAstNode<Internal.EnumSyntax>)this).GetUnderlying().Annotations.Select(x => ((IAstUnderlyingNode<AnnotationSyntax, EnumSyntax>)x).MakePublic(this));
             }
         }
     }
@@ -399,7 +503,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
     }
 
-    public abstract partial class MoleculeSyntax : IType, IAstNode<Internal.MoleculeSyntax>
+    public abstract partial class MoleculeSyntax : IType, IAnnotatableNode, IAstNode<Internal.MoleculeSyntax>
     {
         private readonly ISymbol _parent;
         private readonly Internal.MoleculeSyntax _underlying;
@@ -412,6 +516,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public ISymbol Parent { get { return _parent; } }
         INode INode.Parent { get { return Parent; } }
+        INode IAnnotatableNode.Parent { get { return Parent; } }
         Internal.MoleculeSyntax IAstNode<Internal.MoleculeSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
@@ -419,6 +524,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             dispatch(new[] { SimpleName });
             dispatch(Base.ToEnumerable());
             dispatch(Atoms);
+            dispatch(Annotations);
         }
 
         public Boolean IsAbstract
@@ -456,9 +562,16 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return ((IAstNode<Internal.MoleculeSyntax>)this).GetUnderlying().Atoms.Select(x => ((IAstUnderlyingNode<AtomSyntax, MoleculeSyntax>)x).MakePublic(this));
             }
         }
+        public IEnumerable<AnnotationSyntax> Annotations
+        {
+            get
+            {
+                return ((IAstNode<Internal.MoleculeSyntax>)this).GetUnderlying().Annotations.Select(x => ((IAstUnderlyingNode<AnnotationSyntax, MoleculeSyntax>)x).MakePublic(this));
+            }
+        }
     }
 
-    public partial class AtomSyntax : ISymbol, IAstNode<Internal.AtomSyntax>
+    public partial class AtomSyntax : ISymbol, IAnnotatableNode, IAstNode<Internal.AtomSyntax>
     {
         private readonly MoleculeSyntax _parent;
         private readonly Internal.AtomSyntax _underlying;
@@ -471,11 +584,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public MoleculeSyntax Parent { get { return _parent; } }
         INode INode.Parent { get { return Parent; } }
+        INode IAnnotatableNode.Parent { get { return Parent; } }
         Internal.AtomSyntax IAstNode<Internal.AtomSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
         {
             dispatch(new[] { SimpleName });
+            dispatch(Annotations);
         }
 
         public SimpleNameSyntax SimpleName
@@ -492,9 +607,16 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 return ((IAstNode<Internal.AtomSyntax>)this).GetUnderlying().Type;
             }
         }
+        public IEnumerable<AnnotationSyntax> Annotations
+        {
+            get
+            {
+                return ((IAstNode<Internal.AtomSyntax>)this).GetUnderlying().Annotations.Select(x => ((IAstUnderlyingNode<AnnotationSyntax, AtomSyntax>)x).MakePublic(this));
+            }
+        }
     }
 
-    public partial class AggregateSyntax : INamespaceMember, IType, IAstNode<Internal.AggregateSyntax>
+    public partial class AggregateSyntax : INamespaceMember, IType, IAnnotatableNode, IAstNode<Internal.AggregateSyntax>
     {
         private readonly NamespaceSyntax _parent;
         private readonly Internal.AggregateSyntax _underlying;
@@ -507,6 +629,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public NamespaceSyntax Parent { get { return _parent; } }
         INode INode.Parent { get { return Parent; } }
+        INode IAnnotatableNode.Parent { get { return Parent; } }
         Internal.AggregateSyntax IAstNode<Internal.AggregateSyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
@@ -515,6 +638,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             dispatch(Identifier.ToEnumerable());
             dispatch(Base.ToEnumerable());
             dispatch(Members);
+            dispatch(Annotations);
         }
 
         public Boolean IsAbstract
@@ -550,6 +674,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             get
             {
                 return ((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().Members.Select(x => ((IAstUnderlyingNode<IAggregateMember, AggregateSyntax>)x).MakePublic(this));
+            }
+        }
+        public IEnumerable<AnnotationSyntax> Annotations
+        {
+            get
+            {
+                return ((IAstNode<Internal.AggregateSyntax>)this).GetUnderlying().Annotations.Select(x => ((IAstUnderlyingNode<AnnotationSyntax, AggregateSyntax>)x).MakePublic(this));
             }
         }
     }
@@ -588,7 +719,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
     }
 
-    public partial class AggregateEventPropertySyntax : ISymbol, IAstNode<Internal.AggregateEventPropertySyntax>
+    public partial class AggregateEventPropertySyntax : ISymbol, IAnnotatableNode, IAstNode<Internal.AggregateEventPropertySyntax>
     {
         private readonly AggregateEventSyntax _parent;
         private readonly Internal.AggregateEventPropertySyntax _underlying;
@@ -601,11 +732,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public AggregateEventSyntax Parent { get { return _parent; } }
         INode INode.Parent { get { return Parent; } }
+        INode IAnnotatableNode.Parent { get { return Parent; } }
         Internal.AggregateEventPropertySyntax IAstNode<Internal.AggregateEventPropertySyntax>.GetUnderlying() { return _underlying; }
 
         public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
         {
             dispatch(new[] { SimpleName });
+            dispatch(Annotations);
         }
 
         public SimpleNameSyntax SimpleName
@@ -620,6 +753,73 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             get
             {
                 return ((IAstNode<Internal.AggregateEventPropertySyntax>)this).GetUnderlying().Type;
+            }
+        }
+        public IEnumerable<AnnotationSyntax> Annotations
+        {
+            get
+            {
+                return ((IAstNode<Internal.AggregateEventPropertySyntax>)this).GetUnderlying().Annotations.Select(x => ((IAstUnderlyingNode<AnnotationSyntax, AggregateEventPropertySyntax>)x).MakePublic(this));
+            }
+        }
+    }
+
+    public partial class ScalarValueSyntax : INamespaceMember, IType, IAnnotatableNode, IAstNode<Internal.ScalarValueSyntax>
+    {
+        private readonly NamespaceSyntax _parent;
+        private readonly Internal.ScalarValueSyntax _underlying;
+
+        internal ScalarValueSyntax(NamespaceSyntax parent, Internal.ScalarValueSyntax underlying)
+        {
+            _parent = parent;
+            _underlying = underlying;
+        }
+
+        public NamespaceSyntax Parent { get { return _parent; } }
+        INode INode.Parent { get { return Parent; } }
+        INode IAnnotatableNode.Parent { get { return Parent; } }
+        Internal.ScalarValueSyntax IAstNode<Internal.ScalarValueSyntax>.GetUnderlying() { return _underlying; }
+
+        public virtual void AcceptChildren(Action<IEnumerable<Object>> dispatch)
+        {
+            dispatch(new[] { SimpleName });
+            dispatch(new[] { Base });
+            dispatch(Annotations);
+        }
+
+        public Boolean IsAbstract
+        {
+            get
+            {
+                return ((IAstNode<Internal.ScalarValueSyntax>)this).GetUnderlying().IsAbstract;
+            }
+        }
+        public Boolean IsPartial
+        {
+            get
+            {
+                return ((IAstNode<Internal.ScalarValueSyntax>)this).GetUnderlying().IsPartial;
+            }
+        }
+        public SimpleNameSyntax SimpleName
+        {
+            get
+            {
+                return ((IAstUnderlyingNode<SimpleNameSyntax, ScalarValueSyntax>)((IAstNode<Internal.ScalarValueSyntax>)this).GetUnderlying().SimpleName).MakePublic(this);
+            }
+        }
+        public NameSyntax Base
+        {
+            get
+            {
+                return ((IAstUnderlyingNode<NameSyntax, ScalarValueSyntax>)((IAstNode<Internal.ScalarValueSyntax>)this).GetUnderlying().Base).MakePublic(this);
+            }
+        }
+        public IEnumerable<AnnotationSyntax> Annotations
+        {
+            get
+            {
+                return ((IAstNode<Internal.ScalarValueSyntax>)this).GetUnderlying().Annotations.Select(x => ((IAstUnderlyingNode<AnnotationSyntax, ScalarValueSyntax>)x).MakePublic(this));
             }
         }
     }
@@ -786,6 +986,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
         }
 
+        internal interface IAnnotatableNode
+        {
+        }
+
         internal interface INamespaceParent : INode
         {
         }
@@ -808,6 +1012,56 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         internal interface IAggregateMember : INode
         {
+        }
+
+        internal class AnnotationSyntax : INode, IAstUnderlyingNode<SyntacticModel.AnnotationSyntax, SyntacticModel.INode>
+        {
+            private readonly IdentifierNameSyntax _name;
+            private readonly IEnumerable<AnnotationPairSyntax> _pairs;
+
+            public AnnotationSyntax(IdentifierNameSyntax name, IEnumerable<AnnotationPairSyntax> pairs)
+            {
+                _name = name;
+                _pairs = pairs;
+            }
+
+            public SyntacticModel.AnnotationSyntax MakePublic(SyntacticModel.INode parent)
+            {
+                return BuildPublic(parent);
+            }
+
+            protected virtual SyntacticModel.AnnotationSyntax BuildPublic(SyntacticModel.INode parent)
+            {
+                return new SyntacticModel.AnnotationSyntax(parent, this);
+            }
+
+            public IdentifierNameSyntax Name { get { return _name; } }
+            public IEnumerable<AnnotationPairSyntax> Pairs { get { return _pairs; } }
+        }
+
+        internal class AnnotationPairSyntax : INode, IAstUnderlyingNode<SyntacticModel.AnnotationPairSyntax, SyntacticModel.AnnotationSyntax>
+        {
+            private readonly IdentifierNameSyntax _name;
+            private readonly String _value;
+
+            public AnnotationPairSyntax(IdentifierNameSyntax name, String value)
+            {
+                _name = name;
+                _value = value;
+            }
+
+            public SyntacticModel.AnnotationPairSyntax MakePublic(SyntacticModel.AnnotationSyntax parent)
+            {
+                return BuildPublic(parent);
+            }
+
+            protected virtual SyntacticModel.AnnotationPairSyntax BuildPublic(SyntacticModel.AnnotationSyntax parent)
+            {
+                return new SyntacticModel.AnnotationPairSyntax(parent, this);
+            }
+
+            public IdentifierNameSyntax Name { get { return _name; } }
+            public String Value { get { return _value; } }
         }
 
         internal class Compilation : INode, IAstUnderlyingNode<SyntacticModel.Compilation, SyntacticModel.INode>
@@ -943,15 +1197,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public Maybe<TypeReferenceSyntax> ConstrainedType { get { return _constrainedType; } }
         }
 
-        internal class EnumSyntax : INamespaceMember, IType, IAstUnderlyingNode<SyntacticModel.EnumSyntax, SyntacticModel.NamespaceSyntax>
+        internal class EnumSyntax : INamespaceMember, IType, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.EnumSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly SimpleNameSyntax _simpleName;
             private readonly IEnumerable<EnumValueSyntax> _values;
+            private readonly IEnumerable<AnnotationSyntax> _annotations;
 
-            public EnumSyntax(SimpleNameSyntax simpleName, IEnumerable<EnumValueSyntax> values)
+            public EnumSyntax(SimpleNameSyntax simpleName, IEnumerable<EnumValueSyntax> values, IEnumerable<AnnotationSyntax> annotations)
             {
                 _simpleName = simpleName;
                 _values = values;
+                _annotations = annotations;
             }
 
             public SyntacticModel.EnumSyntax MakePublic(SyntacticModel.NamespaceSyntax parent)
@@ -966,6 +1222,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
             public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public IEnumerable<EnumValueSyntax> Values { get { return _values; } }
+            public IEnumerable<AnnotationSyntax> Annotations { get { return _annotations; } }
         }
 
         internal class EnumValueSyntax : IAstUnderlyingNode<SyntacticModel.EnumValueSyntax, SyntacticModel.EnumSyntax>
@@ -990,21 +1247,23 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IdentifierNameSyntax SimpleName { get { return _simpleName; } }
         }
 
-        internal abstract class MoleculeSyntax : IType, IAstUnderlyingNode<SyntacticModel.MoleculeSyntax, SyntacticModel.ISymbol>
+        internal abstract class MoleculeSyntax : IType, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.MoleculeSyntax, SyntacticModel.ISymbol>
         {
             private readonly Boolean _isAbstract;
             private readonly Boolean _isPartial;
             private readonly SimpleNameSyntax _simpleName;
             private readonly Maybe<NameSyntax> _base;
             private readonly IEnumerable<AtomSyntax> _atoms;
+            private readonly IEnumerable<AnnotationSyntax> _annotations;
 
-            protected MoleculeSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms)
+            protected MoleculeSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
             {
                 _isAbstract = isAbstract;
                 _isPartial = isPartial;
                 _simpleName = simpleName;
                 _base = @base;
                 _atoms = atoms;
+                _annotations = annotations;
             }
 
             public SyntacticModel.MoleculeSyntax MakePublic(SyntacticModel.ISymbol parent)
@@ -1018,17 +1277,20 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public Maybe<NameSyntax> Base { get { return _base; } }
             public IEnumerable<AtomSyntax> Atoms { get { return _atoms; } }
+            public IEnumerable<AnnotationSyntax> Annotations { get { return _annotations; } }
         }
 
-        internal class AtomSyntax : ISymbol, IAstUnderlyingNode<SyntacticModel.AtomSyntax, SyntacticModel.MoleculeSyntax>
+        internal class AtomSyntax : ISymbol, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.AtomSyntax, SyntacticModel.MoleculeSyntax>
         {
             private readonly SimpleNameSyntax _simpleName;
             private readonly TypeReferenceSyntax _type;
+            private readonly IEnumerable<AnnotationSyntax> _annotations;
 
-            public AtomSyntax(SimpleNameSyntax simpleName, TypeReferenceSyntax type)
+            public AtomSyntax(SimpleNameSyntax simpleName, TypeReferenceSyntax type, IEnumerable<AnnotationSyntax> annotations)
             {
                 _simpleName = simpleName;
                 _type = type;
+                _annotations = annotations;
             }
 
             public SyntacticModel.AtomSyntax MakePublic(SyntacticModel.MoleculeSyntax parent)
@@ -1043,23 +1305,26 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
             public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public TypeReferenceSyntax Type { get { return _type; } }
+            public IEnumerable<AnnotationSyntax> Annotations { get { return _annotations; } }
         }
 
-        internal class AggregateSyntax : INamespaceMember, IType, IAstUnderlyingNode<SyntacticModel.AggregateSyntax, SyntacticModel.NamespaceSyntax>
+        internal class AggregateSyntax : INamespaceMember, IType, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.AggregateSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly Boolean _isAbstract;
             private readonly SimpleNameSyntax _simpleName;
             private readonly Maybe<AggregateIdentifierSyntax> _identifier;
             private readonly Maybe<NameSyntax> _base;
             private readonly IEnumerable<IAggregateMember> _members;
+            private readonly IEnumerable<AnnotationSyntax> _annotations;
 
-            public AggregateSyntax(Boolean isAbstract, SimpleNameSyntax simpleName, Maybe<AggregateIdentifierSyntax> identifier, Maybe<NameSyntax> @base, IEnumerable<IAggregateMember> members)
+            public AggregateSyntax(Boolean isAbstract, SimpleNameSyntax simpleName, Maybe<AggregateIdentifierSyntax> identifier, Maybe<NameSyntax> @base, IEnumerable<IAggregateMember> members, IEnumerable<AnnotationSyntax> annotations)
             {
                 _isAbstract = isAbstract;
                 _simpleName = simpleName;
                 _identifier = identifier;
                 _base = @base;
                 _members = members;
+                _annotations = annotations;
             }
 
             public SyntacticModel.AggregateSyntax MakePublic(SyntacticModel.NamespaceSyntax parent)
@@ -1077,13 +1342,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public Maybe<AggregateIdentifierSyntax> Identifier { get { return _identifier; } }
             public Maybe<NameSyntax> Base { get { return _base; } }
             public IEnumerable<IAggregateMember> Members { get { return _members; } }
+            public IEnumerable<AnnotationSyntax> Annotations { get { return _annotations; } }
         }
 
         internal class AggregateEventSyntax : MoleculeSyntax, IAggregateMember, IAstUnderlyingNode<SyntacticModel.AggregateEventSyntax, SyntacticModel.AggregateSyntax>
         {
 
-            public AggregateEventSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms)
-                : base(isAbstract, isPartial, simpleName, @base, atoms)
+            public AggregateEventSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
+                : base(isAbstract, isPartial, simpleName, @base, atoms, annotations)
             {
             }
 
@@ -1102,8 +1368,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         internal class AggregateSnapshotSyntax : MoleculeSyntax, IAggregateMember, IAstUnderlyingNode<SyntacticModel.AggregateSnapshotSyntax, SyntacticModel.AggregateSyntax>
         {
 
-            public AggregateSnapshotSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms)
-                : base(isAbstract, isPartial, simpleName, @base, atoms)
+            public AggregateSnapshotSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
+                : base(isAbstract, isPartial, simpleName, @base, atoms, annotations)
             {
             }
 
@@ -1119,15 +1385,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         }
 
-        internal class AggregateEventPropertySyntax : ISymbol, IAstUnderlyingNode<SyntacticModel.AggregateEventPropertySyntax, SyntacticModel.AggregateEventSyntax>
+        internal class AggregateEventPropertySyntax : ISymbol, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.AggregateEventPropertySyntax, SyntacticModel.AggregateEventSyntax>
         {
             private readonly SimpleNameSyntax _simpleName;
             private readonly TypeReferenceSyntax _type;
+            private readonly IEnumerable<AnnotationSyntax> _annotations;
 
-            public AggregateEventPropertySyntax(SimpleNameSyntax simpleName, TypeReferenceSyntax type)
+            public AggregateEventPropertySyntax(SimpleNameSyntax simpleName, TypeReferenceSyntax type, IEnumerable<AnnotationSyntax> annotations)
             {
                 _simpleName = simpleName;
                 _type = type;
+                _annotations = annotations;
             }
 
             public SyntacticModel.AggregateEventPropertySyntax MakePublic(SyntacticModel.AggregateEventSyntax parent)
@@ -1142,13 +1410,48 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
             public SimpleNameSyntax SimpleName { get { return _simpleName; } }
             public TypeReferenceSyntax Type { get { return _type; } }
+            public IEnumerable<AnnotationSyntax> Annotations { get { return _annotations; } }
+        }
+
+        internal class ScalarValueSyntax : INamespaceMember, IType, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.ScalarValueSyntax, SyntacticModel.NamespaceSyntax>
+        {
+            private readonly Boolean _isAbstract;
+            private readonly Boolean _isPartial;
+            private readonly SimpleNameSyntax _simpleName;
+            private readonly NameSyntax _base;
+            private readonly IEnumerable<AnnotationSyntax> _annotations;
+
+            public ScalarValueSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, NameSyntax @base, IEnumerable<AnnotationSyntax> annotations)
+            {
+                _isAbstract = isAbstract;
+                _isPartial = isPartial;
+                _simpleName = simpleName;
+                _base = @base;
+                _annotations = annotations;
+            }
+
+            public SyntacticModel.ScalarValueSyntax MakePublic(SyntacticModel.NamespaceSyntax parent)
+            {
+                return BuildPublic(parent);
+            }
+
+            protected virtual SyntacticModel.ScalarValueSyntax BuildPublic(SyntacticModel.NamespaceSyntax parent)
+            {
+                return new SyntacticModel.ScalarValueSyntax(parent, this);
+            }
+
+            public Boolean IsAbstract { get { return _isAbstract; } }
+            public Boolean IsPartial { get { return _isPartial; } }
+            public SimpleNameSyntax SimpleName { get { return _simpleName; } }
+            public NameSyntax Base { get { return _base; } }
+            public IEnumerable<AnnotationSyntax> Annotations { get { return _annotations; } }
         }
 
         internal class ValueSyntax : MoleculeSyntax, INamespaceMember, IAstUnderlyingNode<SyntacticModel.ValueSyntax, SyntacticModel.NamespaceSyntax>
         {
 
-            public ValueSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms)
-                : base(isAbstract, isPartial, simpleName, @base, atoms)
+            public ValueSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
+                : base(isAbstract, isPartial, simpleName, @base, atoms, annotations)
             {
             }
 

@@ -87,29 +87,55 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               from cardinality in TypeCardinality
               select new TypeReferenceSyntax(name, cardinality);
 
+        public static readonly Parser<AnnotationPairSyntax> AnnotationPair
+            = from name in IdentifierName
+              from op in Parse.Char('=')
+              from @string in Parse.CharExcept('"').Many().Text().Surround('"', '"')
+              select Syntax.AnnotationPair(name, @string);
+
+        public static readonly Parser<AnnotationSyntax> Annotation
+            = from openBracket in Parse.Char('[')
+              from name in IdentifierName
+              from pairs in AnnotationPair.Delimit(',').Surround('(', ')').Optional()
+              from closedBracket in Parse.Char(']')
+              select Syntax.Annotation(name, pairs);
+
         public static readonly Parser<AtomSyntax> Atom
-            = from type in TypeReference
+            = from annotations in Annotation.Many()
+              from type in TypeReference
               from name in SimpleName
               from end in StatementEnd
-              select Syntax.Atom(name, type);
+              select Syntax.Atom(name, type, annotations);
 
         public static readonly Parser<EnumValueSyntax> EnumValue
             = IdentifierName.Select(Syntax.EnumValue);
 
         public static readonly Parser<EnumSyntax> Enum
-            = from keyword in Parse.String("enum")
+            = from annotations in Annotation.Many()
+              from keyword in Parse.String("enum")
               from name in SimpleName
               from values in Blocked(EnumValue.Delimit(",").Optional())
-              select Syntax.Enum(name, values);
+              select Syntax.Enum(name, values, annotations);
+
+        public static readonly Parser<ScalarValueSyntax> ScalarValue
+            = from annotations in Annotation.Many()
+              from isAbstract in Flag("abstract")
+              from isPartial in Flag("partial")
+              from keyword in Parse.String("value")
+              from name in SimpleName
+              from @base in InheritsFrom(Name)
+              from end in StatementEnd
+              select Syntax.ScalarValue(isAbstract, isPartial, name, @base, annotations);
 
         public static readonly Parser<ValueSyntax> Value
-            = from isAbstract in Flag("abstract")
+            = from annotations in Annotation.Many()
+              from isAbstract in Flag("abstract")
               from isPartial in Flag("partial")
               from keyword in Parse.String("value")
               from name in SimpleName
               from @base in InheritsFrom(Name).Optional()
               from atoms in Blocked(Atom.Many())
-              select Syntax.Value(isAbstract, isPartial, name, @base, atoms);
+              select Syntax.Value(isAbstract, isPartial, name, @base, atoms, annotations);
 
         public static readonly Parser<Maybe<TypeReferenceSyntax>> AggregateIdentifierConstraint
             = (from type in Name
@@ -125,35 +151,38 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               .Or<AggregateIdentifierSyntax>(TypeReference.Select(Syntax.NamedAggregateIdentifier));
 
         public static readonly Parser<AggregateEventSyntax> AggregateEvent
-            = from isAbstract in Flag("abstract")
+            = from annotations in Annotation.Many()
+              from isAbstract in Flag("abstract")
               from isPartial in Flag("partial")
               from keyword in Parse.String("event")
               from name in IdentifierName
               from @base in InheritsFrom(Name).Optional()
               from atoms in Blocked(Atom.Many())
-              select Syntax.AggregateEvent(isAbstract, isPartial, name, @base, atoms);
+              select Syntax.AggregateEvent(isAbstract, isPartial, name, @base, atoms, annotations);
 
         public static readonly Parser<AggregateSnapshotSyntax> AggregateSnapshot
-            = from isAbstract in Flag("abstract")
+            = from annotations in Annotation.Many()
+              from isAbstract in Flag("abstract")
               from isPartial in Flag("partial")
               from keyword in Parse.String("snapshot")
               from name in IdentifierName
               from @base in InheritsFrom(Name).Optional()
               from atoms in Blocked(Atom.Many())
-              select Syntax.AggregateSnapshot(isAbstract,isPartial, name, @base, atoms);
+              select Syntax.AggregateSnapshot(isAbstract,isPartial, name, @base, atoms, annotations);
 
         public static readonly Parser<IAggregateMember> AggregateMember
             = AggregateEvent
             .Or<IAggregateMember>(AggregateSnapshot);
 
         public static readonly Parser<AggregateSyntax> Aggregate
-            = from isAbstract in Flag("abstract")
+            = from annotations in Annotation.Many()
+              from isAbstract in Flag("abstract")
               from keyword in Parse.String("aggregate")
               from identifier in AggregateIdentifier.Surround('<', '>').Optional()
               from name in SimpleName
               from baseAggregate in InheritsFrom(Name).Optional()
               from members in Blocked(AggregateMember.Many())
-              select Syntax.Aggregate(isAbstract, name, identifier, baseAggregate, members);
+              select Syntax.Aggregate(isAbstract, name, identifier, baseAggregate, members, annotations);
 
         public static readonly Parser<NamespaceSyntax> Namespace
             = from keyword in Parse.String("namespace")
@@ -167,6 +196,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         public static readonly Parser<INamespaceMember> NamespaceMember = ((Parser<INamespaceMember>)
                     Namespace)
                 .Or(Enum)
+                .Or(ScalarValue)
                 .Or(Value)
                 .Or(Aggregate);
 

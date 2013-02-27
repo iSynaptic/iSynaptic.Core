@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
-using iSynaptic.Commons.Linq;
 using iSynaptic.Commons.Text;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain

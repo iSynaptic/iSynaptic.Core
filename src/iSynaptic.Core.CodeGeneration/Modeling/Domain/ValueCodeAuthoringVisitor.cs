@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons.Text;
 
@@ -31,6 +32,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         public ValueCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable) 
             : base(writer, symbolTable)
         {
+        }
+
+        protected override Boolean NotInterestedIn(Object subject, string state)
+        {
+            return subject is MoleculeSyntax && !(subject is ValueSyntax);
         }
     }
 }

@@ -151,12 +151,14 @@ namespace iSynaptic.CodeGeneration
                 }
 
                 if (baseDispatcher != null)
+                {
                     applicators = applicators.Concat(new[]
                     {
                         Expression.Return(returnLabel, 
-                                          Expression.Call(baseDispatcher.GetMethodInfo(), visitorParam, subjectParam, stateParam),
+                                          Expression.Invoke(Expression.Constant(baseDispatcher), visitorParam, subjectParam, stateParam),
                                           stateType)
                     }).ToArray();
+                }
 
                 return Expression.Lambda<VisitorDispatcher>(
                     Expression.Label(returnLabel, Expression.Block(stateType, applicators)), visitorParam, subjectParam, stateParam)

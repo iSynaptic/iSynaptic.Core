@@ -4,8 +4,10 @@ namespace iSynaptic.TestDomain
 {
     aggregate<Guid> ServiceCase : Base
     {
+        [Annotation(Key = "Value")]
         snapshot Snapshot
         {
+            [Annotation(Key = "Value")]
             Int32 LastThreadId;
             CommunicationThreadSnapshot* ThreadSnapshots;
             String Title;

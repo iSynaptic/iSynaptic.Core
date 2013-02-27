@@ -2,7 +2,7 @@
 
 namespace iSynaptic.TestDomain
 {
-    value CustomerAgentRoleIdentifier : RoleIdentifier
+    value CustomerRoleIdentifier : RoleIdentifier
     {
     }
 }

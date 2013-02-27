@@ -53,6 +53,14 @@ namespace iSynaptic.CodeGeneration
             private IEnumerable<TestSubject> Children { get; set; }
         }
 
+        private class DerivedStatefulTestVisitor : StatefulTestVisitor
+        {
+            protected override Int32 Visit(TestSubject subject, Int32 value)
+            {
+                return DispatchChildren(subject, value + subject.Value + 1);
+            }
+        }
+
         private class StatefulTestVisitor : Visitor<Int32>
         {
             protected void Visit(TestSubject subject)
@@ -60,7 +68,7 @@ namespace iSynaptic.CodeGeneration
                 throw new InvalidOperationException("This should never be invoked.");
             }
 
-            protected Int32 Visit(TestSubject subject, Int32 value)
+            protected virtual Int32 Visit(TestSubject subject, Int32 value)
             {
                 return DispatchChildren(subject, value + subject.Value);
             }
@@ -101,6 +109,21 @@ namespace iSynaptic.CodeGeneration
             Assert.AreEqual(15, result);
         }
 
+        [Test]
+        public void DerivedVisitor_ThreadsStateCorrectly()
+        {
+            var subject = new TestSubject(1,
+                    new TestSubject(2),
+                    new TestSubject(3,
+                        new TestSubject(4),
+                        new TestSubject(5)));
+
+            var visitor = new DerivedStatefulTestVisitor();
+            var result = visitor.Dispatch(subject, 0);
+            
+            Assert.AreEqual(20, result);
+        }        
+        
         [Test]
         public void Visitor_WhenNotThreadingState_WorksCorrectly()
         {
