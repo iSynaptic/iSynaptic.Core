@@ -21,47 +21,18 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
-
-using Sprache;
-using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     [TestFixture]
-    public class CompiliationCodeAuthoringVisitorTests
+    public class CompiliationCodeAuthoringVisitorTests : TestDomainTestFixture
     {
         [Test]
         public void CanGenerateCode()
         {
-            var streamNames = Assembly.GetExecutingAssembly()
-                                      .GetManifestResourceNames()
-                                      .Where(x => x.StartsWith("iSynaptic.CodeGeneration.Modeling.Domain."))
-                                      .Where(x => x.EndsWith(".dom"));
-
-            var trees = new List<SyntaxTree>();
-
-            foreach (var streamName in streamNames)
-            {
-                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(streamName))
-                using (var reader = new StreamReader(stream))
-                {
-                    var tree = Parser.SyntaxTree.Parse(reader.ReadToEnd());
-                    trees.Add(tree);
-                }
-                
-            }
-
-            var compilation = Syntax.Compilation(trees);
-
-            var symbolTable = SymbolTableConstructionVisitor.BuildSymbolTable(compilation);
-
-            var visitor = new CompilationCodeAuthoringVisitor(Console.Out, symbolTable);
-            visitor.Dispatch(compilation);
+            var visitor = new CompilationCodeAuthoringVisitor(Console.Out, SymbolTable);
+            visitor.Dispatch(Compilation);
         }
     }
 }

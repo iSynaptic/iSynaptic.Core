@@ -17,6 +17,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
 
 
+
         public static AnnotationSyntax Annotation(IdentifierNameSyntax name, IEnumerable<AnnotationPairSyntax> pairs)
         {
             return new AnnotationSyntax(null, new SyntacticModel.Internal.AnnotationSyntax(((IAstNode<SyntacticModel.Internal.IdentifierNameSyntax>)name).GetUnderlying(), pairs.Select(x => ((IAstNode<SyntacticModel.Internal.AnnotationPairSyntax>)x).GetUnderlying())));
@@ -164,6 +165,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         SimpleNameSyntax SimpleName { get; }
         Boolean IsValueType { get; }
         Boolean HasValueSemantics { get; }
+    }
+
+    public interface ITypeWithBase : IType
+    {
+        Maybe<NameSyntax> Base { get; }
     }
 
     public interface IAggregateMember : INode
@@ -503,7 +509,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
     }
 
-    public abstract partial class MoleculeSyntax : IType, IAnnotatableNode, IAstNode<Internal.MoleculeSyntax>
+    public abstract partial class MoleculeSyntax : ITypeWithBase, IAnnotatableNode, IAstNode<Internal.MoleculeSyntax>
     {
         private readonly ISymbol _parent;
         private readonly Internal.MoleculeSyntax _underlying;
@@ -616,7 +622,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
     }
 
-    public partial class AggregateSyntax : INamespaceMember, IType, IAnnotatableNode, IAstNode<Internal.AggregateSyntax>
+    public partial class AggregateSyntax : INamespaceMember, ITypeWithBase, IAnnotatableNode, IAstNode<Internal.AggregateSyntax>
     {
         private readonly NamespaceSyntax _parent;
         private readonly Internal.AggregateSyntax _underlying;
@@ -764,7 +770,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
     }
 
-    public partial class ScalarValueSyntax : INamespaceMember, IType, IAnnotatableNode, IAstNode<Internal.ScalarValueSyntax>
+    public partial class ScalarValueSyntax : INamespaceMember, ITypeWithBase, IAnnotatableNode, IAstNode<Internal.ScalarValueSyntax>
     {
         private readonly NamespaceSyntax _parent;
         private readonly Internal.ScalarValueSyntax _underlying;
@@ -1010,6 +1016,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
         }
 
+        internal interface ITypeWithBase : IType
+        {
+        }
+
         internal interface IAggregateMember : INode
         {
         }
@@ -1247,7 +1257,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IdentifierNameSyntax SimpleName { get { return _simpleName; } }
         }
 
-        internal abstract class MoleculeSyntax : IType, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.MoleculeSyntax, SyntacticModel.ISymbol>
+        internal abstract class MoleculeSyntax : ITypeWithBase, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.MoleculeSyntax, SyntacticModel.ISymbol>
         {
             private readonly Boolean _isAbstract;
             private readonly Boolean _isPartial;
@@ -1308,7 +1318,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IEnumerable<AnnotationSyntax> Annotations { get { return _annotations; } }
         }
 
-        internal class AggregateSyntax : INamespaceMember, IType, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.AggregateSyntax, SyntacticModel.NamespaceSyntax>
+        internal class AggregateSyntax : INamespaceMember, ITypeWithBase, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.AggregateSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly Boolean _isAbstract;
             private readonly SimpleNameSyntax _simpleName;
@@ -1413,7 +1423,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             public IEnumerable<AnnotationSyntax> Annotations { get { return _annotations; } }
         }
 
-        internal class ScalarValueSyntax : INamespaceMember, IType, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.ScalarValueSyntax, SyntacticModel.NamespaceSyntax>
+        internal class ScalarValueSyntax : INamespaceMember, ITypeWithBase, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.ScalarValueSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly Boolean _isAbstract;
             private readonly Boolean _isPartial;

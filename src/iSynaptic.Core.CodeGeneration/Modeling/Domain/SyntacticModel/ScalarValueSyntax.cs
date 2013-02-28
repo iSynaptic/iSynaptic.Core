@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 using System;
+using iSynaptic.Commons;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 {
@@ -41,5 +42,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public Boolean IsValueType { get { return false; } }
         public Boolean HasValueSemantics { get { return true; } }
+
+        Maybe<NameSyntax> ITypeWithBase.Base { get { return Name.ToMaybe(); } }
     }
 }

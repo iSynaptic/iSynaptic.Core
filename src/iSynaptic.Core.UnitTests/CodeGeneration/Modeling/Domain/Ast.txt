@@ -28,6 +28,11 @@
         Boolean HasValueSemantics;
     }
 
+    contract ITypeWithBase : IType
+    {
+        NameSyntax? Base;
+    }
+
     contract IAggregateMember : INode { }
 
     node AnnotationSyntax("Annotation", INode) : INode
@@ -86,7 +91,7 @@
         IdentifierNameSyntax SimpleName;
     }
 
-    abstract partial node MoleculeSyntax("Molecule", ISymbol) : IType, IAnnotatableNode
+    abstract partial node MoleculeSyntax("Molecule", ISymbol) : ITypeWithBase, IAnnotatableNode
     {
         Boolean IsAbstract;
         Boolean IsPartial;
@@ -105,7 +110,7 @@
         AnnotationSyntax* Annotations;
     }
 
-    partial node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, IType, IAnnotatableNode
+    partial node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, ITypeWithBase, IAnnotatableNode
     {
         Boolean IsAbstract;
         SimpleNameSyntax SimpleName;
@@ -132,7 +137,7 @@
         AnnotationSyntax* Annotations;
     }
 
-    partial node ScalarValueSyntax("ScalarValue", NamespaceSyntax) : INamespaceMember, IType, IAnnotatableNode
+    partial node ScalarValueSyntax("ScalarValue", NamespaceSyntax) : INamespaceMember, ITypeWithBase, IAnnotatableNode
     {
         Boolean IsAbstract;
         Boolean IsPartial;
