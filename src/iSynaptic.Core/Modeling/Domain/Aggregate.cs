@@ -68,6 +68,7 @@ namespace iSynaptic.Modeling.Domain
         {
             Initialize(memento.ToMemento<TIdentifier>());
         }
+
         private void ApplySnapshot(IAggregateSnapshot<TIdentifier> snapshot)
         {
             Id = snapshot.Id;

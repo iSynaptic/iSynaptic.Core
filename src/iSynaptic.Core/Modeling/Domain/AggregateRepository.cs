@@ -59,9 +59,11 @@ namespace iSynaptic.Modeling.Domain
 
             var ag = AsInternal(aggregate);
             var aggregateType = aggregate.GetType();
-            var events = ag.GetUncommittedEvents().ToArray();
+            IEnumerable<IAggregateEvent<TIdentifier>> events = ag.GetUncommittedEvents().ToArray();
 
-            await SaveEventStream(aggregateType, aggregate.Id, events);
+            var data = AggregateData.Create(aggregateType, aggregate.Id, events);
+
+            await SaveEventStream(data);
             ag.CommitEvents();
 
             OnEventStreamSaved(aggregateType, aggregate.Id, events);
@@ -76,7 +78,9 @@ namespace iSynaptic.Modeling.Domain
                 throw new ArgumentException("Aggregate doesn't support snapshots.", "aggregate");
 
             var aggregateType = aggregate.GetType();
-            await SaveSnapshot(aggregateType, snapshot);
+
+            var data = AggregateData.Create(aggregateType, aggregate.Id, snapshot);
+            await SaveSnapshot(data);
 
             OnSnapshotSaved(aggregateType, snapshot);
         }
@@ -92,7 +96,7 @@ namespace iSynaptic.Modeling.Domain
 
         public abstract Task<AggregateMemento<TIdentifier>> GetMemento(TIdentifier id, Int32 maxVersion);
 
-        protected abstract Task SaveSnapshot(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot);
-        protected abstract Task SaveEventStream(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events);
+        protected abstract Task SaveSnapshot(AggregateData<TIdentifier, IAggregateSnapshot<TIdentifier>> data);
+        protected abstract Task SaveEventStream(AggregateData<TIdentifier, IEnumerable<IAggregateEvent<TIdentifier>>> data);
     }
 }

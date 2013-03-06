@@ -43,10 +43,13 @@ namespace iSynaptic.Core.Persistence
                                        .ValueOrDefault());
         }
 
-        protected override Task SaveSnapshot(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot)
+        protected override Task SaveSnapshot(AggregateData<TIdentifier, IAggregateSnapshot<TIdentifier>> data)
         {
             StoreMemento(() =>
             {
+                var aggregateType = data.AggregateType;
+                var snapshot = data.Value;
+
                 var state = TryLoadMemento(snapshot.Id).ValueOrDefault();
 
                 return KeyValuePair.Create(snapshot.Id, new AggregateMemento<TIdentifier>(aggregateType, snapshot.ToMaybe(), state != null ? state.Events : null));
@@ -55,8 +58,12 @@ namespace iSynaptic.Core.Persistence
             return _completedTask;
         }
 
-        protected override Task SaveEventStream(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events)
+        protected override Task SaveEventStream(AggregateData<TIdentifier, IEnumerable<IAggregateEvent<TIdentifier>>> data)
         {
+            var aggregateType = data.AggregateType;
+            var id = data.Id;
+            var events = data.Value;
+
             StoreMemento(() => 
                 KeyValuePair.Create(id, TryLoadMemento(id)
                     .Select(x =>

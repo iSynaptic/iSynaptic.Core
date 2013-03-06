@@ -100,6 +100,9 @@ namespace iSynaptic.Modeling.Domain
 
                 var aggregateParam = Expression.Parameter(baseAggregateType);
                 var inputParam = Expression.Parameter(paramType);
+                var aggregateVariable = Expression.Variable(t);
+
+                var assignAggregateVariable = Expression.Assign(aggregateVariable, Expression.Convert(aggregateParam, t));
 
                 var applicators = t
                     .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
@@ -113,7 +116,7 @@ namespace iSynaptic.Modeling.Domain
                             Expression.IfThen(
                                 Expression.TypeIs(inputParam, x.ParameterType),
                                 Expression.Call(
-                                    Expression.Convert(aggregateParam, t),
+                                    aggregateVariable,
                                     x.Method,
                                     Expression.Convert(inputParam, x.ParameterType))))
                     .OfType<Expression>()
@@ -125,7 +128,7 @@ namespace iSynaptic.Modeling.Domain
                 if (baseDispatcher != null)
                     applicators = applicators.Concat(new[] { Expression.Invoke(Expression.Constant(baseDispatcher), aggregateParam, inputParam) }).ToArray();
 
-                return Expression.Lambda<Action<IAggregate<TIdentifier>, T>>(Expression.Block(applicators), aggregateParam, inputParam)
+                return Expression.Lambda<Action<IAggregate<TIdentifier>, T>>(Expression.Block(new[]{ aggregateVariable }, new[] { assignAggregateVariable }.Concat(applicators)), aggregateParam, inputParam)
                                  .Compile();
             });
         }

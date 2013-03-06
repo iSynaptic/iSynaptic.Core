@@ -52,6 +52,7 @@
     <Compile Include="IUniqueNumberGenerator.cs" />
     <Compile Include="Modeling\Domain\Aggregate.cs" />
     <Compile Include="Modeling\Domain\AggregateConcurrencyException.cs" />
+    <Compile Include="Modeling\Domain\AggregateData.cs" />
     <Compile Include="Modeling\Domain\AggregateEvent.cs" />
     <Compile Include="Modeling\Domain\AggregateEventStream.cs" />
     <Compile Include="Modeling\Domain\AggregateHelper.cs" />

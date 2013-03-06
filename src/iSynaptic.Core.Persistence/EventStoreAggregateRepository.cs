@@ -116,17 +116,23 @@ namespace iSynaptic.Core.Persistence
             }
         }
 
-        protected async override Task SaveSnapshot(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot)
+        protected async override Task SaveSnapshot(AggregateData<TIdentifier, IAggregateSnapshot<TIdentifier>> data)
         {
             using (var cn = _connectionFactory())
             {
-                String streamId = BuildSnapshotStreamIdentifier(snapshot.Id);
+                var aggregateType = data.AggregateType;
+                var id = data.Id;
+                var snapshot = data.Value;
+
+                String streamId = BuildSnapshotStreamIdentifier(id);
 
                 var metadata = BuildSnapshotMetadata(aggregateType);
-                
+
+
                 var stream = await cn.ReadStreamEventsForwardAsync(streamId, 0, 1, false);
                 if (stream.Status == SliceReadStatus.StreamNotFound)
                 {
+                    
                     await cn.CreateStreamAsync(
                         streamId,
                         snapshot.SnapshotId,
@@ -172,9 +178,11 @@ namespace iSynaptic.Core.Persistence
                 );
         }
 
-        protected async override Task SaveEventStream(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events)
+        protected async override Task SaveEventStream(AggregateData<TIdentifier, IEnumerable<IAggregateEvent<TIdentifier>>> data)
         {
-            var evts = events.ToArray();
+            var aggregateType = data.AggregateType;
+            var id = data.Id;
+            var evts = data.Value.ToArray();
 
             if(evts.Length <= 0)
                 throw new ArgumentException("There are no events to save.", "events");
