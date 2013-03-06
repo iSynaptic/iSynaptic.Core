@@ -45,15 +45,18 @@ namespace iSynaptic.CodeGeneration
         }
     }
 
-    public abstract class Visitor<TState> : IVisitor<TState>
+    public abstract class BaseVisitor
+    {
+        internal static readonly ConcurrentDictionary<Type, Delegate> _dispatchers
+            = new ConcurrentDictionary<Type, Delegate>();
+    }
+
+    public abstract class Visitor<TState> : BaseVisitor, IVisitor<TState>
     {
         public delegate TState VisitorDispatcher(Visitor<TState> visitor, Object subject, TState state);
 
         private static readonly TypeHierarchyComparer _typeHierarchyComparer
             = new TypeHierarchyComparer();
-
-        private static readonly ConcurrentDictionary<Type, VisitorDispatcher> _dispatchers
-            = new ConcurrentDictionary<Type, VisitorDispatcher>();
 
         private readonly VisitorDispatcher _dispatcher;
 
@@ -66,7 +69,7 @@ namespace iSynaptic.CodeGeneration
         {
             var baseVisitorType = typeof(Visitor<TState>);
 
-            return _dispatchers.GetOrAdd(visitorType, t =>
+            return (VisitorDispatcher)_dispatchers.GetOrAdd(visitorType, t =>
             {
                 var subjectType = typeof(Object);
                 var stateType = typeof(TState);

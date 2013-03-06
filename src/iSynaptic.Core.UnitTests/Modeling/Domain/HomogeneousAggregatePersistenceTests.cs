@@ -42,7 +42,7 @@ namespace iSynaptic.Modeling.Domain
             new CustomerAgentRoleIdentifier("123", "CA456");
 
         [Test]
-        public async void Save_ViaInMemoryRepo()
+        public async Task Save_ViaInMemoryRepo()
         {
             var customer = new HomogeneousRole<CustomerRoleIdentifier>(_cId, "Joe Customer");
             var serviceRep = new HomogeneousRole<CustomerServiceRepresentativeRoleIdentifier>(_csrId, "Jane Rep");

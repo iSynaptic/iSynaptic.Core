@@ -21,13 +21,8 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using iSynaptic.Commons;
-using iSynaptic.Commons.Reflection;
 
 namespace iSynaptic.Modeling.Domain
 {
@@ -39,8 +34,8 @@ namespace iSynaptic.Modeling.Domain
 
         void CommitEvents();
     }
-
-    public abstract class Aggregate<TIdentifier> : Aggregate, IAggregate<TIdentifier>, IAggregateInternal<TIdentifier>
+    
+    public abstract class Aggregate<TIdentifier> : IAggregate<TIdentifier>, IAggregateInternal<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
         private AggregateEventStream<TIdentifier> _events;
@@ -55,8 +50,6 @@ namespace iSynaptic.Modeling.Domain
         private void Initialize(IAggregateMemento memento)
         {
             _events = new AggregateEventStream<TIdentifier>();
-            _eventDispatcher = GetEventDispatcher<TIdentifier>(GetType());
-            _snapshotDispatcher = GetSnapshotDispatcher<TIdentifier>(GetType());
 
             OnInitialize();
 
@@ -75,13 +68,12 @@ namespace iSynaptic.Modeling.Domain
         {
             Initialize(memento.ToMemento<TIdentifier>());
         }
-
         private void ApplySnapshot(IAggregateSnapshot<TIdentifier> snapshot)
         {
             Id = snapshot.Id;
             Version = snapshot.Version;
 
-            _snapshotDispatcher(this, snapshot);
+            DispatchSnapshot(snapshot);
         }
 
         protected void ApplyEvent(Func<TIdentifier, Int32, IAggregateEvent<TIdentifier>> eventFactory)
@@ -113,10 +105,26 @@ namespace iSynaptic.Modeling.Domain
 
                     Version = @event.Version;
 
-                    _eventDispatcher(this, @event);
+                    DispatchEvent(@event);
                     _events.AppendEvent(@event);
                 }
             }
+        }
+
+        protected virtual void DispatchEvent(IAggregateEvent<TIdentifier> @event)
+        {
+            if(_eventDispatcher == null)
+                _eventDispatcher = AggregateHelper.GetEventDispatcher<TIdentifier>(GetType());
+
+            _eventDispatcher(this, @event);
+        }
+
+        protected virtual void DispatchSnapshot(IAggregateSnapshot<TIdentifier> snapshot)
+        {
+            if(_snapshotDispatcher == null)
+                _snapshotDispatcher = AggregateHelper.GetSnapshotDispatcher<TIdentifier>(GetType());
+
+            _snapshotDispatcher(this, snapshot);
         }
 
         public virtual IAggregateSnapshot<TIdentifier> TakeSnapshot() { return null; }
@@ -134,78 +142,9 @@ namespace iSynaptic.Modeling.Domain
         }
 
         protected virtual void OnInitialize() { }
+        protected internal virtual Boolean ConflictsWith(AggregateEvent<TIdentifier> failedEvent, AggregateEvent<TIdentifier> succeededEvent) { return true; }
         
         public TIdentifier Id { get; private set; }
         public Int32 Version { get; private set; }
-    }
-
-    public abstract class Aggregate
-    {
-        private static readonly TypeHierarchyComparer _typeHierarchyComparer
-            = new TypeHierarchyComparer();
-
-        private static readonly ConcurrentDictionary<Type, Delegate> _eventDispatchers
-            = new ConcurrentDictionary<Type, Delegate>();
-
-        private static readonly ConcurrentDictionary<Type, Delegate> _snapshotDispatchers
-            = new ConcurrentDictionary<Type, Delegate>();
-
-        internal static Action<IAggregate<TIdentifier>, IAggregateEvent<TIdentifier>> GetEventDispatcher<TIdentifier>(Type aggregateType)
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            return GetDispatcher<IAggregateEvent<TIdentifier>, TIdentifier>(aggregateType, "On", _eventDispatchers);
-        }
-
-        internal static Action<IAggregate<TIdentifier>, IAggregateSnapshot<TIdentifier>> GetSnapshotDispatcher<TIdentifier>(Type aggregateType)
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            return GetDispatcher<IAggregateSnapshot<TIdentifier>, TIdentifier>(aggregateType, "Apply", _snapshotDispatchers);
-        }
-
-        private static Action<IAggregate<TIdentifier>, T> GetDispatcher<T, TIdentifier>(Type aggregateType, String methodName, ConcurrentDictionary<Type, Delegate> dictionary)
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            var baseAggregateType = typeof(IAggregate<TIdentifier>);
-
-            return (Action<IAggregate<TIdentifier>, T>)dictionary.GetOrAdd(aggregateType, t =>
-            {
-                var paramType = typeof(T);
-                var baseDispatcher = baseAggregateType.IsAssignableFrom(t.BaseType)
-                    ? GetDispatcher<T, TIdentifier>(t.BaseType, methodName, dictionary)
-                    : null;
-
-                var aggregateParam = Expression.Parameter(baseAggregateType);
-                var inputParam = Expression.Parameter(paramType);
-
-                var applicators = t
-                    .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Where(x => x.DeclaringType == t)
-                    .Select(m => new { Method = m, Parameters = m.GetParameters() })
-                    .Where(x => x.Method.Name == methodName && x.Parameters.Length == 1)
-                    .Select(x => new { x.Method, x.Parameters[0].ParameterType })
-                    .Where(x => paramType.IsAssignableFrom(x.ParameterType))
-                    .OrderByDescending(x => x.ParameterType, _typeHierarchyComparer)
-                    .Select(x =>
-                        Expression.IfThen(
-                            Expression.TypeIs(inputParam, x.ParameterType),
-                            Expression.Call(
-                                Expression.Convert(aggregateParam, t),
-                                x.Method,
-                                Expression.Convert(inputParam, x.ParameterType))))
-                    .OfType<Expression>()
-                    .ToArray();
-
-                if (applicators.Length <= 0)
-                    return baseDispatcher ?? (Delegate)(Action<IAggregate<TIdentifier>, T>)((a, s) => { });
-
-                if (baseDispatcher != null)
-                    applicators = applicators.Concat(new[] { Expression.Call(baseDispatcher.GetMethodInfo(), aggregateParam, inputParam) }).ToArray();
-
-                return Expression.Lambda<Action<IAggregate<TIdentifier>, T>>(Expression.Block(applicators), aggregateParam, inputParam)
-                    .Compile();
-            });
-        }
-
-        internal Aggregate() { }
     }
 }

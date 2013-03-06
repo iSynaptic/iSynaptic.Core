@@ -23,12 +23,13 @@
 using System;
 using System.Threading.Tasks;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Threading.Tasks;
 
 namespace iSynaptic.Modeling.Domain
 {
     public static class AggregateRepositoryExtensions
     {
-        public static Task<TAggregate> Get<TAggregate, TIdentifier>(this IAggregateRepository<TAggregate, TIdentifier> @this, TIdentifier id)
+        public static ITask<TAggregate> Get<TAggregate, TIdentifier>(this IAggregateRepository<TAggregate, TIdentifier> @this, TIdentifier id)
             where TAggregate : IAggregate<TIdentifier>
             where TIdentifier : IEquatable<TIdentifier>
         {

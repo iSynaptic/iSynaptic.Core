@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
-using iSynaptic.Modeling;
 using iSynaptic.Modeling.Domain;
 
 namespace iSynaptic.Core.Persistence

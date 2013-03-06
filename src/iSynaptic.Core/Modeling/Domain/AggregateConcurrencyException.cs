@@ -21,29 +21,33 @@
 // THE SOFTWARE.
 
 using System;
-using System.Threading.Tasks;
-using iSynaptic.Commons.Threading.Tasks;
+using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
-    public interface IAggregateRepository<TAggregate, in TIdentifier> : IAggregateRepositoryCommands<TAggregate, TIdentifier>, IAggregateRepositoryQueries<TAggregate, TIdentifier>
-        where TAggregate : IAggregate<TIdentifier> 
-        where TIdentifier : IEquatable<TIdentifier>
+    public class AggregateConcurrencyException : Exception
     {
-    }
+        public AggregateConcurrencyException(Int32 expectedVersion, Int32 actualVersion)
+            : this(expectedVersion, actualVersion, String.Format("A concurrency conflict occured while saving the aggregate. Expected version: {0}, Actual Version: {1}.", expectedVersion, actualVersion))
+        {
+        }
 
-    public interface IAggregateRepositoryQueries<out TAggregate, in TIdentifier>
-        where TAggregate : IAggregate<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
-    {
-        ITask<TAggregate> Get(TIdentifier id, Int32 maxVersion);
-    }
+        public AggregateConcurrencyException(Int32 expectedVersion, Int32 actualVersion, String message)
+            : this(expectedVersion, actualVersion, message, null)
+        {
+        }
 
-    public interface IAggregateRepositoryCommands<in TAggregate, in TIdentifier>
-        where TAggregate : IAggregate<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
-    {
-        Task Save(TAggregate aggregate);
-        Task SaveSnapshot(TAggregate aggregate);
+        public AggregateConcurrencyException(Int32 expectedVersion, Int32 actualVersion, String message, Exception inner)
+            : base(message, inner)
+        {
+            Guard.Ensure(expectedVersion > 0, "expectedVersion", "Expected version must be greater than zero.");
+            Guard.Ensure(actualVersion > 0, "actualVersion", "Actual version must be greater than zero.");
+
+            ExpectedVersion = expectedVersion;
+            ActualVersion = actualVersion;
+        }
+
+        public Int32 ExpectedVersion { get; private set; }
+        public Int32 ActualVersion { get; private set; }
     }
 }

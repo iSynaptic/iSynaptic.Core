@@ -30,14 +30,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iSynaptic.Commons, Version=0.4.20.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="iSynaptic.Commons, Version=0.4.21.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.20\lib\iSynaptic.Commons.dll</HintPath>
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.21\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
-    <Reference Include="Sprache">
-      <HintPath>..\..\packages\Sprache.1.10.0.22\lib\net40\Sprache.dll</HintPath>
+    <Reference Include="Sprache, Version=1.10.0.25, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Sprache.1.10.0.25\lib\net40\Sprache.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

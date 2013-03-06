@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using iSynaptic.Commons;
@@ -12,7 +13,7 @@ namespace iSynaptic.Modeling.Domain
         protected IAggregateRepository<ServiceCase, Guid> Repo { get; set; }
 
         [Test]
-        public async void RoundTrip()
+        public async Task RoundTrip()
         {
             var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
 
@@ -31,7 +32,7 @@ namespace iSynaptic.Modeling.Domain
         }
 
         [Test]
-        public async void RoundTrip_UsingSnapshot()
+        public async Task RoundTrip_UsingSnapshot()
         {
             var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
 
@@ -51,7 +52,7 @@ namespace iSynaptic.Modeling.Domain
         }
 
         [Test]
-        public async void RoundTrip_WithChangeAfterSnapshot()
+        public async Task RoundTrip_WithChangeAfterSnapshot()
         {
             var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
 
@@ -75,7 +76,7 @@ namespace iSynaptic.Modeling.Domain
         }
 
         [Test]
-        public async void RoundTrip_WithMultipleSnapshots()
+        public async Task RoundTrip_WithMultipleSnapshots()
         {
             var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
             var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
@@ -101,7 +102,7 @@ namespace iSynaptic.Modeling.Domain
         }
 
         [Test]
-        public async void TakingSnapshot_ForSameVersion_IsOkay()
+        public async Task TakingSnapshot_ForSameVersion_IsOkay()
         {
             var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,

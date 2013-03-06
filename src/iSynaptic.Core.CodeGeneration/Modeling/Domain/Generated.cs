@@ -1027,12 +1027,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         internal class AnnotationSyntax : INode, IAstUnderlyingNode<SyntacticModel.AnnotationSyntax, SyntacticModel.INode>
         {
             private readonly IdentifierNameSyntax _name;
-            private readonly IEnumerable<AnnotationPairSyntax> _pairs;
+            private readonly AnnotationPairSyntax[] _pairs;
 
             public AnnotationSyntax(IdentifierNameSyntax name, IEnumerable<AnnotationPairSyntax> pairs)
             {
                 _name = name;
-                _pairs = pairs;
+                _pairs = pairs.ToArray();
             }
 
             public SyntacticModel.AnnotationSyntax MakePublic(SyntacticModel.INode parent)
@@ -1076,11 +1076,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         internal class Compilation : INode, IAstUnderlyingNode<SyntacticModel.Compilation, SyntacticModel.INode>
         {
-            private readonly IEnumerable<SyntaxTree> _trees;
+            private readonly SyntaxTree[] _trees;
 
             public Compilation(IEnumerable<SyntaxTree> trees)
             {
-                _trees = trees;
+                _trees = trees.ToArray();
             }
 
             public SyntacticModel.Compilation MakePublic(SyntacticModel.INode parent)
@@ -1098,13 +1098,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         internal class SyntaxTree : INamespaceParent, IUsingsContainer, IAstUnderlyingNode<SyntacticModel.SyntaxTree, SyntacticModel.Compilation>
         {
-            private readonly IEnumerable<UsingStatementSyntax> _usingStatements;
-            private readonly IEnumerable<NamespaceSyntax> _namespaces;
+            private readonly UsingStatementSyntax[] _usingStatements;
+            private readonly NamespaceSyntax[] _namespaces;
 
             public SyntaxTree(IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<NamespaceSyntax> namespaces)
             {
-                _usingStatements = usingStatements;
-                _namespaces = namespaces;
+                _usingStatements = usingStatements.ToArray();
+                _namespaces = namespaces.ToArray();
             }
 
             public SyntacticModel.SyntaxTree MakePublic(SyntacticModel.Compilation parent)
@@ -1124,14 +1124,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         internal class NamespaceSyntax : INamespaceParent, INamespaceMember, IUsingsContainer, ISymbol, IAstUnderlyingNode<SyntacticModel.NamespaceSyntax, SyntacticModel.INamespaceParent>
         {
             private readonly NameSyntax _name;
-            private readonly IEnumerable<UsingStatementSyntax> _usingStatements;
-            private readonly IEnumerable<INamespaceMember> _members;
+            private readonly UsingStatementSyntax[] _usingStatements;
+            private readonly INamespaceMember[] _members;
 
             public NamespaceSyntax(NameSyntax name, IEnumerable<UsingStatementSyntax> usingStatements, IEnumerable<INamespaceMember> members)
             {
                 _name = name;
-                _usingStatements = usingStatements;
-                _members = members;
+                _usingStatements = usingStatements.ToArray();
+                _members = members.ToArray();
             }
 
             public SyntacticModel.NamespaceSyntax MakePublic(SyntacticModel.INamespaceParent parent)
@@ -1210,14 +1210,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         internal class EnumSyntax : INamespaceMember, IType, IAnnotatableNode, IAstUnderlyingNode<SyntacticModel.EnumSyntax, SyntacticModel.NamespaceSyntax>
         {
             private readonly SimpleNameSyntax _simpleName;
-            private readonly IEnumerable<EnumValueSyntax> _values;
-            private readonly IEnumerable<AnnotationSyntax> _annotations;
+            private readonly EnumValueSyntax[] _values;
+            private readonly AnnotationSyntax[] _annotations;
 
             public EnumSyntax(SimpleNameSyntax simpleName, IEnumerable<EnumValueSyntax> values, IEnumerable<AnnotationSyntax> annotations)
             {
                 _simpleName = simpleName;
-                _values = values;
-                _annotations = annotations;
+                _values = values.ToArray();
+                _annotations = annotations.ToArray();
             }
 
             public SyntacticModel.EnumSyntax MakePublic(SyntacticModel.NamespaceSyntax parent)
@@ -1263,8 +1263,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             private readonly Boolean _isPartial;
             private readonly SimpleNameSyntax _simpleName;
             private readonly Maybe<NameSyntax> _base;
-            private readonly IEnumerable<AtomSyntax> _atoms;
-            private readonly IEnumerable<AnnotationSyntax> _annotations;
+            private readonly AtomSyntax[] _atoms;
+            private readonly AnnotationSyntax[] _annotations;
 
             protected MoleculeSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
             {
@@ -1272,8 +1272,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 _isPartial = isPartial;
                 _simpleName = simpleName;
                 _base = @base;
-                _atoms = atoms;
-                _annotations = annotations;
+                _atoms = atoms.ToArray();
+                _annotations = annotations.ToArray();
             }
 
             public SyntacticModel.MoleculeSyntax MakePublic(SyntacticModel.ISymbol parent)
@@ -1294,13 +1294,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             private readonly SimpleNameSyntax _simpleName;
             private readonly TypeReferenceSyntax _type;
-            private readonly IEnumerable<AnnotationSyntax> _annotations;
+            private readonly AnnotationSyntax[] _annotations;
 
             public AtomSyntax(SimpleNameSyntax simpleName, TypeReferenceSyntax type, IEnumerable<AnnotationSyntax> annotations)
             {
                 _simpleName = simpleName;
                 _type = type;
-                _annotations = annotations;
+                _annotations = annotations.ToArray();
             }
 
             public SyntacticModel.AtomSyntax MakePublic(SyntacticModel.MoleculeSyntax parent)
@@ -1324,8 +1324,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             private readonly SimpleNameSyntax _simpleName;
             private readonly Maybe<AggregateIdentifierSyntax> _identifier;
             private readonly Maybe<NameSyntax> _base;
-            private readonly IEnumerable<IAggregateMember> _members;
-            private readonly IEnumerable<AnnotationSyntax> _annotations;
+            private readonly IAggregateMember[] _members;
+            private readonly AnnotationSyntax[] _annotations;
 
             public AggregateSyntax(Boolean isAbstract, SimpleNameSyntax simpleName, Maybe<AggregateIdentifierSyntax> identifier, Maybe<NameSyntax> @base, IEnumerable<IAggregateMember> members, IEnumerable<AnnotationSyntax> annotations)
             {
@@ -1333,8 +1333,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 _simpleName = simpleName;
                 _identifier = identifier;
                 _base = @base;
-                _members = members;
-                _annotations = annotations;
+                _members = members.ToArray();
+                _annotations = annotations.ToArray();
             }
 
             public SyntacticModel.AggregateSyntax MakePublic(SyntacticModel.NamespaceSyntax parent)
@@ -1399,13 +1399,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             private readonly SimpleNameSyntax _simpleName;
             private readonly TypeReferenceSyntax _type;
-            private readonly IEnumerable<AnnotationSyntax> _annotations;
+            private readonly AnnotationSyntax[] _annotations;
 
             public AggregateEventPropertySyntax(SimpleNameSyntax simpleName, TypeReferenceSyntax type, IEnumerable<AnnotationSyntax> annotations)
             {
                 _simpleName = simpleName;
                 _type = type;
-                _annotations = annotations;
+                _annotations = annotations.ToArray();
             }
 
             public SyntacticModel.AggregateEventPropertySyntax MakePublic(SyntacticModel.AggregateEventSyntax parent)
@@ -1429,7 +1429,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             private readonly Boolean _isPartial;
             private readonly SimpleNameSyntax _simpleName;
             private readonly NameSyntax _base;
-            private readonly IEnumerable<AnnotationSyntax> _annotations;
+            private readonly AnnotationSyntax[] _annotations;
 
             public ScalarValueSyntax(Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, NameSyntax @base, IEnumerable<AnnotationSyntax> annotations)
             {
@@ -1437,7 +1437,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
                 _isPartial = isPartial;
                 _simpleName = simpleName;
                 _base = @base;
-                _annotations = annotations;
+                _annotations = annotations.ToArray();
             }
 
             public SyntacticModel.ScalarValueSyntax MakePublic(SyntacticModel.NamespaceSyntax parent)
@@ -1549,12 +1549,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         internal class GenericNameSyntax : SimpleNameSyntax, IAstUnderlyingNode<SyntacticModel.GenericNameSyntax, Object>
         {
-            private readonly IEnumerable<NameSyntax> _typeArguments;
+            private readonly NameSyntax[] _typeArguments;
 
             public GenericNameSyntax(IEnumerable<NameSyntax> typeArguments, String identifier)
                 : base(identifier)
             {
-                _typeArguments = typeArguments;
+                _typeArguments = typeArguments.ToArray();
             }
 
             public new SyntacticModel.GenericNameSyntax MakePublic(Object parent)

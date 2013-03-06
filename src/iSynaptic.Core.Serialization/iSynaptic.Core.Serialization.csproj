@@ -30,9 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iSynaptic.Commons, Version=0.4.20.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="iSynaptic.Commons, Version=0.4.21.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.20\lib\iSynaptic.Commons.dll</HintPath>
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.21\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>

@@ -26,6 +26,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Threading.Tasks;
 
 namespace iSynaptic.Modeling.Domain
 {
@@ -33,6 +34,11 @@ namespace iSynaptic.Modeling.Domain
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
+        ITask<TAggregate> IAggregateRepositoryQueries<TAggregate, TIdentifier>.Get(TIdentifier id, Int32 maxVersion)
+        {
+            return Get(id, maxVersion).ToCovariantTask();
+        }
+
         public async Task<TAggregate> Get(TIdentifier id, Int32 maxVersion)
         {
             var memento = await GetMemento(id, maxVersion);
@@ -41,7 +47,6 @@ namespace iSynaptic.Modeling.Domain
                 return null;
 
             var aggregate = (TAggregate)FormatterServices.GetSafeUninitializedObject(memento.AggregateType);
-
             var ag = AsInternal(aggregate);
             ag.Initialize(memento);
 
@@ -53,7 +58,6 @@ namespace iSynaptic.Modeling.Domain
             Guard.NotNull(aggregate, "aggregate");
 
             var ag = AsInternal(aggregate);
-
             var aggregateType = aggregate.GetType();
             var events = ag.GetUncommittedEvents().ToArray();
 
@@ -80,11 +84,9 @@ namespace iSynaptic.Modeling.Domain
         private IAggregateInternal<TIdentifier> AsInternal(TAggregate aggregate)
         {
             var ag = aggregate as IAggregateInternal<TIdentifier>;
-
             if(ag == null) throw new InvalidOperationException("Aggregate must inherit from Aggregate<TIdentifier>.");
             return ag;
         }
-
         protected virtual void OnEventStreamSaved(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events) { }
         protected virtual void OnSnapshotSaved(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot) { }
 

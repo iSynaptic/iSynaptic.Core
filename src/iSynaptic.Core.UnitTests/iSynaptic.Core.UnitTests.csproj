@@ -61,11 +61,10 @@
       <HintPath>..\..\packages\EventStore.Client.1.0.1\lib\net40\EventStore.ClientAPI.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions">
-      <HintPath>..\..\packages\FluentAssertions.2.0.0.1\lib\net45\FluentAssertions.dll</HintPath>
+      <HintPath>..\..\packages\FluentAssertions.2.0.1\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
-    <Reference Include="iSynaptic.Commons, Version=0.4.20.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.20\lib\iSynaptic.Commons.dll</HintPath>
+    <Reference Include="iSynaptic.Commons">
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.21\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -73,9 +72,8 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Sprache, Version=1.10.0.22, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Sprache.1.10.0.22\lib\net40\Sprache.dll</HintPath>
+    <Reference Include="Sprache">
+      <HintPath>..\..\packages\Sprache.1.10.0.25\lib\net40\Sprache.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

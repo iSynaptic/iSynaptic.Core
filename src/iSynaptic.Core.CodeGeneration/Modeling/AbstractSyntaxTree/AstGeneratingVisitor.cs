@@ -35,15 +35,16 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
     {
         private readonly Dictionary<String, IAstConcept> _symbolTable;
 
-        public AstGeneratingVisitor(TextWriter writer, Dictionary<String, IAstConcept> symbolTable) : base(writer)
+        public AstGeneratingVisitor(TextWriter writer, Dictionary<String, IAstConcept> symbolTable)
+            : base(writer)
         {
             _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
         }
 
         public Maybe<IAstConcept> Resolve(IAstConcept relativeTo, String nodeType)
         {
-            return nodeType != relativeTo.TypeName 
-                ? _symbolTable.TryGetValue(String.Format("{0}.{1}", relativeTo.Parent.Namespace, nodeType)) 
+            return nodeType != relativeTo.TypeName
+                ? _symbolTable.TryGetValue(String.Format("{0}.{1}", relativeTo.Parent.Namespace, nodeType))
                 : relativeTo.ToMaybe();
         }
 
@@ -100,7 +101,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "public")
             {
-                var publicBaseTypes = baseTypes.Or(new[] {"IVisitableChildren"}).Delimit(", ");
+                var publicBaseTypes = baseTypes.Or(new[] { "IVisitableChildren" }).Delimit(", ");
 
                 using (WriteBlock("public interface {0} : {1}", contract.TypeName, publicBaseTypes))
                 {
@@ -147,26 +148,26 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             var parentHierarcy = GetParentHierarchy(nodeHierarcy).ToArray();
             bool parentDefinedByNode = parentHierarcy.Any();
 
-            if(!parentDefinedByNode)
+            if (!parentDefinedByNode)
                 parentHierarcy = GetParentHierarchy(conceptHierarchy).ToArray();
-            
+
             var baseNode = nodeHierarcy.Skip(1).TryFirst();
             var parentNode = parentHierarcy.TryFirst();
             var closestParentNode = GetParentHierarchy(nodeHierarcy.Skip(1)).TryFirst();
 
             var farthestBaseNode = nodeHierarcy.Last();
             var farthestParentNode = parentHierarcy.TryLast();
-            
-            var baseTypes = node.BaseTypes.Concat(new[]{String.Format("IAstNode<Internal.{0}>", node.TypeName)});
+
+            var baseTypes = node.BaseTypes.Concat(new[] { String.Format("IAstNode<Internal.{0}>", node.TypeName) });
 
             if (mode == "public")
             {
                 String baseTypesSuffix = String.Format(" : {0}", baseTypes.Delimit(", "));
 
-                using (WriteBlock("public {0}{1} class {2}{3}", 
-                                  node.IsAbstract ? "abstract " : "", 
+                using (WriteBlock("public {0}{1} class {2}{3}",
+                                  node.IsAbstract ? "abstract " : "",
                                   node.IsPartial ? "partial " : "",
-                                  node.TypeName, 
+                                  node.TypeName,
                                   baseTypesSuffix))
                 {
                     bool generatePrivateField = parentNode.HasValue &&
@@ -247,10 +248,10 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
                 var internalBaseTypes = node.BaseTypes
                     .Where(x => Resolve(node, x).HasValue)
-                    .Concat(new[] { String.Format("IAstUnderlyingNode<SyntacticModel.{0}, {1}>", node.TypeName, parentType)});
+                    .Concat(new[] { String.Format("IAstUnderlyingNode<SyntacticModel.{0}, {1}>", node.TypeName, parentType) });
 
                 using (WriteBlock("internal {0}class {1} : {2}",
-                    node.IsAbstract ? "abstract " : "", 
+                    node.IsAbstract ? "abstract " : "",
                     node.TypeName,
                     internalBaseTypes.Delimit(", ")))
                 {
@@ -286,7 +287,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
                     {
                         WriteLine(farthestBaseNode == node
                                     ? "return BuildPublic(parent);"
-                                    : "return (SyntacticModel.{0}) BuildPublic(parent);", 
+                                    : "return (SyntacticModel.{0}) BuildPublic(parent);",
                                   node.TypeName);
                     }
                     WriteLine();
@@ -299,8 +300,8 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
                     if (parentNode.HasValue)
                     {
-                        buildParentArgument = parentNode.Value != farthestParentNode.Value 
-                            ? String.Format("(SyntacticModel.{0}) parent, ", parentNode.Value.TypeName) 
+                        buildParentArgument = parentNode.Value != farthestParentNode.Value
+                            ? String.Format("(SyntacticModel.{0}) parent, ", parentNode.Value.TypeName)
                             : "parent, ";
                     }
 
@@ -326,7 +327,7 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             {
                 Write("public static {0} {1}(", node.TypeName, node.SimpleName);
                 DispatchChildren(nodeHierarcy, "parameter", (s, l, r) => { Write(", "); return s; });
-                using(WriteBlock(")"))
+                using (WriteBlock(")"))
                 {
 
                     Write(parentNode.HasValue
@@ -350,14 +351,14 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             if (mode == "field")
             {
                 WriteLine("private readonly {0} _{1};",
-                          GetPropertyType(property),
+                          GetPrivatePropertyType(property),
                           Camelize(property.SimpleName));
             }
 
             if (mode == "parameter")
             {
-                Write("{0} {1}", 
-                      GetPropertyType(property),
+                Write("{0} {1}",
+                      GetPublicPropertyType(property),
                       SafeIdentifier(Camelize(property.SimpleName)));
             }
 
@@ -368,13 +369,17 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "assignToField")
             {
-                WriteLine("_{0} = {1};", Camelize(property.SimpleName), SafeIdentifier(Camelize(property.SimpleName)));
+                String format = property.Cardinality == AstNodePropertyCardinality.Many
+                    ? "_{0} = {1}.ToArray();"
+                    : "_{0} = {1};";
+
+                WriteLine(format, Camelize(property.SimpleName), SafeIdentifier(Camelize(property.SimpleName)));
             }
 
             if (mode == "property")
             {
                 WriteLine("public {0} {1} {{ get {{ return _{2}; }} }}",
-                          GetPropertyType(property),
+                          GetPublicPropertyType(property),
                           property.SimpleName,
                           Camelize(property.SimpleName));
             }
@@ -382,13 +387,13 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             if (mode == "contractProperty")
             {
                 WriteLine("{0} {1} {{ get; }}",
-                          GetPropertyType(property),
+                          GetPublicPropertyType(property),
                           property.SimpleName);
             }
 
             if (mode == "publicSelector")
             {
-                using (WriteBlock("public {0} {1}", GetPropertyType(property), property.SimpleName))
+                using (WriteBlock("public {0} {1}", GetPublicPropertyType(property), property.SimpleName))
                 using (WriteBlock("get"))
                 {
                     if (isNodeProperty)
@@ -421,20 +426,20 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 
             if (mode == "dispatchInvoke" && isNodeProperty)
             {
-                if(property.Cardinality == AstNodePropertyCardinality.One)
+                if (property.Cardinality == AstNodePropertyCardinality.One)
                     WriteLine("dispatch(new[]{{ {0} }});", property.SimpleName);
 
                 if (property.Cardinality == AstNodePropertyCardinality.ZeroOrOne)
                     WriteLine("dispatch({0}.ToEnumerable());", property.SimpleName);
 
-                if(property.Cardinality == AstNodePropertyCardinality.Many)
+                if (property.Cardinality == AstNodePropertyCardinality.Many)
                     WriteLine("dispatch({0});", property.SimpleName);
             }
 
             return mode;
         }
 
-        private String GetPropertyType(AstNodeProperty property)
+        private String GetPrivatePropertyType(AstNodeProperty property)
         {
             if (property.Cardinality == AstNodePropertyCardinality.One)
                 return property.Type;
@@ -442,7 +447,22 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
             if (property.Cardinality == AstNodePropertyCardinality.ZeroOrOne)
                 return String.Format("Maybe<{0}>", property.Type);
 
-            if(property.Cardinality == AstNodePropertyCardinality.Many)
+            if (property.Cardinality == AstNodePropertyCardinality.Many)
+                return String.Format("{0}[]", property.Type);
+
+            throw new InvalidOperationException("Unrecognized cardinality.");
+        }
+
+
+        private String GetPublicPropertyType(AstNodeProperty property)
+        {
+            if (property.Cardinality == AstNodePropertyCardinality.One)
+                return property.Type;
+
+            if (property.Cardinality == AstNodePropertyCardinality.ZeroOrOne)
+                return String.Format("Maybe<{0}>", property.Type);
+
+            if (property.Cardinality == AstNodePropertyCardinality.Many)
                 return String.Format("IEnumerable<{0}>", property.Type);
 
             throw new InvalidOperationException("Unrecognized cardinality.");
