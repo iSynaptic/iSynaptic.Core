@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using iSynaptic.Commons.Linq;
 using iSynaptic.Commons.Reflection;
 
 namespace iSynaptic.Modeling.Domain
@@ -54,36 +55,6 @@ namespace iSynaptic.Modeling.Domain
             where TIdentifier : IEquatable<TIdentifier>
         {
             return GetDispatcher<IAggregateSnapshot<TIdentifier>, TIdentifier>(aggregateType, "Apply", _snapshotDispatchers);
-        }
-
-        public static Action<IAggregate<TIdentifier>> GetResetOperation<TIdentifier>(Type aggregateType)
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            var baseAggregateType = typeof(Aggregate<TIdentifier>);
-
-            return (Action<IAggregate<TIdentifier>>) _resetOperations.GetOrAdd(aggregateType, t =>
-            {
-                var baseResetOperation = baseAggregateType.IsAssignableFrom(t.BaseType)
-                                             ? GetResetOperation<TIdentifier>(t.BaseType)
-                                             : null;
-
-                var aggregateParam = Expression.Parameter(baseAggregateType);
-
-                IEnumerable<Expression> resetExpressions = t
-                    .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                    .Where(x => x.DeclaringType == t)
-                    .Select(x =>
-                            Expression.Assign(
-                                Expression.Field(aggregateParam, x),
-                                Expression.Default(x.FieldType))
-                    );
-
-                if (baseResetOperation != null)
-                    resetExpressions = resetExpressions.Concat(new[] { Expression.Invoke(Expression.Constant(baseResetOperation), aggregateParam) }).ToArray();
-
-                return Expression.Lambda<Action<Aggregate<TIdentifier>>>(Expression.Block(resetExpressions), aggregateParam)
-                                 .Compile();
-            });
         }
 
         private static Action<IAggregate<TIdentifier>, T> GetDispatcher<T, TIdentifier>(Type aggregateType, String methodName, ConcurrentDictionary<Type, Delegate> dictionary)
@@ -129,6 +100,43 @@ namespace iSynaptic.Modeling.Domain
                     applicators = applicators.Concat(new[] { Expression.Invoke(Expression.Constant(baseDispatcher), aggregateParam, inputParam) }).ToArray();
 
                 return Expression.Lambda<Action<IAggregate<TIdentifier>, T>>(Expression.Block(new[]{ aggregateVariable }, new[] { assignAggregateVariable }.Concat(applicators)), aggregateParam, inputParam)
+                                 .Compile();
+            });
+        }
+
+        public static Action<IAggregate<TIdentifier>> GetResetOperation<TIdentifier>(Type aggregateType)
+            where TIdentifier : IEquatable<TIdentifier>
+        {
+            var baseAggregateType = typeof(IAggregate<TIdentifier>);
+
+            return (Action<IAggregate<TIdentifier>>)_resetOperations.GetOrAdd(aggregateType, t =>
+            {
+                var baseResetOperation = baseAggregateType.IsAssignableFrom(t.BaseType)
+                                             ? GetResetOperation<TIdentifier>(t.BaseType)
+                                             : null;
+
+                var aggregateParam = Expression.Parameter(baseAggregateType);
+                var aggregateVariable = Expression.Variable(t);
+
+                var assignVariable = Expression.Assign(
+                    aggregateVariable,
+                    Expression.Convert(aggregateParam, t));
+
+                IEnumerable<Expression> resetExpressions = t
+                    .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(x => x.DeclaringType == t)
+                    .Unless(x => x.IsInitOnly)
+                    .Unless(x => x.IsDefined(typeof(ImmuneToResetAttribute), true))
+                    .Select(x =>
+                            Expression.Assign(
+                                Expression.Field(assignVariable, x),
+                                Expression.Default(x.FieldType))
+                    );
+
+                if (baseResetOperation != null)
+                    resetExpressions = resetExpressions.Concat(new[] { Expression.Invoke(Expression.Constant(baseResetOperation), aggregateParam) }).ToArray();
+
+                return Expression.Lambda<Action<IAggregate<TIdentifier>>>(Expression.Block(new[] { aggregateVariable }, new[] { assignVariable }.Concat(resetExpressions)), aggregateParam)
                                  .Compile();
             });
         }

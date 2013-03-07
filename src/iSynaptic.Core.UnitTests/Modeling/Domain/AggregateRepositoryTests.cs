@@ -112,5 +112,62 @@ namespace iSynaptic.Modeling.Domain
             await Repo.SaveSnapshot(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
         }
+
+        [Test]
+        public async Task ConcurrecyConflict_WithTrueConflict_ThrowsException()
+        {
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
+                                                 ServiceCase.SampleContent.TopicDescription);
+
+            await Repo.Save(serviceCase);
+
+            var winner = await Repo.Get(serviceCase.Id, Int32.MaxValue);
+            var loser = await Repo.Get(serviceCase.Id, Int32.MaxValue);
+
+            winner.StartCommunicationThread("Win", "Winning");
+            await Repo.Save(winner);
+
+            loser.StartCommunicationThread("Lose", "Loosing");
+
+            try
+            {
+                await Repo.Save(loser);
+                Assert.Fail("Exception was not thrown");
+            }
+            catch (AggregateConcurrencyException)
+            {
+            }
+        }
+
+        [Test]
+        public async Task ConcurrencyConflict_WithFalseConflict_ResolvesConflict()
+        {
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
+                                                 ServiceCase.SampleContent.TopicDescription);
+
+            await Repo.Save(serviceCase);
+
+            var winner = await Repo.Get(serviceCase.Id, Int32.MaxValue);
+            var secondWinner = await Repo.Get(serviceCase.Id, Int32.MaxValue);
+
+            winner.StartCommunicationThread("Win", "Winning");
+            await Repo.Save(winner);
+
+            secondWinner.Threads.First().RecordCommunication(CommunicationDirection.Outgoing, "Also Win", SystemClock.UtcNow);
+            await Repo.Save(secondWinner);
+
+            secondWinner.Version.Should().Be(4);
+            var events = secondWinner.GetEvents().ToArray();
+
+            events[2].Should().BeOfType<ServiceCase.CommunicationThreadStarted>();
+            events[3].Should().BeOfType<ServiceCase.CommunicationRecorded>();
+
+            var cre = (ServiceCase.CommunicationRecorded) events[3];
+            cre.Version.Should().Be(4);
+            cre.Direction.Should().Be(CommunicationDirection.Outgoing);
+            cre.Content.Should().Be("Also Win");
+        }
     }
 }

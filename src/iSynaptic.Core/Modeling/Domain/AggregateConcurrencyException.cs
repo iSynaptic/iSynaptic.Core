@@ -27,27 +27,26 @@ namespace iSynaptic.Modeling.Domain
 {
     public class AggregateConcurrencyException : Exception
     {
-        public AggregateConcurrencyException(Int32 expectedVersion, Int32 actualVersion)
-            : this(expectedVersion, actualVersion, String.Format("A concurrency conflict occured while saving the aggregate. Expected version: {0}, Actual Version: {1}.", expectedVersion, actualVersion))
+        private const String DefaultMessage = "A concurrency conflict occured while saving the aggregate.";
+
+        public AggregateConcurrencyException()
+            : this(DefaultMessage)
         {
         }
 
-        public AggregateConcurrencyException(Int32 expectedVersion, Int32 actualVersion, String message)
-            : this(expectedVersion, actualVersion, message, null)
+        public AggregateConcurrencyException(String message)
+            : this(message, null)
         {
         }
 
-        public AggregateConcurrencyException(Int32 expectedVersion, Int32 actualVersion, String message, Exception inner)
+        public AggregateConcurrencyException(Exception inner)
+            : this(DefaultMessage, inner)
+        {
+        }
+
+        public AggregateConcurrencyException(String message, Exception inner)
             : base(message, inner)
         {
-            Guard.Ensure(expectedVersion > 0, "expectedVersion", "Expected version must be greater than zero.");
-            Guard.Ensure(actualVersion > 0, "actualVersion", "Actual version must be greater than zero.");
-
-            ExpectedVersion = expectedVersion;
-            ActualVersion = actualVersion;
         }
-
-        public Int32 ExpectedVersion { get; private set; }
-        public Int32 ActualVersion { get; private set; }
     }
 }

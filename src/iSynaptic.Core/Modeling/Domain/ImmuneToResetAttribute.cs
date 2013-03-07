@@ -21,31 +21,11 @@
 // THE SOFTWARE.
 
 using System;
-using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
-    public static class AggregateData
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    internal class ImmuneToResetAttribute : Attribute
     {
-        public static AggregateData<TIdentifier, TData> Create<TIdentifier, TData>(Type aggregateType, TIdentifier id, TData value)
-            where TIdentifier : IEquatable<TIdentifier>
-        {
-            return new AggregateData<TIdentifier, TData>(aggregateType, id, value);
-        }
-    }
-
-    public class AggregateData<TIdentifier, TData>
-        where TIdentifier : IEquatable<TIdentifier>
-    {
-        public AggregateData(Type aggregateType, TIdentifier id, TData value)
-        {
-            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
-            Id = id;
-            Value = value;
-        }
-
-        public Type AggregateType { get; private set; }
-        public TIdentifier Id { get; private set; }
-        public TData Value { get; private set; }
     }
 }

@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.Exceptions;
 using Newtonsoft.Json;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
@@ -61,45 +62,64 @@ namespace iSynaptic.Core.Persistence
             _metadataSerializer = JsonSerializer.Create(metadataSerializerSettings);
         }
 
-        public async override Task<AggregateMemento<TIdentifier>> GetMemento(TIdentifier id, int maxVersion)
+        protected override async Task<AggregateSnapshotFrame<TIdentifier>> GetSnapshot(TIdentifier id, int maxVersion)
         {
             using (var cn = _connectionFactory())
             {
                 String snapshotStreamId = BuildSnapshotStreamIdentifier(id);
-                String streamId = BuildStreamIdentifier(id);
 
-                var resolvedSnapshot = (await cn.ReadStreamEventsForwardAsync(snapshotStreamId, 1, int.MaxValue, false))
+                var resolvedEvent = (await cn.ReadStreamEventsForwardAsync(snapshotStreamId, 1, int.MaxValue, false))
                     .ToMaybe()
                     .Where(x => x.Status == SliceReadStatus.Success)
                     .SelectMany(x => x.Events)
                     .TrySingle();
 
-                var snapshot = resolvedSnapshot
+                var snapshot = resolvedEvent
                     .Select(x => x.Event.Data)
                     .Select(Encoding.Default.GetString)
                     .Select(x => _dataSerializer.Deserialize<IAggregateSnapshot<TIdentifier>>(x))
                     .Where(x => x.Version <= maxVersion);
 
-                var startVersion = snapshot
-                    .Select(x => x.Version + 1)
-                    .ValueOrDefault(1);
-
-                var maxCount = maxVersion - startVersion;
-
-                var resolvedEvents = maxCount > 0
-                    ? (await cn.ReadStreamEventsForwardAsync(streamId, startVersion, maxCount, false))
-                        .ToMaybe()
-                        .Where(x => x.Status == SliceReadStatus.Success)
-                        .SelectMany(x => x.Events)
-                        .ToArray()
-                    : Enumerable.Empty<ResolvedEvent>();
-
-                var metadata = resolvedSnapshot.Or(resolvedEvents.TryFirst)
+                var metadata = resolvedEvent
                     .Select(x => x.Event.Metadata)
                     .Select(Encoding.Default.GetString)
                     .Select(x => _metadataSerializer.Deserialize<Dictionary<String, String>>(x));
 
-                if (metadata.HasValue)
+                if (snapshot.HasValue && metadata.HasValue)
+                {
+                    Type aggregateType = _logicalTypeRegistry.LookupActualType(
+                        LogicalType.Parse(metadata.Value["aggregateType"]));
+
+                    return new AggregateSnapshotFrame<TIdentifier>(aggregateType, id, snapshot.Value);
+                }
+
+                return null;
+            }
+        }
+
+        protected override async Task<AggregateEventsFrame<TIdentifier>> GetEvents(TIdentifier id, int minVersion, int maxVersion)
+        {
+            var maxCount = (maxVersion - minVersion) + 1;
+
+            if (maxCount <= 0)
+                return null;
+
+            using (var cn = _connectionFactory())
+            {
+                String streamId = BuildStreamIdentifier(id);
+
+                var resolvedEvents = (await cn.ReadStreamEventsForwardAsync(streamId, minVersion, maxCount, false))
+                    .ToMaybe()
+                    .Where(x => x.Status == SliceReadStatus.Success)
+                    .SelectMany(x => x.Events)
+                    .ToArray();
+
+                var metadata = resolvedEvents.TryFirst()
+                    .Select(x => x.Event.Metadata)
+                    .Select(Encoding.Default.GetString)
+                    .Select(x => _metadataSerializer.Deserialize<Dictionary<String, String>>(x));
+
+                if (resolvedEvents.Length > 0 && metadata.HasValue)
                 {
                     Type aggregateType = _logicalTypeRegistry.LookupActualType(
                         LogicalType.Parse(metadata.Value["aggregateType"]));
@@ -109,20 +129,20 @@ namespace iSynaptic.Core.Persistence
                         .Select(Encoding.Default.GetString)
                         .Select(x => _dataSerializer.Deserialize<IAggregateEvent<TIdentifier>>(x));
 
-                    return new AggregateMemento<TIdentifier>(aggregateType, snapshot, events);
+                    return new AggregateEventsFrame<TIdentifier>(aggregateType, id, events);
                 }
 
                 return null;
             }
         }
 
-        protected async override Task SaveSnapshot(AggregateData<TIdentifier, IAggregateSnapshot<TIdentifier>> data)
+        protected async override Task SaveSnapshot(AggregateSnapshotFrame<TIdentifier> frame)
         {
             using (var cn = _connectionFactory())
             {
-                var aggregateType = data.AggregateType;
-                var id = data.Id;
-                var snapshot = data.Value;
+                var aggregateType = frame.AggregateType;
+                var id = frame.Id;
+                var snapshot = frame.Snapshot;
 
                 String streamId = BuildSnapshotStreamIdentifier(id);
 
@@ -178,11 +198,11 @@ namespace iSynaptic.Core.Persistence
                 );
         }
 
-        protected async override Task SaveEventStream(AggregateData<TIdentifier, IEnumerable<IAggregateEvent<TIdentifier>>> data)
+        protected async override Task SaveEvents(AggregateEventsFrame<TIdentifier> frame)
         {
-            var aggregateType = data.AggregateType;
-            var id = data.Id;
-            var evts = data.Value.ToArray();
+            var aggregateType = frame.AggregateType;
+            var id = frame.Id;
+            var evts = frame.Events.ToArray();
 
             if(evts.Length <= 0)
                 throw new ArgumentException("There are no events to save.", "events");
@@ -201,15 +221,23 @@ namespace iSynaptic.Core.Persistence
                         )
                     );
 
-                await cn.AppendToStreamAsync(
-                    streamId,
-                    expectedVersion,
-                    evts.Select(e => BuildEventData(
-                            e.EventId,
-                            e,
-                            aggregateType, 
-                            metadata
-                        )));
+                try
+                {
+                    await cn.AppendToStreamAsync(
+                        streamId,
+                        expectedVersion,
+                        evts.Select(e => BuildEventData(
+                                e.EventId,
+                                e,
+                                aggregateType, 
+                                metadata
+                            )));
+
+                }
+                catch (WrongExpectedVersionException ex)
+                {
+                    throw new AggregateConcurrencyException(ex);
+                }
             }
         }
 

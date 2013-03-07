@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -59,13 +60,51 @@ namespace iSynaptic.Modeling.Domain
 
             var ag = AsInternal(aggregate);
             var aggregateType = aggregate.GetType();
-            IEnumerable<IAggregateEvent<TIdentifier>> events = ag.GetUncommittedEvents().ToArray();
+            var events = ag.GetUncommittedEvents().ToArray();
 
-            var data = AggregateData.Create(aggregateType, aggregate.Id, events);
+            if (events.Length <= 0)
+                return;
 
-            await SaveEventStream(data);
+            var data = new AggregateEventsFrame<TIdentifier>(aggregateType, aggregate.Id, events);
+
+            int saveAttempts = 0;
+            while(true)
+            {
+                AggregateConcurrencyException originalException;
+                try
+                {
+                    saveAttempts++;
+
+                    await SaveEvents(data);
+                    break;
+                }
+                catch (AggregateConcurrencyException ace)
+                {
+                    if (saveAttempts == 3)
+                        throw;
+
+                    originalException = ace;
+                }
+                
+                var committedEvents = await GetEvents(aggregate.Id, events[0].Version, Int32.MaxValue);
+                if (ag.ConflictsWith(committedEvents.Events, events))
+                {
+                    throw new AggregateConcurrencyException(originalException.Message,
+                                                            originalException);
+                }
+
+                var newExpectedVersion = committedEvents.Events.Last().Version;
+
+                var memento = await GetMemento(aggregate.Id, newExpectedVersion);
+                ag.Initialize(memento);
+
+                for (int i = 1; i <= events.Length; i++)
+                    ((IAggregateEventInternal)events[i - 1]).Version = newExpectedVersion + i;
+
+                ag.ApplyEvents(events);
+            }
+
             ag.CommitEvents();
-
             OnEventStreamSaved(aggregateType, aggregate.Id, events);
         }
 
@@ -79,7 +118,7 @@ namespace iSynaptic.Modeling.Domain
 
             var aggregateType = aggregate.GetType();
 
-            var data = AggregateData.Create(aggregateType, aggregate.Id, snapshot);
+            var data = new AggregateSnapshotFrame<TIdentifier>(aggregateType, aggregate.Id, snapshot);
             await SaveSnapshot(data);
 
             OnSnapshotSaved(aggregateType, snapshot);
@@ -91,12 +130,41 @@ namespace iSynaptic.Modeling.Domain
             if(ag == null) throw new InvalidOperationException("Aggregate must inherit from Aggregate<TIdentifier>.");
             return ag;
         }
+
         protected virtual void OnEventStreamSaved(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events) { }
         protected virtual void OnSnapshotSaved(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot) { }
 
-        public abstract Task<AggregateMemento<TIdentifier>> GetMemento(TIdentifier id, Int32 maxVersion);
+        public async Task<AggregateMemento<TIdentifier>> GetMemento(TIdentifier id, Int32 maxVersion)
+        {
+            var snapshotFrame = await GetSnapshot(id, maxVersion);
+            if (snapshotFrame != null)
+            {
+                var snapshot = snapshotFrame.Snapshot;
+                var events = Enumerable.Empty<IAggregateEvent<TIdentifier>>();
+                
+                if (snapshot.Version < maxVersion)
+                {
+                    var eventsFrame = await GetEvents(id, snapshot.Version + 1, maxVersion);
+                    if(eventsFrame != null)
+                        events = eventsFrame.Events;
+                }
 
-        protected abstract Task SaveSnapshot(AggregateData<TIdentifier, IAggregateSnapshot<TIdentifier>> data);
-        protected abstract Task SaveEventStream(AggregateData<TIdentifier, IEnumerable<IAggregateEvent<TIdentifier>>> data);
+                return new AggregateMemento<TIdentifier>(snapshotFrame.AggregateType, snapshot.ToMaybe(), events);
+            }
+            else
+            {
+                var eventsFrame = await GetEvents(id, 1, maxVersion);
+
+                return eventsFrame != null 
+                    ? new AggregateMemento<TIdentifier>(eventsFrame.AggregateType, Maybe.NoValue, eventsFrame.Events)
+                    : null;
+            }
+        }
+
+        protected abstract Task<AggregateSnapshotFrame<TIdentifier>> GetSnapshot(TIdentifier id, Int32 maxVersion);
+        protected abstract Task<AggregateEventsFrame<TIdentifier>> GetEvents(TIdentifier id, Int32 minVersion, Int32 maxVersion);
+
+        protected abstract Task SaveSnapshot(AggregateSnapshotFrame<TIdentifier> frame);
+        protected abstract Task SaveEvents(AggregateEventsFrame<TIdentifier> frame);
     }
 }

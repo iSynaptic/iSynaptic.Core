@@ -133,6 +133,12 @@ namespace iSynaptic.TestDomain
             _threads.Add(thread);
         }
 
+        protected override bool ConflictsWith(IEnumerable<IAggregateEvent<Guid>> committedEvents, IEnumerable<IAggregateEvent<Guid>> attemptedEvents)
+        {
+            return !committedEvents.All(x => x is CommunicationRecorded) &&
+                   !attemptedEvents.All(x => x is CommunicationRecorded);
+        }
+
         #endregion
 
         public IEnumerable<ICommunicationThread> Threads { get { return _threads; } }

@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
@@ -30,7 +31,11 @@ namespace iSynaptic.Modeling.Domain
         where TIdentifier : IEquatable<TIdentifier>
     {
         void Initialize(IAggregateMemento memento);
+
+        void ApplyEvents(IEnumerable<IAggregateEvent> events);
         IEnumerable<IAggregateEvent<TIdentifier>> GetUncommittedEvents();
+
+        Boolean ConflictsWith(IEnumerable<IAggregateEvent> committedEvents, IEnumerable<IAggregateEvent> attemptedEvents);
 
         void CommitEvents();
     }
@@ -38,8 +43,16 @@ namespace iSynaptic.Modeling.Domain
     public abstract class Aggregate<TIdentifier> : IAggregate<TIdentifier>, IAggregateInternal<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
+        [ImmuneToReset]
         private AggregateEventStream<TIdentifier> _events;
+
+        [ImmuneToReset]
+        private Action<IAggregate<TIdentifier>> _resetOperation;
+
+        [ImmuneToReset]
         private Action<IAggregate<TIdentifier>, IAggregateEvent<TIdentifier>> _eventDispatcher;
+
+        [ImmuneToReset]
         private Action<IAggregate<TIdentifier>, IAggregateSnapshot<TIdentifier>> _snapshotDispatcher;
 
         protected Aggregate()
@@ -51,6 +64,10 @@ namespace iSynaptic.Modeling.Domain
         {
             _events = new AggregateEventStream<TIdentifier>();
 
+            if (_resetOperation == null)
+                _resetOperation = AggregateHelper.GetResetOperation<TIdentifier>(GetType());
+
+            _resetOperation(this);
             OnInitialize();
 
             if (memento != null)
@@ -61,6 +78,7 @@ namespace iSynaptic.Modeling.Domain
                     ApplySnapshot(m.Snapshot.Value);
 
                 ApplyEventsCore(m.Events);
+                _events.CommitEvents();
             }
         }
 
@@ -95,7 +113,12 @@ namespace iSynaptic.Modeling.Domain
             ApplyEventsCore(new[] { @event });
         }
 
-        private void ApplyEventsCore(IEnumerable<IAggregateEvent<TIdentifier>> events)
+        void IAggregateInternal<TIdentifier>.ApplyEvents(IEnumerable<IAggregateEvent> events)
+        {
+            ApplyEventsCore(events.Cast<IAggregateEvent<TIdentifier>>());
+        }
+
+        internal void ApplyEventsCore(IEnumerable<IAggregateEvent<TIdentifier>> events)
         {
             lock (events)
             {
@@ -128,22 +151,28 @@ namespace iSynaptic.Modeling.Domain
             _snapshotDispatcher(this, snapshot);
         }
 
+        protected virtual void OnInitialize() { }
         public virtual IAggregateSnapshot<TIdentifier> TakeSnapshot() { return null; }
+        public IEnumerable<IAggregateEvent<TIdentifier>> GetEvents() { return _events.Events; }
             
         IEnumerable<IAggregateEvent<TIdentifier>> IAggregateInternal<TIdentifier>.GetUncommittedEvents()
         {
             return _events.UncommittedEvents;
         }
 
-        public IEnumerable<IAggregateEvent<TIdentifier>> GetEvents() { return _events.Events; }
-
         void IAggregateInternal<TIdentifier>.CommitEvents()
         {
             _events.CommitEvents();
         }
 
-        protected virtual void OnInitialize() { }
-        protected internal virtual Boolean ConflictsWith(AggregateEvent<TIdentifier> failedEvent, AggregateEvent<TIdentifier> succeededEvent) { return true; }
+        Boolean IAggregateInternal<TIdentifier>.ConflictsWith(IEnumerable<IAggregateEvent> committedEvents,
+                                                              IEnumerable<IAggregateEvent> attemptedEvents)
+        {
+            return ConflictsWith(committedEvents.Cast<IAggregateEvent<TIdentifier>>(),
+                                 attemptedEvents.Cast<IAggregateEvent<TIdentifier>>());
+        }
+
+        protected internal virtual Boolean ConflictsWith(IEnumerable<IAggregateEvent<TIdentifier>> committedEvents, IEnumerable<IAggregateEvent<TIdentifier>> attemptedEvents) { return true; }
         
         public TIdentifier Id { get; private set; }
         public Int32 Version { get; private set; }

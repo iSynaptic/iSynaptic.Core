@@ -21,37 +21,24 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
-    [Serializable]
-    public abstract class AggregateEvent<TIdentifier> : IAggregateEvent<TIdentifier>, IAggregateEventInternal
+    public class AggregateEventsFrame<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        protected AggregateEvent(TIdentifier id, Int32 version)
+        public AggregateEventsFrame(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events)
         {
-            if (version <= 0)
-                throw new ArgumentOutOfRangeException("version", "Version must be greater than 0.");
-
-            EventId = Guid.NewGuid();
-            RecordedAt = SystemClock.UtcNow;
-
+            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
             Id = id;
-            Version = version;
+            Events = Guard.NotNull(events, "events");
         }
 
-        public Guid EventId { get; private set; }
-        public DateTime RecordedAt { get; private set; }
-
+        public Type AggregateType { get; private set; }
         public TIdentifier Id { get; private set; }
-
-        Int32 IAggregateEventInternal.Version 
-        {
-            get { return Version; }
-            set { Version = value; }
-        }
-
-        public Int32 Version { get; private set; }
+        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
     }
+
 }

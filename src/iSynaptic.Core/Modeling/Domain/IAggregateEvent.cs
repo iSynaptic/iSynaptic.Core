@@ -24,13 +24,21 @@ using System;
 
 namespace iSynaptic.Modeling.Domain
 {
-    public interface IAggregateEvent<out TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    public interface IAggregateEvent
     {
-        TIdentifier Id { get; }
-
         Guid EventId { get; }
         DateTime RecordedAt { get; }
         Int32 Version { get; }
+    }
+
+    internal interface IAggregateEventInternal
+    {
+        Int32 Version { get; set; }
+    }
+
+    public interface IAggregateEvent<out TIdentifier> : IAggregateEvent
+        where TIdentifier : IEquatable<TIdentifier>
+    {
+        TIdentifier Id { get; }
     }
 }

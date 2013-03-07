@@ -52,7 +52,7 @@
     <Compile Include="IUniqueNumberGenerator.cs" />
     <Compile Include="Modeling\Domain\Aggregate.cs" />
     <Compile Include="Modeling\Domain\AggregateConcurrencyException.cs" />
-    <Compile Include="Modeling\Domain\AggregateData.cs" />
+    <Compile Include="Modeling\Domain\AggregateEventsFrame.cs" />
     <Compile Include="Modeling\Domain\AggregateEvent.cs" />
     <Compile Include="Modeling\Domain\AggregateEventStream.cs" />
     <Compile Include="Modeling\Domain\AggregateHelper.cs" />
@@ -63,11 +63,13 @@
     <Compile Include="Modeling\Domain\AggregateSnapshot.cs" />
     <Compile Include="Base50EncodedUInt64.cs" />
     <Compile Include="HashCode.cs" />
+    <Compile Include="Modeling\Domain\AggregateSnapshotFrame.cs" />
     <Compile Include="Modeling\Domain\IAggregate.cs" />
     <Compile Include="Modeling\Domain\IAggregateEvent.cs" />
     <Compile Include="Modeling\Domain\IAggregateMemento.cs" />
     <Compile Include="Modeling\Domain\IAggregateRepository.cs" />
     <Compile Include="Modeling\Domain\IAggregateSnapshot.cs" />
+    <Compile Include="Modeling\Domain\ImmuneToResetAttribute.cs" />
     <Compile Include="Modeling\Domain\ValueObjectAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
