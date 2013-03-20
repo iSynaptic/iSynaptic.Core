@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.Modeling.Domain
 {
@@ -172,7 +173,16 @@ namespace iSynaptic.Modeling.Domain
                                  attemptedEvents.Cast<IAggregateEvent<TIdentifier>>());
         }
 
-        protected internal virtual Boolean ConflictsWith(IEnumerable<IAggregateEvent<TIdentifier>> committedEvents, IEnumerable<IAggregateEvent<TIdentifier>> attemptedEvents) { return true; }
+        protected internal virtual Boolean ConflictsWith(IEnumerable<IAggregateEvent<TIdentifier>> committedEvents, IEnumerable<IAggregateEvent<TIdentifier>> attemptedEvents)
+        {
+            var conflicts = from committedEvent in committedEvents
+                            from attemptedEvent in attemptedEvents
+                            select ConflictsWith(committedEvent, attemptedEvent);
+
+            return !conflicts.AllFalse();
+        }
+
+        protected internal virtual Boolean ConflictsWith(IAggregateEvent<TIdentifier> committedEvent, IAggregateEvent<TIdentifier> attemptedEvent) { return true; }
         
         public TIdentifier Id { get; private set; }
         public Int32 Version { get; private set; }

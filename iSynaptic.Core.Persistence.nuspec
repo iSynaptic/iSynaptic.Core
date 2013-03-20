@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <package>
   <metadata>
-    <id>iSynaptic.Core.Serialization</id>
+    <id>iSynaptic.Core.Persistence</id>
     <version>0.1.3</version>
     <authors>Jordan Terrell</authors>
-    <description>Serialization support for common application infrastructure.</description>
+    <description>Persistence support for common application infrastructure.</description>
     <language>en-US</language>
     <licenseUrl>https://github.com/iSynaptic/iSynaptic.Core/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/iSynaptic/iSynaptic.Core</projectUrl>
@@ -15,11 +15,13 @@
     <dependencies>
       <dependency id="iSynaptic.Commons" version="0.4.21" />
       <dependency id="iSynaptic.Core" version="0.1.3" />
+      <dependency id="iSynaptic.Core.Serialization" version="0.1.3" />
       <dependency id="Newtonsoft.Json" version="4.5.11" />
+      <dependency id="EventStore.Client" version="1.0.1" />
     </dependencies>
   </metadata>
   <files>
-    <file src="Binaries\iSynaptic.Core.Serialization.dll" target="lib" />
+    <file src="Binaries\iSynaptic.Core.Persistence.dll" target="lib" />
     <file src="iSynaptic.Core.ReleaseNotes.txt" target="ReleaseNotes.txt" />
   </files>
 </package>

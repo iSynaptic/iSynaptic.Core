@@ -3,6 +3,13 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.2 (March 20, 2013) ====
+
+---- Features ----
+
+* Added serialization, persistence, and code generation support.
+
+
 ==== v0.1.1 (January 28, 2013) ====
 
 ---- Features ----

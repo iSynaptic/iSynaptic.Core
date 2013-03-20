@@ -15,6 +15,7 @@
   <ItemGroup>
     <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).nuspec" />
     <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).Serialization.nuspec" />
+    <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).Persistence.nuspec" />
   </ItemGroup>
   
   <ItemGroup>

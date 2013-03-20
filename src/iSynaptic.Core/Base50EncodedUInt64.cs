@@ -179,6 +179,11 @@ namespace iSynaptic
         }
 
         [CLSCompliant(false)]
-        public UInt64 Value { get { return _value; } }
+        public UInt64 ToUInt64()
+        {
+            return _value;
+        }
+
+        public String Value { get { return ToString(); } }
     }
 }

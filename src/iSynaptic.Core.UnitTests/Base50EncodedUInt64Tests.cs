@@ -107,7 +107,8 @@ namespace iSynaptic
 
             var roundTripedNumber = new Base50EncodedUInt64(textRepresentation);
 
-            Assert.AreEqual(startValue, roundTripedNumber.Value);
+            Assert.AreEqual(startValue, roundTripedNumber.ToUInt64());
+            Assert.AreEqual(encodedNumber.Value, roundTripedNumber.Value);
         }
     }
 }
