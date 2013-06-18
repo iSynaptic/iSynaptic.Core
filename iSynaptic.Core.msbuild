@@ -16,11 +16,14 @@
     <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).nuspec" />
     <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).Serialization.nuspec" />
     <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).Persistence.nuspec" />
+    <NuspecFile Include="$(MSBuildProjectDirectory)\$(SolutionName).CodeGeneration.nuspec" />
   </ItemGroup>
   
   <ItemGroup>
     <ApplicationProject Include="src\$(SolutionName)\$(SolutionName).csproj" />
+    <ApplicationProject Include="src\$(SolutionName).CodeGeneration\$(SolutionName).CodeGeneration.csproj" />
     <ApplicationProject Include="src\$(SolutionName).Serialization\$(SolutionName).Serialization.csproj" />
+    <ApplicationProject Include="src\$(SolutionName).Persistence\$(SolutionName).Persistence.csproj" />
     
     <TestingProject Include="src\$(SolutionName).UnitTests\$(SolutionName).UnitTests.csproj" />
   </ItemGroup>
