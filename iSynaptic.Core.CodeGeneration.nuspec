@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>iSynaptic.Core.CodeGeneration</id>
-    <version>0.1.3</version>
+    <version>0.1.5</version>
     <authors>Jordan Terrell</authors>
     <description>Code generation support for common application infrastructure.</description>
     <language>en-US</language>
@@ -14,8 +14,8 @@
     </frameworkAssemblies>
     <dependencies>
       <dependency id="iSynaptic.Commons" version="0.4.21" />
-      <dependency id="iSynaptic.Core" version="0.1.3" />
-      <dependency id="Sprache" version="1.10.0.25" />
+      <dependency id="iSynaptic.Core" version="0.1.5" />
+      <dependency id="Sprache" version="1.10.0.28" />
     </dependencies>
   </metadata>
   <files>

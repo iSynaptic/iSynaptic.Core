@@ -73,7 +73,7 @@
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Sprache">
-      <HintPath>..\..\packages\Sprache.1.10.0.25\lib\net40\Sprache.dll</HintPath>
+      <HintPath>..\..\packages\Sprache.1.10.0.28\lib\net40\Sprache.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
