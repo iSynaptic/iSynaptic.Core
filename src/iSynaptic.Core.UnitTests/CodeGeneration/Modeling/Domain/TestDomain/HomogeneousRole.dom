@@ -9,7 +9,7 @@ namespace iSynaptic.TestDomain
         event Registered
         {
             [Annotation(Key = "Value")]
-            String Name;
+            string Name;
         }
 
         event StatusChanged

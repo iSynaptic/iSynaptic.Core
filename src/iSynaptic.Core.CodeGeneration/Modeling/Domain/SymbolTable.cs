@@ -35,6 +35,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         private readonly Dictionary<NameSyntax, ISymbol> _map
             = new Dictionary<NameSyntax, ISymbol>();
 
+        private readonly Dictionary<NameSyntax, BuiltInType> _builtInTypes =
+            BuiltInType.Types.ToDictionary(x => x.Alias, x => x);
+
         public SymbolTable()
         {
             BuiltInType.Types.Run(Add);
@@ -47,6 +50,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         public SymbolResolution Resolve(ISymbol context, NameSyntax name)
         {
+            var builtInType = _builtInTypes.TryGetValue(name);
+            if(builtInType.HasValue)
+                return new SymbolResolution(builtInType.Value);
+
             var fullName = context.FullName + name;
             var symbol = _map.TryGetValue(fullName);
             if(symbol.HasValue)

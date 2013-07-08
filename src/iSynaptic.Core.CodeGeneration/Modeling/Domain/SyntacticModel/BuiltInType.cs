@@ -30,26 +30,32 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         public static readonly IEnumerable<BuiltInType> Types = new[]
         {
-            new BuiltInType(typeof(Boolean)),
-            new BuiltInType(typeof(Int16)),
-            new BuiltInType(typeof(Int32)),
-            new BuiltInType(typeof(Int64)),
-            new BuiltInType(typeof(UInt16)),
-            new BuiltInType(typeof(UInt32)),
-            new BuiltInType(typeof(UInt64)),
-            new BuiltInType(typeof(Single)),
-            new BuiltInType(typeof(Double)),
-            new BuiltInType(typeof(Decimal)),
-            new BuiltInType(typeof(DateTime)),
-            new BuiltInType(typeof(Guid)),
-            new BuiltInType(typeof(String))
+            new BuiltInType((NameSyntax)"void", typeof(void)),
+            new BuiltInType((NameSyntax)"bool", typeof(bool)),
+            new BuiltInType((NameSyntax)"byte", typeof(byte)),
+            new BuiltInType((NameSyntax)"char", typeof(char)),
+            new BuiltInType((NameSyntax)"decimal", typeof(decimal)),
+            new BuiltInType((NameSyntax)"double", typeof(double)),
+            new BuiltInType((NameSyntax)"float", typeof(float)),
+            new BuiltInType((NameSyntax)"short", typeof(short)),
+            new BuiltInType((NameSyntax)"int", typeof(int)),
+            new BuiltInType((NameSyntax)"long", typeof(long)),
+            new BuiltInType((NameSyntax)"uint", typeof(uint)),
+            new BuiltInType((NameSyntax)"ulong", typeof(ulong)),
+            new BuiltInType((NameSyntax)"ushort", typeof(ushort)),
+            new BuiltInType((NameSyntax)"sbyte", typeof(sbyte)),
+            new BuiltInType((NameSyntax)"string", typeof(string)),
+            new BuiltInType((NameSyntax)"guid", typeof(Guid)),
+            new BuiltInType((NameSyntax)"datetime", typeof(DateTime))
         };
 
+        private readonly NameSyntax _alias;
         private readonly Type _actualType;
         private readonly NameSyntax _fullName;
 
-        private BuiltInType(Type actualType)
+        private BuiltInType(NameSyntax alias, Type actualType)
         {
+            _alias = alias;
             _actualType = actualType;
             _fullName = Parser.Name.Parse(actualType.FullName);
         }
@@ -64,6 +70,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         public Type ActualType { get { return _actualType; } }
         public NameSyntax FullName { get { return _fullName; } }
 
+        public NameSyntax Alias { get { return _alias; } }
         public NameSyntax Name { get { return SimpleName; } }
         public SimpleNameSyntax SimpleName { get { return FullName.SimpleName; } }
     }
