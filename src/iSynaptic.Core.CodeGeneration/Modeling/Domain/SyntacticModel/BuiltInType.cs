@@ -64,6 +64,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
 
         public INode Parent { get { return null; } }
 
+        public Boolean IsExternal { get { return true; } }
         public Boolean IsValueType { get { return ActualType.IsValueType; } }
         public Boolean HasValueSemantics { get { return true; } }
 

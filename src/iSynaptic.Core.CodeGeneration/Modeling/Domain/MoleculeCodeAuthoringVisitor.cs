@@ -59,6 +59,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected virtual void Visit(MoleculeSyntax molecule)
         {
+            if (molecule.IsExternal)
+                return;
+
             var baseValue = molecule.Base
                 .Select(x => SymbolTable.Resolve(molecule.Parent, x).Symbol)
                 .Cast<MoleculeSyntax>();

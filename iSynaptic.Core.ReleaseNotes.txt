@@ -3,6 +3,13 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.6 (July 11, 2013) ====
+
+---- Features ----
+
+* Added support for external enums and values in domain generation
+
+
 ==== v0.1.2 (March 20, 2013) ====
 
 ---- Features ----

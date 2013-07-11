@@ -23,6 +23,7 @@
 
     contract IType : ISymbol 
     {
+        Boolean IsExternal;
         SimpleNameSyntax SimpleName;
         Boolean IsValueType;
         Boolean HasValueSemantics;
@@ -80,6 +81,8 @@
 
     partial node EnumSyntax("Enum", NamespaceSyntax) : INamespaceMember, IType, IAnnotatableNode
     {
+        Boolean IsExternal;
+
         SimpleNameSyntax SimpleName;
         EnumValueSyntax* Values;
 
@@ -93,6 +96,8 @@
 
     abstract partial node MoleculeSyntax("Molecule", ISymbol) : ITypeWithBase, IAnnotatableNode
     {
+        Boolean IsExternal;
+
         Boolean IsAbstract;
         Boolean IsPartial;
         SimpleNameSyntax SimpleName;
@@ -112,6 +117,8 @@
 
     partial node AggregateSyntax("Aggregate", NamespaceSyntax) : INamespaceMember, ITypeWithBase, IAnnotatableNode
     {
+        Boolean IsExternal;
+
         Boolean IsAbstract;
         SimpleNameSyntax SimpleName;
         AggregateIdentifierSyntax? Identifier;
@@ -139,6 +146,8 @@
 
     partial node ScalarValueSyntax("ScalarValue", NamespaceSyntax) : INamespaceMember, ITypeWithBase, IAnnotatableNode
     {
+        Boolean IsExternal;
+
         Boolean IsAbstract;
         Boolean IsPartial;
         SimpleNameSyntax SimpleName;

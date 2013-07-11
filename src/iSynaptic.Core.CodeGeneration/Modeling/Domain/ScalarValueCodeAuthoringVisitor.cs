@@ -49,6 +49,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected void Visit(ScalarValueSyntax value)
         {
+            if (value.IsExternal)
+                return;
+
             var builtInType = GetBuiltInType(value);
             var baseType = (IType)SymbolTable.Resolve(value, value.Base).Symbol;
             var isBaseScalarValue = baseType is ScalarValueSyntax;
