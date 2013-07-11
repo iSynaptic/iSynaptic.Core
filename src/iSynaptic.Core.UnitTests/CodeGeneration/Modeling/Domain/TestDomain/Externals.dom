@@ -1,0 +1,7 @@
+﻿using System;
+
+namespace iSynaptic.TestDomain
+{
+    external enum TimeOfDay { }
+    external value DateRange { }
+}

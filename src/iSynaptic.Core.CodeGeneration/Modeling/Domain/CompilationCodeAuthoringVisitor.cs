@@ -84,6 +84,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected virtual void Visit(EnumSyntax @enum)
         {
+            if (@enum.IsExternal)
+                return;
+
             using (WriteBlock("public enum {0}", @enum.Name))
             {
                 WriteLine(@enum.Values.Select(x => x.SimpleName).Delimit(",\r\n"));

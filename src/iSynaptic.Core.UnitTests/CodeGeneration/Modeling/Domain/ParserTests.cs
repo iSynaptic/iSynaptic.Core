@@ -105,5 +105,14 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
             qualifiedName.ToString().Should().Be("Foo.Bar<Baz>.Quix");
         }
+
+        [Test]
+        public void Enum_ParsesExternalEnum()
+        {
+            var @enum = Parser.Enum.Parse("external enum TimeOfDay { }");
+            @enum.Should().NotBeNull();
+            @enum.IsExternal.Should().BeTrue();
+            @enum.Name.ToString().Should().Be("TimeOfDay");
+        }
     }
 }

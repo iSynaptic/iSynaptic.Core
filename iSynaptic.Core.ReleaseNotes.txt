@@ -3,6 +3,13 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.7 (July 11, 2013) ====
+
+---- Features ----
+
+* Bug fix to prevent generation for external enums.
+
+
 ==== v0.1.6 (July 11, 2013) ====
 
 ---- Features ----
