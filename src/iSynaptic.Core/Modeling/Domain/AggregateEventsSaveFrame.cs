@@ -21,22 +21,24 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
-    public class AggregateSnapshotFrame<TIdentifier>
+    public class AggregateEventsSaveFrame<TIdentifier> : AggregateSaveFrame<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        public AggregateSnapshotFrame(Type aggregateType, TIdentifier id, IAggregateSnapshot<TIdentifier> snapshot)
+        public AggregateEventsSaveFrame(Type aggregateType, TIdentifier id, Boolean isNew, Int32 expectedVersion, Int32 newVersion, IEnumerable<IAggregateEvent<TIdentifier>> events)
+            : base (aggregateType, id, isNew)
         {
-            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
-            Id = id;
-            Snapshot = Guard.NotNull(snapshot, "snapshot");
+            ExpectedVersion = expectedVersion;
+            NewVersion = newVersion;
+            Events = Guard.NotNull(events, "events");
         }
 
-        public Type AggregateType { get; private set; }
-        public TIdentifier Id { get; private set; }
-        public IAggregateSnapshot<TIdentifier> Snapshot { get; private set; }
+        public Int32 ExpectedVersion { get; private set; }
+        public Int32 NewVersion { get; private set; }
+        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
     }
 }

@@ -21,24 +21,22 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using iSynaptic.Commons;
+using NUnit.Framework;
+using iSynaptic.Core.Persistence;
+using iSynaptic.Modeling.Domain;
+using iSynaptic.TestDomain;
 
-namespace iSynaptic.Modeling.Domain
+namespace iSynaptic.Persistence
 {
-    public class AggregateEventsFrame<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    [TestFixture]
+    [Explicit("Integration tests - requires Sql Server to be running locally.")]
+    public class SqlServerAggregateRepositoryTests : AggregateRepositoryTests
     {
-        public AggregateEventsFrame(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events)
+        public SqlServerAggregateRepositoryTests()
         {
-            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
-            Id = id;
-            Events = Guard.NotNull(events, "events");
+            var ltr = LogicalTypeRegistryBuilder.Build();
+
+            Repo = new SqlServerAggregateRepository<ServiceCase, Guid>(ltr, "Data Source=(local);Initial Catalog=AggregateStore;Integrated Security=true;");
         }
-
-        public Type AggregateType { get; private set; }
-        public TIdentifier Id { get; private set; }
-        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
     }
-
 }

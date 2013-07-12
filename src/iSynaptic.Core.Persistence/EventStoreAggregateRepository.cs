@@ -62,7 +62,7 @@ namespace iSynaptic.Core.Persistence
             _metadataSerializer = JsonSerializer.Create(metadataSerializerSettings);
         }
 
-        protected override async Task<AggregateSnapshotFrame<TIdentifier>> GetSnapshot(TIdentifier id, int maxVersion)
+        protected override async Task<AggregateSnapshotLoadFrame<TIdentifier>> GetSnapshot(TIdentifier id, int maxVersion)
         {
             using (var cn = _connectionFactory())
             {
@@ -90,14 +90,14 @@ namespace iSynaptic.Core.Persistence
                     Type aggregateType = _logicalTypeRegistry.LookupActualType(
                         LogicalType.Parse(metadata.Value["aggregateType"]));
 
-                    return new AggregateSnapshotFrame<TIdentifier>(aggregateType, id, snapshot.Value);
+                    return new AggregateSnapshotLoadFrame<TIdentifier>(aggregateType, id, snapshot.Value);
                 }
 
                 return null;
             }
         }
 
-        protected override async Task<AggregateEventsFrame<TIdentifier>> GetEvents(TIdentifier id, int minVersion, int maxVersion)
+        protected override async Task<AggregateEventsLoadFrame<TIdentifier>> GetEvents(TIdentifier id, int minVersion, int maxVersion)
         {
             var maxCount = (maxVersion - minVersion) + 1;
 
@@ -129,14 +129,14 @@ namespace iSynaptic.Core.Persistence
                         .Select(Encoding.Default.GetString)
                         .Select(x => _dataSerializer.Deserialize<IAggregateEvent<TIdentifier>>(x));
 
-                    return new AggregateEventsFrame<TIdentifier>(aggregateType, id, events);
+                    return new AggregateEventsLoadFrame<TIdentifier>(aggregateType, id, events);
                 }
 
                 return null;
             }
         }
 
-        protected async override Task SaveSnapshot(AggregateSnapshotFrame<TIdentifier> frame)
+        protected async override Task SaveSnapshot(AggregateSnapshotSaveFrame<TIdentifier> frame)
         {
             using (var cn = _connectionFactory())
             {
@@ -148,11 +148,9 @@ namespace iSynaptic.Core.Persistence
 
                 var metadata = BuildSnapshotMetadata(aggregateType);
 
-
                 var stream = await cn.ReadStreamEventsForwardAsync(streamId, 0, 1, false);
                 if (stream.Status == SliceReadStatus.StreamNotFound)
                 {
-                    
                     await cn.CreateStreamAsync(
                         streamId,
                         snapshot.SnapshotId,
@@ -170,19 +168,6 @@ namespace iSynaptic.Core.Persistence
                             )
                         );
                 }
-                else
-                {
-                    await cn.AppendToStreamAsync(
-                        streamId,
-                        stream.NextEventNumber,
-                        BuildEventData(
-                            snapshot.SnapshotId,
-                            snapshot,
-                            aggregateType,
-                            metadata
-                        )
-                    );    
-                }
             }
         }
 
@@ -198,14 +183,14 @@ namespace iSynaptic.Core.Persistence
                 );
         }
 
-        protected async override Task SaveEvents(AggregateEventsFrame<TIdentifier> frame)
+        protected async override Task SaveEvents(AggregateEventsSaveFrame<TIdentifier> frame)
         {
             var aggregateType = frame.AggregateType;
             var id = frame.Id;
             var evts = frame.Events.ToArray();
 
             if(evts.Length <= 0)
-                throw new ArgumentException("There are no events to save.", "events");
+                throw new ArgumentException("There are no events to save.", "frame");
 
             String streamId = BuildStreamIdentifier(id);
             using (var cn = _connectionFactory())

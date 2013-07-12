@@ -48,20 +48,20 @@ namespace iSynaptic.Core.Persistence
         protected abstract Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id);
         protected abstract void StoreMemento(Func<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>> mementoFactory);
 
-        protected override Task<AggregateSnapshotFrame<TIdentifier>> GetSnapshot(TIdentifier id, int maxVersion)
+        protected override Task<AggregateSnapshotLoadFrame<TIdentifier>> GetSnapshot(TIdentifier id, int maxVersion)
         {
             var result = TryLoadMemento(id)
                 .Where(x => x.Snapshot.Select(y => y.Version <= maxVersion).ValueOrDefault())
-                .Select(x => new AggregateSnapshotFrame<TIdentifier>(x.AggregateType, id, x.Snapshot.Value))
+                .Select(x => new AggregateSnapshotLoadFrame<TIdentifier>(x.AggregateType, id, x.Snapshot.Value))
                 .ValueOrDefault();
 
             return Task.FromResult(result);
         }
 
-        protected override Task<AggregateEventsFrame<TIdentifier>> GetEvents(TIdentifier id, int minVersion, int maxVersion)
+        protected override Task<AggregateEventsLoadFrame<TIdentifier>> GetEvents(TIdentifier id, int minVersion, int maxVersion)
         {
             var result = TryLoadMemento(id)
-                .Select(x => new AggregateEventsFrame<TIdentifier>(
+                .Select(x => new AggregateEventsLoadFrame<TIdentifier>(
                                  x.AggregateType,
                                  id,
                                  x.Events
@@ -72,7 +72,7 @@ namespace iSynaptic.Core.Persistence
             return Task.FromResult(result);
         }
 
-        protected override Task SaveSnapshot(AggregateSnapshotFrame<TIdentifier> frame)
+        protected override Task SaveSnapshot(AggregateSnapshotSaveFrame<TIdentifier> frame)
         {
             StoreMemento(() =>
             {
@@ -87,7 +87,7 @@ namespace iSynaptic.Core.Persistence
             return _completedTask;
         }
 
-        protected override Task SaveEvents(AggregateEventsFrame<TIdentifier> frame)
+        protected override Task SaveEvents(AggregateEventsSaveFrame<TIdentifier> frame)
         {
             var aggregateType = frame.AggregateType;
             var id = frame.Id;
@@ -98,10 +98,9 @@ namespace iSynaptic.Core.Persistence
                     .Select(x =>
                     {
                         var lastEvent = x.Events.TryLast();
-                        var expectedVersion = events[0].Version - 1;
                         var actualVersion = lastEvent.Select(y => y.Version).ValueOrDefault();
 
-                        if(actualVersion != expectedVersion)
+                        if(actualVersion != frame.ExpectedVersion)
                             throw new AggregateConcurrencyException();
 
                         return new AggregateMemento<TIdentifier>(

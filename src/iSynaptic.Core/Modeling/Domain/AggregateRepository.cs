@@ -64,11 +64,13 @@ namespace iSynaptic.Modeling.Domain
             if (events.Length <= 0)
                 return;
 
-            var data = new AggregateEventsFrame<TIdentifier>(aggregateType, aggregate.Id, events);
+            var firstEvent = events[0];
 
             int saveAttempts = 0;
             while(true)
             {
+                var data = new AggregateEventsSaveFrame<TIdentifier>(aggregateType, aggregate.Id, firstEvent.Version == 1, firstEvent.Version - 1, aggregate.Version, events);
+
                 AggregateConcurrencyException originalException;
                 try
                 {
@@ -115,9 +117,13 @@ namespace iSynaptic.Modeling.Domain
             if (snapshot == null)
                 throw new ArgumentException("Aggregate doesn't support snapshots.", "aggregate");
 
+            var ag = AsInternal(aggregate);
             var aggregateType = aggregate.GetType();
 
-            var data = new AggregateSnapshotFrame<TIdentifier>(aggregateType, aggregate.Id, snapshot);
+            var events = ag.GetUncommittedEvents().ToArray();
+            bool isNew = events.Length > 0 && events[0].Version == 1;
+
+            var data = new AggregateSnapshotSaveFrame<TIdentifier>(aggregateType, aggregate.Id, isNew, snapshot);
             await SaveSnapshot(data);
 
             OnSnapshotSaved(aggregateType, snapshot);
@@ -160,10 +166,10 @@ namespace iSynaptic.Modeling.Domain
             }
         }
 
-        protected abstract Task<AggregateSnapshotFrame<TIdentifier>> GetSnapshot(TIdentifier id, Int32 maxVersion);
-        protected abstract Task<AggregateEventsFrame<TIdentifier>> GetEvents(TIdentifier id, Int32 minVersion, Int32 maxVersion);
+        protected abstract Task<AggregateSnapshotLoadFrame<TIdentifier>> GetSnapshot(TIdentifier id, Int32 maxVersion);
+        protected abstract Task<AggregateEventsLoadFrame<TIdentifier>> GetEvents(TIdentifier id, Int32 minVersion, Int32 maxVersion);
 
-        protected abstract Task SaveSnapshot(AggregateSnapshotFrame<TIdentifier> frame);
-        protected abstract Task SaveEvents(AggregateEventsFrame<TIdentifier> frame);
+        protected abstract Task SaveSnapshot(AggregateSnapshotSaveFrame<TIdentifier> frame);
+        protected abstract Task SaveEvents(AggregateEventsSaveFrame<TIdentifier> frame);
     }
 }
