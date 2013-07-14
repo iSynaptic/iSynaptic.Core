@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.IO;
 using NUnit.Framework;
 using Sprache;
 using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
@@ -78,12 +79,16 @@ namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
     AstNodePropertyCardinality Cardinality;
   }
 }");
+            var writer = new StringWriter();
+            
             var visitor = new AstGeneratingVisitor(
-                Console.Out, 
+                writer, 
                 SymbolTableConstructionVisitor.BuildSymbolTable(family)
             );
 
             visitor.Dispatch(family);
+
+            Console.WriteLine(writer.GetStringBuilder().ToString());
         }
     }
 }

@@ -95,9 +95,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Modeling\AbstractSyntaxTree\SyntacticModel\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\iSynaptic.Core\iSynaptic.Core.csproj">
       <Project>{E249B9CC-0867-4BC2-AF95-AAC079C696B2}</Project>

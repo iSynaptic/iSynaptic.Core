@@ -36,12 +36,18 @@ namespace iSynaptic.Serialization
             var type2 = new LogicalType("tst", "foo");
             var type3 = new LogicalType("sts", "Bar");
             Object type4 = new LogicalType("sts", "Bar");
+            var type5 = new LogicalType("tst", "Foo", 1);
+            var type6 = new LogicalType("tst", "Foo", 1);
+            var type7 = new LogicalType("tst", "Foo", 2);
 
             LogicalType nullType = null;
             
             (type1 == type2).Should().BeTrue();
             (type1 != type3).Should().BeTrue();
             (type3.Equals(type4)).Should().BeTrue();
+            (type5 == type6).Should().BeTrue();
+            (type1 != type5).Should().BeTrue();
+            (type6 != type7).Should().BeTrue();
 
             (nullType == null).Should().BeTrue();
             (type1 != nullType).Should().BeTrue();
@@ -62,7 +68,7 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void Parse_WithCorrectFormat_ReturnsLogicalType()
+        public void Parse_WithCorrectFormatAndNoVersion_ReturnsLogicalType()
         {
             String input = "tst:Foo";
             LogicalType.Format.IsMatch(input).Should().BeTrue();
@@ -72,6 +78,22 @@ namespace iSynaptic.Serialization
             logicalType.Should().NotBeNull();
             logicalType.NamespaceAlias.Should().Be("tst");
             logicalType.TypeName.Should().Be("Foo");
+            logicalType.Version.HasValue.Should().BeFalse();
+        }
+
+        [Test]
+        public void Parse_WithCorrectFormatAndVersion_ReturnsLogicalType()
+        {
+            String input = "tst:Foo:v42";
+            LogicalType.Format.IsMatch(input).Should().BeTrue();
+
+            var logicalType = LogicalType.Parse(input);
+
+            logicalType.Should().NotBeNull();
+            logicalType.NamespaceAlias.Should().Be("tst");
+            logicalType.TypeName.Should().Be("Foo");
+            logicalType.Version.HasValue.Should().BeTrue();
+            logicalType.Version.Value.Should().Be(42);
         }
 
         [Test]
@@ -86,7 +108,7 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void TryParse_WithCorrectFormat_ReturnsLogicalType()
+        public void TryParse_WithCorrectFormatAndNoVersion_ReturnsLogicalType()
         {
             String input = "tst:Foo";
             LogicalType.Format.IsMatch(input).Should().BeTrue();
@@ -96,6 +118,22 @@ namespace iSynaptic.Serialization
             logicalType.HasValue.Should().BeTrue();
             logicalType.Value.NamespaceAlias.Should().Be("tst");
             logicalType.Value.TypeName.Should().Be("Foo");
+            logicalType.Value.Version.HasValue.Should().BeFalse();
+        }
+
+        [Test]
+        public void TryParse_WithCorrectFormatAndVersion_ReturnsLogicalType()
+        {
+            String input = "tst:Foo:v42";
+            LogicalType.Format.IsMatch(input).Should().BeTrue();
+
+            var logicalType = LogicalType.TryParse(input);
+
+            logicalType.HasValue.Should().BeTrue();
+            logicalType.Value.NamespaceAlias.Should().Be("tst");
+            logicalType.Value.TypeName.Should().Be("Foo");
+            logicalType.Value.Version.HasValue.Should().BeTrue();
+            logicalType.Value.Version.Value.Should().Be(42);
         }
 
         [Test]

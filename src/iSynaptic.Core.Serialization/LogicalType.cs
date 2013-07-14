@@ -28,10 +28,11 @@ namespace iSynaptic.Serialization
 {
     public class LogicalType : IEquatable<LogicalType>
     {
-        public static readonly Regex Format = new Regex(@"^(?<ns>[a-zA-Z][a-zA-Z0-9]*):(?<type>[a-zA-Z][a-zA-Z0-9\.]*)$");
+        public static readonly Regex Format = new Regex(@"^(?<ns>[a-zA-Z][a-zA-Z0-9]*):(?<type>[a-zA-Z][a-zA-Z0-9\.]*)(:v(?<ver>\d+))?$");
 
         private readonly string _namespaceAlias;
         private readonly string _typeName;
+        private readonly Maybe<int> _version;
 
         public static LogicalType Parse(String input)
         {
@@ -46,22 +47,43 @@ namespace iSynaptic.Serialization
         public static Maybe<LogicalType> TryParse(String input)
         {
             var match = Format.Match(input);
-            return match.Success 
-                ? new LogicalType(match.Groups["ns"].Value, match.Groups["type"].Value).ToMaybe() 
-                : Maybe.NoValue;
+
+            if (match.Success)
+            {
+                return match.Groups["ver"].Success 
+                    ? new LogicalType(match.Groups["ns"].Value, match.Groups["type"].Value, int.Parse(match.Groups["ver"].Value)).ToMaybe() 
+                    : new LogicalType(match.Groups["ns"].Value, match.Groups["type"].Value).ToMaybe();
+            }
+
+            return Maybe.NoValue;
         }
 
         public LogicalType(String namespaceAlias, String typeName)
+            : this(namespaceAlias, typeName, default(Maybe<int>))
+        {
+        }
+
+        public LogicalType(String namespaceAlias, String typeName, int version)
+            : this(namespaceAlias, typeName, version.ToMaybe())
+        {
+        }
+
+        public LogicalType(String namespaceAlias, String typeName, Maybe<int> version)
         {
             _namespaceAlias = Guard.NotNullOrWhiteSpace(namespaceAlias, "namespaceAlias");
             _typeName = Guard.NotNullOrWhiteSpace(typeName, "typeName");
+            _version = version;
 
-            if(!Format.IsMatch(String.Format("{0}:{1}", namespaceAlias, typeName)))
+            string formatted = _version.Select(v => String.Format("{0}:{1}:v{2}", namespaceAlias, typeName, v))
+                .ValueOrDefault(() => String.Format("{0}:{1}", namespaceAlias, typeName));
+
+            if(!Format.IsMatch(formatted))
                 throw new ArgumentException("The provided arguments do not match the required format.");
         }
 
         public string NamespaceAlias { get { return _namespaceAlias; } }
         public string TypeName { get { return _typeName; } }
+        public Maybe<int> Version { get { return _version; } }
 
         public bool Equals(LogicalType other)
         {
@@ -70,6 +92,7 @@ namespace iSynaptic.Serialization
 
             if (!NamespaceAlias.Equals(other.NamespaceAlias, StringComparison.OrdinalIgnoreCase)) return false;
             if (!TypeName.Equals(other.TypeName, StringComparison.OrdinalIgnoreCase)) return false;
+            if (!Version.Equals(other.Version)) return false;
 
             return true;
         }
@@ -82,8 +105,11 @@ namespace iSynaptic.Serialization
         public override int GetHashCode()
         {
             int hash = 1;
+
             hash = HashCode.MixJenkins32(hash + NamespaceAlias.ToLowerInvariant().GetHashCode());
             hash = HashCode.MixJenkins32(hash + TypeName.ToLowerInvariant().GetHashCode());
+            hash = HashCode.MixJenkins32(hash + Version.ValueOrDefault(0));
+
             return hash;
         }
 
@@ -100,7 +126,9 @@ namespace iSynaptic.Serialization
 
         public override string ToString()
         {
-            return String.Format("{0}:{1}", NamespaceAlias, TypeName);
+            return Version.HasValue 
+                ? String.Format("{0}:{1}:v{2}", NamespaceAlias, TypeName, Version.Value)
+                : String.Format("{0}:{1}", NamespaceAlias, TypeName);
         }
     }
 }

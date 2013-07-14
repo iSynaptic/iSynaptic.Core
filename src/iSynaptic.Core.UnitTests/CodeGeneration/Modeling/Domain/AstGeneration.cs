@@ -44,12 +44,16 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
             var family = AbstractSyntaxTree.Parser.ParseString(input);
 
+            var writer = new StringWriter();
+
             var visitor = new AstGeneratingVisitor(
-                Console.Out,
+                writer,
                 AbstractSyntaxTree.SymbolTableConstructionVisitor.BuildSymbolTable(family)
             );
 
             visitor.Dispatch(family);
+
+            Console.WriteLine(writer.GetStringBuilder().ToString());
         }
     }
 }
