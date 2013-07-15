@@ -1,4 +1,3 @@
 * Test framework with serialization
-* Add support for strongly typed Snapshot application
 * Investigate simplifying support for entities that are children of aggregates
 * Ensure framework does not hinder complex aggregate inheritence hierarchies and co/contra-variant interfaces

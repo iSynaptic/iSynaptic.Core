@@ -3,6 +3,15 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.8 (July 15, 2013) ====
+
+---- Features ----
+
+* Added Aggregate repository for SQL Server
+* Code generators now output GeneratedCode attribute (useful for
+  code coverage filtering)
+
+
 ==== v0.1.7 (July 11, 2013) ====
 
 ---- Features ----
