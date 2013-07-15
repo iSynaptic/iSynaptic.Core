@@ -50,6 +50,9 @@
     </Compile>
     <Compile Include="InterleavingUniqueNumberGenerator.cs" />
     <Compile Include="IUniqueNumberGenerator.cs" />
+    <Compile Include="LogicalType.cs" />
+    <Compile Include="LogicalTypeAttribute.cs" />
+    <Compile Include="LogicalTypeRegistry.cs" />
     <Compile Include="Modeling\Domain\Aggregate.cs" />
     <Compile Include="Modeling\Domain\AggregateConcurrencyException.cs" />
     <Compile Include="Modeling\Domain\AggregateEventsLoadFrame.cs" />
@@ -74,6 +77,7 @@
     <Compile Include="Modeling\Domain\IAggregateRepository.cs" />
     <Compile Include="Modeling\Domain\IAggregateSnapshot.cs" />
     <Compile Include="Modeling\Domain\ImmuneToResetAttribute.cs" />
+    <Compile Include="Modeling\Domain\MessageHandler.cs" />
     <Compile Include="Modeling\Domain\ValueObjectAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

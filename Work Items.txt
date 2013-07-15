@@ -1,3 +1,6 @@
 * Test framework with serialization
 * Investigate simplifying support for entities that are children of aggregates
 * Ensure framework does not hinder complex aggregate inheritence hierarchies and co/contra-variant interfaces
+* Move Visitor implementation into Commons
+* Make IVisitableChildren contract pattern-based instead on nominally type-based
+* Collapse all Visitor & Project "dispatch" logic into one helper (perhaps a general dispatcher in Commons)

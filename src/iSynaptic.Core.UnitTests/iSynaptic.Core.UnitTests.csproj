@@ -93,6 +93,8 @@
     <Compile Include="CodeGeneration\Modeling\Domain\CompiliationCodeAuthoringVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\ParserTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\TestDomainTestFixture.cs" />
+    <Compile Include="LogicalTypeTests.cs" />
+    <Compile Include="Modeling\Domain\MessageHandlerTests.cs" />
     <Compile Include="Persistence\SqlServerAggregateRepositoryTests.cs" />
     <Compile Include="TestDomain\Generated.cs" />
     <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
@@ -106,7 +108,6 @@
     <Compile Include="Modeling\Domain\HomogeneousAggregatePersistenceTests.cs" />
     <Compile Include="Persistence\InMemoryJsonAggregateRepositoryTests.cs" />
     <Compile Include="LogicalTypeRegistryBuilder.cs" />
-    <Compile Include="Serialization\LogicalTypeTests.cs" />
     <Compile Include="Serialization\MaybeJsonConverterTests.cs" />
     <Compile Include="Serialization\OutcomeJsonConverterTests.cs" />
     <Compile Include="Serialization\ResultJsonConverterTests.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="TestDomain\ServiceCase.cs" />
     <Compile Include="Persistence\InMemoryAggregateRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestDomain\ServiceCaseProjector.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

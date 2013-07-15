@@ -1,4 +1,4 @@
-﻿// The MIT License
+// The MIT License
 // 
 // Copyright (c) 2013 Jordan E. Terrell
 // 
@@ -24,7 +24,7 @@ using System;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace iSynaptic.Serialization
+namespace iSynaptic
 {
     [TestFixture]
     public class LogicalTypeTests

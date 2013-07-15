@@ -1,4 +1,4 @@
-﻿// The MIT License
+// The MIT License
 // 
 // Copyright (c) 2013 Jordan E. Terrell
 // 
@@ -22,11 +22,10 @@
 
 using System;
 using System.Collections.Concurrent;
-
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Concurrent;
 
-namespace iSynaptic.Serialization
+namespace iSynaptic
 {
     public class LogicalTypeRegistry
     {

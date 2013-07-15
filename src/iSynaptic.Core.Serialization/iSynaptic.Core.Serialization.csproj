@@ -48,8 +48,6 @@
     </Compile>
     <Compile Include="JsonSerializerBuilder.cs" />
     <Compile Include="JsonSerializerExtensions.cs" />
-    <Compile Include="LogicalType.cs" />
-    <Compile Include="LogicalTypeRegistry.cs" />
     <Compile Include="MaybeJsonConverter.cs" />
     <Compile Include="OutcomeJsonConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
