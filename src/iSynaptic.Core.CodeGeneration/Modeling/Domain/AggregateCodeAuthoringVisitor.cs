@@ -68,6 +68,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 .Select(x => String.Format("<{0}>", x))
                 .ValueOrDefault("");
 
+            WriteGeneratedCodeAttribute();
+            WriteLine();
             WriteLine("public {0} partial class {1}{2} : {3}{4}",
                        aggregate.IsAbstract ? "abstract " : "",
                        aggregate.Name,
@@ -89,10 +91,15 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             {
                 var id = aggregate.GetIdTypeName(SymbolTable);
 
+                WriteGeneratedCodeAttribute();
+                WriteLine();
+
                 if(baseAggregate.HasValue)
                     WriteLine("protected {0} (AggregateEvent<{1}> startEvent) : base(startEvent) {{ }}", aggregate.Name, id);
                 else
                     WriteLine("protected {0} (AggregateEvent<{1}> startEvent) {{ ApplyEvent(startEvent); }}", aggregate.Name, id);
+
+                WriteLine();
 
                 new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate.Members);
                 new AggregateSnapshotCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate.Members);

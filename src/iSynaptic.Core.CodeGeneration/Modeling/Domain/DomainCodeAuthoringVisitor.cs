@@ -99,6 +99,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return result;
         }
 
+        protected virtual void WriteGeneratedCodeAttribute()
+        {
+            WriteGeneratedCodeAttribute("iSynaptic.Core");
+        }
+
         protected SymbolTable SymbolTable { get { return _symbolTable; } }
     }
 }

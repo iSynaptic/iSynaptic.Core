@@ -21,7 +21,9 @@
 // THE SOFTWARE.
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using iSynaptic.Commons.Text;
 
@@ -61,6 +63,20 @@ namespace iSynaptic.CodeGeneration
         {
             WriteLine(formatString, args);
             return WithStatementBlock();
+        }
+
+        protected virtual void WriteGeneratedCodeAttribute(string tool)
+        {
+            var asm = Assembly.GetCallingAssembly();
+            var versionInfo = FileVersionInfo.GetVersionInfo(asm.Location);
+
+            string version = versionInfo.FileVersion;
+            WriteGeneratedCodeAttribute(tool, version);
+        }
+
+        protected virtual void WriteGeneratedCodeAttribute(string tool, string version)
+        {
+            Write("[GeneratedCode(\"{0}\", \"{1}\")]", tool, version);
         }
 
         protected static String SafeIdentifier(String identifier)

@@ -42,6 +42,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             {
                 Syntax.UsingStatement((NameSyntax) "System"),
                 Syntax.UsingStatement((NameSyntax) "System.Collections.Generic"),
+                Syntax.UsingStatement((NameSyntax) "System.CodeDom.Compiler"),
                 Syntax.UsingStatement((NameSyntax) "System.Linq"),
                 Syntax.UsingStatement((NameSyntax) "iSynaptic"),
                 Syntax.UsingStatement((NameSyntax) "iSynaptic.Commons"),
@@ -87,6 +88,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if (@enum.IsExternal)
                 return;
 
+            WriteGeneratedCodeAttribute();
+            WriteLine();
             using (WriteBlock("public enum {0}", @enum.Name))
             {
                 WriteLine(@enum.Values.Select(x => x.SimpleName).Delimit(",\r\n"));

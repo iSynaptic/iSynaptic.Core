@@ -75,6 +75,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if(molecule is ValueSyntax)
                 WriteLine("[ValueObject]");
 
+            WriteGeneratedCodeAttribute();
+            WriteLine();
             using (WriteBlock("public {0}{1}class {2}{3}", 
                               molecule.IsAbstract ? "abstract " : "",
                               molecule.IsPartial ? "partial " : "",
@@ -84,6 +86,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 Dispatch(molecule.Atoms, "field");
                 WriteLine();
 
+                WriteGeneratedCodeAttribute();
+                WriteLine();
                 Write("{0} {1}(", molecule.IsAbstract ? "protected" : "public", molecule.Name);
                 Delimit(molecule.Atoms.Select(GetAtomInfo).Concat(baseAtoms), "parameter", ", ");
                 WriteLine(")");
@@ -139,6 +143,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         private void WriteEquatableImplementation(MoleculeSyntax molecule, Boolean hasBase)
         {
+            WriteGeneratedCodeAttribute();
+            WriteLine();
             using (WriteBlock("public Boolean Equals({0} other)", molecule.Name))
             {
                 WriteLine("return Equals((Object)other);");
@@ -148,6 +154,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if (!molecule.Atoms.Any() && hasBase) 
                 return;
 
+            WriteGeneratedCodeAttribute();
+            WriteLine();
             using (WriteBlock("public override Boolean Equals(Object obj)"))
             {
                 WriteLine("{0} other = obj as {0};", molecule.Name);
@@ -165,6 +173,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
             WriteLine();
 
+            WriteGeneratedCodeAttribute();
+            WriteLine();
             using (WriteBlock("public override Int32 GetHashCode()"))
             {
                 WriteLine(hasBase ? "int hash = base.GetHashCode();" : "int hash = 1;");
@@ -178,6 +188,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
             WriteLine();
 
+            WriteGeneratedCodeAttribute();
+            WriteLine();
             using (WriteBlock("public static Boolean operator ==({0} left, {0} right)", molecule.Name))
             {
                 WriteLine("if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;");
@@ -185,6 +197,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             }
             WriteLine();
 
+            WriteGeneratedCodeAttribute();
+            WriteLine();
             WriteLine("public static Boolean operator !=({0} left, {0} right) {{ return !(left == right); }}", molecule.Name);
         }
 
@@ -237,8 +251,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if (mode == "field")
                 WriteLine("private readonly {0} {1};", typeString, fieldName);
 
-            if(mode == "property")
-                WriteLine("public {0} {1} {{ get {{ return {2}; }} }}", typeString, propertyName, fieldName);
+            if (mode == "property")
+            {
+                WriteGeneratedCodeAttribute();
+                WriteLine(" public {0} {1} {{ get {{ return {2}; }} }}", typeString, propertyName, fieldName);
+            }
 
             if (mode == "validateArgument")
             {
