@@ -24,7 +24,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using iSynaptic.Commons;
@@ -33,6 +36,40 @@ using iSynaptic.Serialization;
 
 namespace iSynaptic.Core.Persistence
 {
+    public static class SqlServerAggregateRepository
+    {
+        private static readonly Regex _scriptRegex = new Regex(@"(?<script>.+?)(\r\nGO(\r\n|$))", 
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline);
+
+        public static async Task EnsureTablesExist(string connectionString)
+        {
+            var asm = Assembly.GetExecutingAssembly();
+            using (var stream = asm.GetManifestResourceStream("iSynaptic.Core.Persistence.AggregateStore.sql"))
+            using (var reader = new StreamReader(stream))
+            {
+                string script = await reader.ReadToEndAsync();
+                var matches = _scriptRegex.Matches(script);
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    var commands = matches.OfType<Match>()
+                        .Select(x => x.Groups["script"].Value)
+                        .Select(sql => new SqlCommand
+                        {
+                            Connection = connection,
+                            CommandType = CommandType.Text,
+                            CommandText = sql
+                        });
+
+                    await connection.OpenAsync();
+
+                    foreach(var command in commands)
+                        await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+    }
+
     public class SqlServerAggregateRepository<TAggregate, TIdentifier> : AggregateRepository<TAggregate, TIdentifier>
         where TAggregate : class, IAggregate<TIdentifier> 
         where TIdentifier : IEquatable<TIdentifier>

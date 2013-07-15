@@ -46,7 +46,8 @@ namespace iSynaptic.Serialization
                 {
                     new LogicalTypeJsonConverter(logicalTypeRegistry),
                     new MaybeJsonConverter(),
-                    new OutcomeJsonConverter()
+                    new OutcomeJsonConverter(),
+                    new ResultJsonConverter()
                 }
             };
         }

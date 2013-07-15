@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using iSynaptic.Core.Persistence;
 using iSynaptic.Modeling.Domain;
@@ -32,11 +33,19 @@ namespace iSynaptic.Persistence
     [Explicit("Integration tests - requires Sql Server to be running locally.")]
     public class SqlServerAggregateRepositoryTests : AggregateRepositoryTests
     {
+        private const string ConnectionString = "Data Source=(local);Initial Catalog=AggregateStore;Integrated Security=true;";
+
         public SqlServerAggregateRepositoryTests()
         {
             var ltr = LogicalTypeRegistryBuilder.Build();
 
-            Repo = new SqlServerAggregateRepository<ServiceCase, Guid>(ltr, "Data Source=(local);Initial Catalog=AggregateStore;Integrated Security=true;");
+            Repo = new SqlServerAggregateRepository<ServiceCase, Guid>(ltr, ConnectionString);
+        }
+
+        [TestFixtureSetUp]
+        public void FixtureSetup()
+        {
+            SqlServerAggregateRepository.EnsureTablesExist(ConnectionString).Wait();
         }
     }
 }
