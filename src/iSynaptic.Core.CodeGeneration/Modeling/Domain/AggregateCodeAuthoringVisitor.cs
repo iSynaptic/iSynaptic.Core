@@ -68,8 +68,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 .Select(x => String.Format("<{0}>", x))
                 .ValueOrDefault("");
 
-            WriteGeneratedCodeAttribute();
-            WriteLine();
             WriteLine("public {0} partial class {1}{2} : {3}{4}",
                        aggregate.IsAbstract ? "abstract " : "",
                        aggregate.Name,

@@ -64,7 +64,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             baseTypes.Add(String.Format("IEquatable<{0}>", value.Name));
 
             WriteLine("[ValueObject]");
-            WriteGeneratedCodeAttribute();
             using (WriteBlock("public {0}{1}class {2}{3}",
                               value.IsAbstract ? "abstract " : "",
                               value.IsPartial ? "partial " : "",

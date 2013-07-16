@@ -88,8 +88,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if (@enum.IsExternal)
                 return;
 
-            WriteGeneratedCodeAttribute();
-            WriteLine();
             using (WriteBlock("public enum {0}", @enum.Name))
             {
                 WriteLine(@enum.Values.Select(x => x.SimpleName).Delimit(",\r\n"));

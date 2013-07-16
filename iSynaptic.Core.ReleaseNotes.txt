@@ -3,7 +3,15 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
-==== v0.1.8 (July 15, 2013) ====
+==== v0.1.10 (July 16, 2013) ====
+
+---- Features ----
+
+* Code generators only output GeneratedCode for members, not classes
+  (prevents hand-written code in partial classes from being exluded
+   from code coverage)
+
+
 
 ---- Features ----
 

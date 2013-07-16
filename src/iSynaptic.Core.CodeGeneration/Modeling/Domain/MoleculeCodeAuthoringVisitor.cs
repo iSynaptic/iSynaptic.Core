@@ -75,8 +75,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if(molecule is ValueSyntax)
                 WriteLine("[ValueObject]");
 
-            WriteGeneratedCodeAttribute();
-            WriteLine();
             using (WriteBlock("public {0}{1}class {2}{3}", 
                               molecule.IsAbstract ? "abstract " : "",
                               molecule.IsPartial ? "partial " : "",
