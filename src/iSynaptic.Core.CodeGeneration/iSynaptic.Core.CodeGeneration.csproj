@@ -58,11 +58,14 @@
     <Compile Include="Modeling\Domain\AggregateCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\AggregateEventCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\AggregateSnapshotCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\SemanticRulesVisitor.AggregateRules.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\CompilationCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\Generated.cs" />
     <Compile Include="Modeling\Domain\Parser.cs" />
     <Compile Include="Modeling\Domain\ScalarValueCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\SemanticRulesVisitor.cs" />
+    <Compile Include="Modeling\Domain\SemanticRuleViolation.cs" />
     <Compile Include="Modeling\Domain\SymbolResolution.cs" />
     <Compile Include="Modeling\Domain\SymbolResolutionStatus.cs" />
     <Compile Include="Modeling\Domain\SymbolTable.cs" />
@@ -86,6 +89,7 @@
     <Compile Include="Modeling\Domain\SyntacticModel\MoleculeSyntax.cs" />
     <Compile Include="Modeling\Domain\MoleculeCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\ValueSyntax.cs" />
+    <Compile Include="Modeling\Domain\ValidationVisitor.cs" />
     <Compile Include="Modeling\Domain\ValueCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\ParserExtensions.cs" />
     <Compile Include="Modeling\StandardLanguageParser.cs" />
