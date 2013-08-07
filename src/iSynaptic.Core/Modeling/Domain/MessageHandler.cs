@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using iSynaptic.Commons;
 using iSynaptic.Commons.Reflection;
 
 namespace iSynaptic.Modeling.Domain
@@ -38,29 +39,42 @@ namespace iSynaptic.Modeling.Domain
         private static readonly ConcurrentDictionary<Type, Delegate> _projectionDispatchers
             = new ConcurrentDictionary<Type, Delegate>();
 
-        protected virtual void Handle<T>(IEnumerable<T> values)
+        protected virtual void Handle(IEnumerable<Object> messages)
         {
-            foreach (var value in values)
-            {
-                Handle(value);
-            }
+            Guard.NotNull(messages, "messages");
+
+            foreach (var message in messages)
+                Handle(message);
         }
 
-        protected virtual void Handle<T>(T value)
+        protected virtual void Handle(Object message)
         {
-            var dispatcher = GetDispatcher<T>(GetType(), "On", _projectionDispatchers);
-            dispatcher(this, value);
+            Guard.NotNull(message, "message");
+
+            if (!ShouldHandle(message))
+                return;
+
+            var dispatcher = GetDispatcher(GetType(), "On", _projectionDispatchers);
+            dispatcher(this, message);
+        }
+
+        protected virtual bool ShouldHandle(Object message)
+        {
+            return true;
         }
         
-        private static Action<MessageHandler, T> GetDispatcher<T>(Type handlerType, String methodName, ConcurrentDictionary<Type, Delegate> dictionary)
+        private static Action<MessageHandler, Object> GetDispatcher(Type handlerType, String methodName, ConcurrentDictionary<Type, Delegate> dictionary)
         {
             var baseHandlerType = typeof(MessageHandler);
 
-            return (Action<MessageHandler, T>)dictionary.GetOrAdd(handlerType, t =>
+            return (Action<MessageHandler, Object>)dictionary.GetOrAdd(handlerType, t =>
             {
-                var paramType = typeof(T);
+                var methodEndTarget = Expression.Label();
+                var methodEnd = Expression.Label(methodEndTarget);
+
+                var paramType = typeof(Object);
                 var baseDispatcher = baseHandlerType.IsAssignableFrom(t.BaseType)
-                                         ? GetDispatcher<T>(t.BaseType, methodName, dictionary)
+                                         ? GetDispatcher(t.BaseType, methodName, dictionary)
                                          : null;
 
                 var handlerParam = Expression.Parameter(baseHandlerType);
@@ -78,25 +92,35 @@ namespace iSynaptic.Modeling.Domain
                     .Where(x => paramType.IsAssignableFrom(x.ParameterType))
                     .OrderByDescending(x => x.ParameterType, _typeHierarchyComparer)
                     .Select(x =>
-                            Expression.IfThen(
-                                Expression.TypeIs(inputParam, x.ParameterType),
+                        Expression.IfThen(
+                            Expression.TypeIs(inputParam, x.ParameterType),
+                            Expression.Block(
                                 Expression.Call(
                                     handlerVariable,
                                     x.Method,
-                                    Expression.Convert(inputParam, x.ParameterType))))
+                                    Expression.Convert(inputParam, x.ParameterType)
+                                ),
+                                Expression.Return(methodEndTarget)
+                            )
+                        )
+                    )
                     .OfType<Expression>()
                     .ToArray();
 
                 if (applicators.Length <= 0)
-                    return baseDispatcher ?? (Delegate)(Action<MessageHandler, T>)((p, s) => { });
+                    return baseDispatcher ?? (Delegate)(Action<MessageHandler, Object>)((h, m) => h.HandleUnexpectedMessage(m));
 
                 if (baseDispatcher != null)
                     applicators = applicators.Concat(new[] { Expression.Invoke(Expression.Constant(baseDispatcher), handlerParam, inputParam) }).ToArray();
 
-                return Expression.Lambda<Action<MessageHandler, T>>(Expression.Block(new[] { handlerVariable }, new[] { assignHandlerVariable }.Concat(applicators)), handlerParam, inputParam)
+                return Expression.Lambda<Action<MessageHandler, Object>>(Expression.Block(new[] { handlerVariable }, new[] { assignHandlerVariable }.Concat(applicators).Concat(new Expression[]{ methodEnd })), handlerParam, inputParam)
                                  .Compile();
             });
         }
 
+        protected virtual void HandleUnexpectedMessage(Object message)
+        {
+            throw new InvalidOperationException(String.Format("Unable to handle message of type '{0}'.", message.GetType().FullName));
+        }
     }
 }

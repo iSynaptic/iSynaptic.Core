@@ -113,10 +113,12 @@
     <Compile Include="Serialization\OutcomeJsonConverterTests.cs" />
     <Compile Include="Serialization\ResultJsonConverterTests.cs" />
     <Compile Include="TestDomain\HomogeneousRole.cs" />
+    <Compile Include="TestDomain\IgnoredEvent.cs" />
     <Compile Include="TestDomain\ServiceCase.cs" />
     <Compile Include="Persistence\InMemoryAggregateRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestDomain\ServiceCaseProjector.cs" />
+    <Compile Include="TestDomain\UnexpectedEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

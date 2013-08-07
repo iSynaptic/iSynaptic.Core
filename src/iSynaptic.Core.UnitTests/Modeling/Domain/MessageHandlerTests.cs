@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -58,6 +59,26 @@ namespace iSynaptic.Modeling.Domain
             var comm = thread.Communications.First();
             comm.Direction.Should().Be(CommunicationDirection.Outgoing);
             comm.Content.Should().Be("Also Win");
+        }
+        
+        [Test]
+        public void Handler_ShouldThrowExceptionUponUnexpectedMessage()
+        {
+            var @event = new UnexpectedEvent(Guid.NewGuid(), 1);
+
+            var handler = new ServiceCaseProjector();
+
+            handler.Invoking(x => x.HandleEvents(new[] { @event }))
+                .ShouldThrow<InvalidOperationException>();
+        }
+
+        [Test]
+        public void Handler_CanIgnoreMessages()
+        {
+            var @event = new IgnoredEvent(Guid.NewGuid(), 1);
+
+            var handler = new ServiceCaseProjector();
+            handler.HandleEvents(new[] { @event });
         }
     }
 }

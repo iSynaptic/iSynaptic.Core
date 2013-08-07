@@ -36,6 +36,11 @@ namespace iSynaptic.TestDomain
             Handle(events);
         }
 
+        protected override bool ShouldHandle(Object message)
+        {
+            return message.GetType() != typeof (IgnoredEvent);
+        }
+
         private void On(ServiceCase.Opened @event)
         {
             Title = @event.Title;

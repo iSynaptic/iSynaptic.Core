@@ -21,18 +21,18 @@
 // THE SOFTWARE.
 
 using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using iSynaptic.Modeling.Domain;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyCompany("iSynaptic")]
-[assembly: AssemblyTrademark("iSynaptic")]
-[assembly: AssemblyProduct("iSynaptic.Core")]
-[assembly: AssemblyCopyright("Copyright © Jordan Terrell 2013")]
-
-[assembly: ComVisible(false)]
-
-[assembly: AssemblyVersion("0.1.11.0")]
-[assembly: AssemblyFileVersion("0.1.11.0")]
+namespace iSynaptic.TestDomain
+{
+    public class UnexpectedEvent : AggregateEvent<Guid>
+    {
+        public UnexpectedEvent(Guid id, int version) : base(id, version)
+        {
+        }
+    }
+}
