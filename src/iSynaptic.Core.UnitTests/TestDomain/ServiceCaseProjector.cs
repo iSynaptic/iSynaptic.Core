@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using iSynaptic.Modeling.Domain;
 
 namespace iSynaptic.TestDomain
@@ -31,9 +32,9 @@ namespace iSynaptic.TestDomain
     {
         private readonly List<CommThread> _threads = new List<CommThread>();
 
-        public void HandleEvents(IEnumerable<IAggregateEvent> events)
+        public Task HandleEvents(IEnumerable<IAggregateEvent> events)
         {
-            Handle(events);
+            return Handle(events);
         }
 
         protected override bool ShouldHandle(Object message)
@@ -48,9 +49,9 @@ namespace iSynaptic.TestDomain
             Priority = @event.Priority;
         }
 
-        private void On(ServiceCase.CommunicationThreadStarted @event)
+        private Task On(ServiceCase.CommunicationThreadStarted @event)
         {
-            _threads.Add(new CommThread(@event.ThreadId, @event.Topic, @event.Description));
+            return Task.Run(() => _threads.Add(new CommThread(@event.ThreadId, @event.Topic, @event.Description)));
         }
 
         private void On(ServiceCase.CommunicationRecorded @event)

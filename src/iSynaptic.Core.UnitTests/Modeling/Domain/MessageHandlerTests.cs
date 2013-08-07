@@ -44,7 +44,7 @@ namespace iSynaptic.Modeling.Domain
             serviceCase.Threads.First().RecordCommunication(CommunicationDirection.Outgoing, "Also Win", SystemClock.UtcNow);
 
             var handler = new ServiceCaseProjector();
-            handler.HandleEvents(serviceCase.GetEvents());
+            handler.HandleEvents(serviceCase.GetEvents()).Wait();
 
             handler.Title.Should().Be(ServiceCase.SampleContent.Title);
             handler.Description.Should().Be(ServiceCase.SampleContent.Description);
@@ -68,8 +68,9 @@ namespace iSynaptic.Modeling.Domain
 
             var handler = new ServiceCaseProjector();
 
-            handler.Invoking(x => x.HandleEvents(new[] { @event }))
-                .ShouldThrow<InvalidOperationException>();
+            handler.Invoking(x => x.HandleEvents(new[] { @event }).Wait())
+                .ShouldThrow<AggregateException>()
+                .WithInnerException<InvalidOperationException>();
         }
 
         [Test]
@@ -78,7 +79,7 @@ namespace iSynaptic.Modeling.Domain
             var @event = new IgnoredEvent(Guid.NewGuid(), 1);
 
             var handler = new ServiceCaseProjector();
-            handler.HandleEvents(new[] { @event });
+            handler.HandleEvents(new[] { @event }).Wait();
         }
     }
 }
