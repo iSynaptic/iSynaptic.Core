@@ -121,7 +121,7 @@ namespace iSynaptic.Modeling.Domain
 
         internal void ApplyEventsCore(IEnumerable<IAggregateEvent<TIdentifier>> events)
         {
-            lock (events)
+            lock (_events)
             {
                 foreach (var @event in events)
                 {
