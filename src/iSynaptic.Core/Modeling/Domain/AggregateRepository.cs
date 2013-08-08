@@ -34,6 +34,8 @@ namespace iSynaptic.Modeling.Domain
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
+        private static readonly Task _completedTask = Task.FromResult(true);
+
         ITask<TAggregate> IAggregateRepositoryQueries<TAggregate, TIdentifier>.Get(TIdentifier id, Int32 maxVersion)
         {
             return Get(id, maxVersion).ToCovariantTask();
@@ -106,7 +108,7 @@ namespace iSynaptic.Modeling.Domain
             }
 
             ag.CommitEvents();
-            OnEventStreamSaved(aggregateType, aggregate.Id, events);
+            await OnEventStreamSaved(aggregateType, aggregate.Id, events);
         }
 
         public async Task SaveSnapshot(TAggregate aggregate)
@@ -126,7 +128,7 @@ namespace iSynaptic.Modeling.Domain
             var data = new AggregateSnapshotSaveFrame<TIdentifier>(aggregateType, aggregate.Id, isNew, snapshot);
             await SaveSnapshot(data);
 
-            OnSnapshotSaved(aggregateType, snapshot);
+            await OnSnapshotSaved(aggregateType, snapshot);
         }
 
         private IAggregateInternal<TIdentifier> AsInternal(TAggregate aggregate)
@@ -136,8 +138,8 @@ namespace iSynaptic.Modeling.Domain
             return ag;
         }
 
-        protected virtual void OnEventStreamSaved(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events) { }
-        protected virtual void OnSnapshotSaved(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot) { }
+        protected virtual Task OnEventStreamSaved(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events) { return _completedTask; }
+        protected virtual Task OnSnapshotSaved(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot) { return _completedTask; }
 
         public async Task<AggregateMemento<TIdentifier>> GetMemento(TIdentifier id, Int32 maxVersion)
         {
