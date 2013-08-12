@@ -30,10 +30,8 @@ using System.Threading.Tasks;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Reflection;
 
-namespace iSynaptic.Modeling.Domain
+namespace iSynaptic
 {
-    using Dispatcher = Func<MessageHandler, Object, Task>;
-
     public abstract class MessageHandler
     {
         private static readonly Task _completedTask;
@@ -41,8 +39,8 @@ namespace iSynaptic.Modeling.Domain
         private static readonly TypeHierarchyComparer _typeHierarchyComparer
             = new TypeHierarchyComparer();
 
-        private static readonly ConcurrentDictionary<Type, Dispatcher> _projectionDispatchers
-            = new ConcurrentDictionary<Type, Dispatcher>();
+        private static readonly ConcurrentDictionary<Type, Func<MessageHandler, object, Task>> _projectionDispatchers
+            = new ConcurrentDictionary<Type, Func<MessageHandler, object, Task>>();
 
         static MessageHandler()
         {
@@ -73,7 +71,7 @@ namespace iSynaptic.Modeling.Domain
             return true;
         }
 
-        private static Dispatcher GetDispatcher(Type handlerType, String methodName, ConcurrentDictionary<Type, Dispatcher> dictionary)
+        private static Func<MessageHandler, object, Task> GetDispatcher(Type handlerType, String methodName, ConcurrentDictionary<Type, Func<MessageHandler, object, Task>> dictionary)
         {
             var baseHandlerType = typeof(MessageHandler);
 
@@ -119,14 +117,14 @@ namespace iSynaptic.Modeling.Domain
                     .ToArray();
 
                 if (applicators.Length <= 0)
-                    return baseDispatcher ?? (Dispatcher)((h, m) => h.HandleUnexpectedMessage(m));
+                    return baseDispatcher ?? (Func<MessageHandler, object, Task>)((h, m) => h.HandleUnexpectedMessage(m));
 
                 if (baseDispatcher != null)
                     applicators = applicators.Concat(new[] { Expression.Return(returnLabel, Expression.Invoke(Expression.Constant(baseDispatcher), handlerParam, inputParam), typeof(Task)) }).ToArray();
 
                 var body = new[] { assignHandlerVariable }.Concat(applicators);
 
-                return Expression.Lambda<Dispatcher>(
+                return Expression.Lambda<Func<MessageHandler, object, Task>>(
                     Expression.Label(returnLabel, Expression.Block(typeof(Task), new[] { handlerVariable }, body)),
                                      handlerParam, inputParam)
                     .Compile();

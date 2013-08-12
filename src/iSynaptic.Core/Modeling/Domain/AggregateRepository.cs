@@ -61,7 +61,7 @@ namespace iSynaptic.Modeling.Domain
 
             var ag = AsInternal(aggregate);
             var aggregateType = aggregate.GetType();
-            var events = ag.GetUncommittedEvents().ToArray();
+            var events = aggregate.GetUncommittedEvents().ToArray();
 
             if (events.Length <= 0)
                 return;
@@ -122,7 +122,7 @@ namespace iSynaptic.Modeling.Domain
             var ag = AsInternal(aggregate);
             var aggregateType = aggregate.GetType();
 
-            var events = ag.GetUncommittedEvents().ToArray();
+            var events = aggregate.GetUncommittedEvents().ToArray();
             bool isNew = events.Length > 0 && events[0].Version == 1;
 
             var data = new AggregateSnapshotSaveFrame<TIdentifier>(aggregateType, aggregate.Id, isNew, snapshot);

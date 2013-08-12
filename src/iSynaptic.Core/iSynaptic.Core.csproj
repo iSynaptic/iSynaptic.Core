@@ -77,7 +77,7 @@
     <Compile Include="Modeling\Domain\IAggregateRepository.cs" />
     <Compile Include="Modeling\Domain\IAggregateSnapshot.cs" />
     <Compile Include="Modeling\Domain\ImmuneToResetAttribute.cs" />
-    <Compile Include="Modeling\Domain\MessageHandler.cs" />
+    <Compile Include="MessageHandler.cs" />
     <Compile Include="Modeling\Domain\ValueObjectAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -22,13 +22,12 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using iSynaptic.Commons;
 using iSynaptic.TestDomain;
 
-namespace iSynaptic.Modeling.Domain
+namespace iSynaptic
 {
     [TestFixture]
     public class MessageHandlerTests

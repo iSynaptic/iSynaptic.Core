@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace iSynaptic.Modeling.Domain
 {
@@ -7,6 +8,8 @@ namespace iSynaptic.Modeling.Domain
     {
         TIdentifier Id { get; }
         Int32 Version { get; }
+
+        IEnumerable<IAggregateEvent<TIdentifier>> GetUncommittedEvents();
 
         IAggregateSnapshot<TIdentifier> TakeSnapshot();
     }

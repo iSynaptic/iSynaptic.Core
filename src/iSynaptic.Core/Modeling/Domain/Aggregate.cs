@@ -34,7 +34,6 @@ namespace iSynaptic.Modeling.Domain
         void Initialize(IAggregateMemento memento);
 
         void ApplyEvents(IEnumerable<IAggregateEvent> events);
-        IEnumerable<IAggregateEvent<TIdentifier>> GetUncommittedEvents();
 
         Boolean ConflictsWith(IEnumerable<IAggregateEvent> committedEvents, IEnumerable<IAggregateEvent> attemptedEvents);
 
@@ -156,7 +155,7 @@ namespace iSynaptic.Modeling.Domain
         public virtual IAggregateSnapshot<TIdentifier> TakeSnapshot() { return null; }
         public IEnumerable<IAggregateEvent<TIdentifier>> GetEvents() { return _events.Events; }
             
-        IEnumerable<IAggregateEvent<TIdentifier>> IAggregateInternal<TIdentifier>.GetUncommittedEvents()
+        public IEnumerable<IAggregateEvent<TIdentifier>> GetUncommittedEvents()
         {
             return _events.UncommittedEvents;
         }
