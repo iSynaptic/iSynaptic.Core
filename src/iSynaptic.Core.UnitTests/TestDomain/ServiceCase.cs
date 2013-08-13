@@ -105,7 +105,7 @@ namespace iSynaptic.TestDomain
 
         #region Commands
 
-        public ICommunicationThread StartCommunicationThread(String topic, String description)
+        public virtual ICommunicationThread StartCommunicationThread(String topic, String description)
         {
             Int32 newThreadId = _lastThreadId + 1;
 

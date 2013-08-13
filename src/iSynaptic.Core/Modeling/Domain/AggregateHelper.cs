@@ -122,16 +122,22 @@ namespace iSynaptic.Modeling.Domain
                     aggregateVariable,
                     Expression.Convert(aggregateParam, t));
 
+                var immunityPredicate = ((Expression<Func<object>>) (() => Aggregate.FieldResetImmunityPredicate)).Body;
+
                 IEnumerable<Expression> resetExpressions = t
                     .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                     .Where(x => x.DeclaringType == t)
                     .Unless(x => x.IsInitOnly)
                     .Unless(x => x.IsDefined(typeof(ImmuneToResetAttribute), true))
                     .Select(x =>
+                    {
+                        var test = Expression.Not(Expression.Invoke(immunityPredicate, Expression.Constant(x)));
+
+                        return Expression.IfThen(test,
                             Expression.Assign(
                                 Expression.Field(assignVariable, x),
-                                Expression.Default(x.FieldType))
-                    );
+                                Expression.Default(x.FieldType)));
+                    });
 
                 if (baseResetOperation != null)
                     resetExpressions = resetExpressions.Concat(new[] { Expression.Invoke(Expression.Constant(baseResetOperation), aggregateParam) }).ToArray();

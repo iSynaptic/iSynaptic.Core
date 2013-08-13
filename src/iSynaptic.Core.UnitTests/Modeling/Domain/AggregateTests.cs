@@ -23,6 +23,7 @@
 using System;
 using System.Linq;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using iSynaptic.Commons;
 using iSynaptic.TestDomain;
@@ -71,6 +72,20 @@ namespace iSynaptic.Modeling.Domain
                            typeof (ServiceCase.CommunicationRecorded)
                        })
                        .Should().BeTrue();
+        }
+
+        [Test]
+        public void Aggregate_IsMockable()
+        {
+            Aggregate.FieldsImmuneToReset(f => f.FieldType.FullName.Contains("DynamicProxy") || f.FieldType.FullName.Contains("NSubstitute"));
+
+            var serviceCase = Substitute.For<ServiceCase>(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+
+            serviceCase.When(x => x.StartCommunicationThread(null, null))
+                .Do(x => { throw new Exception("bad mojo!"); });
+
+            serviceCase.Invoking(x => x.StartCommunicationThread(null, null))
+                .ShouldThrow<Exception>().WithMessage("bad mojo!");
         }
     }
 }

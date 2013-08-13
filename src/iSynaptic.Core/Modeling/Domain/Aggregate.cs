@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
 
@@ -39,7 +40,20 @@ namespace iSynaptic.Modeling.Domain
 
         void CommitEvents();
     }
-    
+
+    public static class Aggregate
+    {
+        private static Func<FieldInfo, bool> _fieldResetImmunityPredicate = DefaultFieldResetImmunity;
+        private static bool DefaultFieldResetImmunity(FieldInfo field) { return false; }
+
+        public static void FieldsImmuneToReset(Func<FieldInfo, bool> predicate)
+        {
+            _fieldResetImmunityPredicate = predicate ?? DefaultFieldResetImmunity;
+        }
+
+        internal static Func<FieldInfo, bool> FieldResetImmunityPredicate { get { return _fieldResetImmunityPredicate; }}
+    }
+
     public abstract class Aggregate<TIdentifier> : IAggregate<TIdentifier>, IAggregateInternal<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {

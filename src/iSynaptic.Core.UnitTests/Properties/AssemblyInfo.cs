@@ -20,12 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Reflection;
-using System.Runtime.InteropServices;
-
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
+using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using iSynaptic.Modeling.Domain;
+using iSynaptic.Properties;
+using NUnit.Framework;
+
 [assembly: AssemblyTitle("iSynaptic.Core.UnitTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -33,3 +37,24 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("921849e1-8556-4c76-bce0-a7f3aa5d71d0")]
+
+[assembly: ResetAggregateFieldImmunity]
+
+namespace iSynaptic.Properties
+{
+    [AttributeUsage(AttributeTargets.Assembly)]
+    public class ResetAggregateFieldImmunity : Attribute, ITestAction
+    {
+        public void BeforeTest(TestDetails testDetails)
+        {
+            Aggregate.FieldsImmuneToReset(null);
+        }
+
+        public void AfterTest(TestDetails testDetails)
+        {
+            Aggregate.FieldsImmuneToReset(null);
+        }
+
+        public ActionTargets Targets { get { return ActionTargets.Test; } }
+    }
+}
