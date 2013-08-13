@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>iSynaptic.Core.Serialization</id>
-    <version>0.1.13</version>
+    <version>0.1.14</version>
     <authors>Jordan Terrell</authors>
     <description>Serialization support for common application infrastructure.</description>
     <language>en-US</language>
@@ -13,8 +13,8 @@
       <frameworkAssembly assemblyName="System.Core" targetFramework="net45" />
     </frameworkAssemblies>
     <dependencies>
-      <dependency id="iSynaptic.Commons" version="0.4.21" />
-      <dependency id="iSynaptic.Core" version="0.1.13" />
+      <dependency id="iSynaptic.Commons" version="0.4.22" />
+      <dependency id="iSynaptic.Core" version="0.1.14" />
       <dependency id="Newtonsoft.Json" version="4.5.11" />
     </dependencies>
   </metadata>

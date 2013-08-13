@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using iSynaptic.Commons;
 using iSynaptic.Modeling.Domain;
 
 namespace iSynaptic.TestDomain
@@ -32,9 +33,10 @@ namespace iSynaptic.TestDomain
     {
         private readonly List<CommThread> _threads = new List<CommThread>();
 
-        public Task HandleEvents(IEnumerable<IAggregateEvent> events)
+        public async Task HandleEvents(IEnumerable<IAggregateEvent> events)
         {
-            return Handle(events);
+            foreach (var @event in events)
+                await OnHandle(@event);
         }
 
         protected override bool ShouldHandle(Object message)

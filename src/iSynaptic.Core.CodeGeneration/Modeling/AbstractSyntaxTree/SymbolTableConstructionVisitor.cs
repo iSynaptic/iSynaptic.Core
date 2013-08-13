@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
+using iSynaptic.Commons;
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree
 {

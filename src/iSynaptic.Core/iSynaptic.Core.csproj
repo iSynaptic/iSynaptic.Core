@@ -35,9 +35,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iSynaptic.Commons, Version=0.4.21.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="iSynaptic.Commons, Version=0.4.22.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.21\lib\iSynaptic.Commons.dll</HintPath>
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.22\lib\iSynaptic.Commons.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -77,7 +77,6 @@
     <Compile Include="Modeling\Domain\IAggregateRepository.cs" />
     <Compile Include="Modeling\Domain\IAggregateSnapshot.cs" />
     <Compile Include="Modeling\Domain\ImmuneToResetAttribute.cs" />
-    <Compile Include="MessageHandler.cs" />
     <Compile Include="Modeling\Domain\ValueObjectAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

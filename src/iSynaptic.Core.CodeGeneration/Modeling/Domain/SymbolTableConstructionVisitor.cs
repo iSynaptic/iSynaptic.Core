@@ -21,6 +21,8 @@
 // THE SOFTWARE.
 
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
+using iSynaptic.Commons;
+using ISymbol = iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel.ISymbol;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {

@@ -24,6 +24,8 @@ using System;
 using System.IO;
 using NUnit.Framework;
 using Sprache;
+
+using iSynaptic.Commons;
 using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree.SyntacticModel;
 
 namespace iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree

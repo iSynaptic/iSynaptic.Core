@@ -24,6 +24,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
+
+using iSynaptic.Commons;
 using iSynaptic.CodeGeneration.Modeling.AbstractSyntaxTree;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain

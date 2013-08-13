@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>iSynaptic.Commons</id>
-    <version>0.4.21</version>
+    <version>0.4.22</version>
     <authors>Jordan Terrell</authors>
     <owners>Jordan Terrell</owners>
     <licenseUrl>https://github.com/iSynaptic/iSynaptic.Commons/blob/master/LICENSE</licenseUrl>
@@ -16,8 +16,5 @@
       <frameworkAssembly assemblyName="System.Transactions" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.5" />
     </frameworkAssemblies>
-    <references>
-      <reference file="iSynaptic.Commons.dll" />
-    </references>
   </metadata>
 </package>

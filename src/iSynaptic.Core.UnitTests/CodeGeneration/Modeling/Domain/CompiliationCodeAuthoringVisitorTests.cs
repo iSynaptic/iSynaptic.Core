@@ -23,6 +23,8 @@
 using System;
 using NUnit.Framework;
 
+using iSynaptic.Commons;
+
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     [TestFixture]
