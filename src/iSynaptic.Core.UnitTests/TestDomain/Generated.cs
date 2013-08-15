@@ -12,14 +12,14 @@ namespace iSynaptic.TestDomain
     public class CustomerAgentRoleIdentifier : RoleIdentifier, IEquatable<CustomerAgentRoleIdentifier>
     {
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public CustomerAgentRoleIdentifier(String baseIdentifier, String identifierType)
             : base(baseIdentifier, identifierType)
         {
 
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(CustomerAgentRoleIdentifier other)
         {
             return Equals((Object)other);
@@ -34,14 +34,14 @@ namespace iSynaptic.TestDomain
     public class CustomerServiceRepresentativeRoleIdentifier : RoleIdentifier, IEquatable<CustomerServiceRepresentativeRoleIdentifier>
     {
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public CustomerServiceRepresentativeRoleIdentifier(String baseIdentifier, String identifierType)
             : base(baseIdentifier, identifierType)
         {
 
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(CustomerServiceRepresentativeRoleIdentifier other)
         {
             return Equals((Object)other);
@@ -55,7 +55,7 @@ namespace iSynaptic.TestDomain
     public partial class Base<T> : Aggregate<T>
         where T : IEquatable<T>
     {
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         protected Base(AggregateEvent<T> startEvent) { ApplyEvent(startEvent); }
 
     }
@@ -64,7 +64,7 @@ namespace iSynaptic.TestDomain
 {
     public partial class ServiceCase : Base<ServiceCaseId>
     {
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         protected ServiceCase(AggregateEvent<ServiceCaseId> startEvent) : base(startEvent) { }
 
         public class Opened : AggregateEvent<ServiceCaseId>
@@ -73,7 +73,7 @@ namespace iSynaptic.TestDomain
             private readonly String _description;
             private readonly ServiceCasePriority _priority;
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public Opened(String title, String description, ServiceCasePriority priority, ServiceCaseId id, Int32 version)
                 : base(id, version)
             {
@@ -85,11 +85,11 @@ namespace iSynaptic.TestDomain
                 _priority = priority;
             }
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public String Title { get { return _title; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public String Description { get { return _description; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public ServiceCasePriority Priority { get { return _priority; } }
         }
         public class CommunicationThreadStarted : AggregateEvent<ServiceCaseId>
@@ -98,7 +98,7 @@ namespace iSynaptic.TestDomain
             private readonly String _topic;
             private readonly String _description;
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public CommunicationThreadStarted(Int32 threadId, String topic, String description, ServiceCaseId id, Int32 version)
                 : base(id, version)
             {
@@ -110,11 +110,11 @@ namespace iSynaptic.TestDomain
                 _description = description;
             }
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public Int32 ThreadId { get { return _threadId; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public String Topic { get { return _topic; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public String Description { get { return _description; } }
         }
         public class CommunicationRecorded : AggregateEvent<ServiceCaseId>
@@ -124,7 +124,7 @@ namespace iSynaptic.TestDomain
             private readonly String _content;
             private readonly DateTime _communicationTime;
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public CommunicationRecorded(Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime, ServiceCaseId id, Int32 version)
                 : base(id, version)
             {
@@ -136,13 +136,13 @@ namespace iSynaptic.TestDomain
                 _communicationTime = communicationTime;
             }
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public Int32 ThreadId { get { return _threadId; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public CommunicationDirection Direction { get { return _direction; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public String Content { get { return _content; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public DateTime CommunicationTime { get { return _communicationTime; } }
         }
         public class Snapshot : AggregateSnapshot<ServiceCaseId>
@@ -153,7 +153,7 @@ namespace iSynaptic.TestDomain
             private readonly String _description;
             private readonly ServiceCasePriority _priority;
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public Snapshot(Int32 lastThreadId, IEnumerable<CommunicationThreadSnapshot> threadSnapshots, String title, String description, ServiceCasePriority priority, ServiceCaseId id, Int32 version, DateTime takenAt)
                 : base(id, version, takenAt)
             {
@@ -168,15 +168,15 @@ namespace iSynaptic.TestDomain
                 _priority = priority;
             }
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public Int32 LastThreadId { get { return _lastThreadId; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public IEnumerable<CommunicationThreadSnapshot> ThreadSnapshots { get { return _threadSnapshots; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public String Title { get { return _title; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public String Description { get { return _description; } }
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public ServiceCasePriority Priority { get { return _priority; } }
         }
     }
@@ -186,14 +186,14 @@ namespace iSynaptic.TestDomain
     public partial class HomogeneousRole<TRoleIdentifier> : Aggregate<TRoleIdentifier>
         where TRoleIdentifier : RoleIdentifier, IEquatable<TRoleIdentifier>
     {
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         protected HomogeneousRole(AggregateEvent<TRoleIdentifier> startEvent) { ApplyEvent(startEvent); }
 
         public class Registered : AggregateEvent<TRoleIdentifier>
         {
             private readonly string _name;
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public Registered(string name, TRoleIdentifier id, Int32 version)
                 : base(id, version)
             {
@@ -202,14 +202,14 @@ namespace iSynaptic.TestDomain
                 _name = name;
             }
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public string Name { get { return _name; } }
         }
         public class StatusChanged : AggregateEvent<TRoleIdentifier>
         {
             private readonly HomogeneousRoleStatus _status;
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public StatusChanged(HomogeneousRoleStatus status, TRoleIdentifier id, Int32 version)
                 : base(id, version)
             {
@@ -217,7 +217,7 @@ namespace iSynaptic.TestDomain
                 _status = status;
             }
 
-            [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+            [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
             public HomogeneousRoleStatus Status { get { return _status; } }
         }
     }
@@ -231,7 +231,7 @@ namespace iSynaptic.TestDomain
         private readonly String _topic;
         private readonly String _description;
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public CommunicationThreadSnapshot(Int32 threadId, String topic, String description)
         {
             if (ReferenceEquals(topic, null)) throw new ArgumentNullException("topic");
@@ -242,13 +242,13 @@ namespace iSynaptic.TestDomain
             _description = description;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(CommunicationThreadSnapshot other)
         {
             return Equals((Object)other);
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public override Boolean Equals(Object obj)
         {
             CommunicationThreadSnapshot other = obj as CommunicationThreadSnapshot;
@@ -263,7 +263,7 @@ namespace iSynaptic.TestDomain
             return true;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public override Int32 GetHashCode()
         {
             int hash = 1;
@@ -275,21 +275,21 @@ namespace iSynaptic.TestDomain
             return hash;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static Boolean operator ==(CommunicationThreadSnapshot left, CommunicationThreadSnapshot right)
         {
             if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
             return ReferenceEquals(left, null) || left.Equals(right);
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static Boolean operator !=(CommunicationThreadSnapshot left, CommunicationThreadSnapshot right) { return !(left == right); }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Int32 ThreadId { get { return _threadId; } }
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public String Topic { get { return _topic; } }
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public String Description { get { return _description; } }
     }
 }
@@ -321,7 +321,7 @@ namespace iSynaptic.TestDomain
         private readonly String _description;
         private readonly ServiceCasePriority _serviceCasePriority;
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public ServiceCaseDetails(Int32 lastThreadId, IEnumerable<CommunicationThreadSnapshot> threadSnapshots, String title, String description, ServiceCasePriority serviceCasePriority)
         {
             if (ReferenceEquals(threadSnapshots, null)) throw new ArgumentNullException("threadSnapshots");
@@ -335,13 +335,13 @@ namespace iSynaptic.TestDomain
             _serviceCasePriority = serviceCasePriority;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(ServiceCaseDetails other)
         {
             return Equals((Object)other);
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public override Boolean Equals(Object obj)
         {
             ServiceCaseDetails other = obj as ServiceCaseDetails;
@@ -358,7 +358,7 @@ namespace iSynaptic.TestDomain
             return true;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public override Int32 GetHashCode()
         {
             int hash = 1;
@@ -372,35 +372,35 @@ namespace iSynaptic.TestDomain
             return hash;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static Boolean operator ==(ServiceCaseDetails left, ServiceCaseDetails right)
         {
             if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
             return ReferenceEquals(left, null) || left.Equals(right);
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static Boolean operator !=(ServiceCaseDetails left, ServiceCaseDetails right) { return !(left == right); }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Int32 LastThreadId { get { return _lastThreadId; } }
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public IEnumerable<CommunicationThreadSnapshot> ThreadSnapshots { get { return _threadSnapshots; } }
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public String Title { get { return _title; } }
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public String Description { get { return _description; } }
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public ServiceCasePriority ServiceCasePriority { get { return _serviceCasePriority; } }
     }
 }
 namespace iSynaptic.TestDomain
 {
     [ValueObject]
-    public partial class ServiceCaseId : IEquatable<Guid>, IEquatable<ServiceCaseId>
+    public partial class ServiceCaseId : IScalarValue<Guid>, IEquatable<Guid>, IEquatable<ServiceCaseId>
     {
         private readonly Guid _value;
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public ServiceCaseId(System.Guid value)
         {
             Validate(value);
@@ -409,19 +409,19 @@ namespace iSynaptic.TestDomain
 
         partial void Validate(System.Guid value);
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(ServiceCaseId other)
         {
             return Equals((Object)other);
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(Guid other)
         {
             return Value == other;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public override Boolean Equals(Object obj)
         {
             ServiceCaseId other = obj as ServiceCaseId;
@@ -433,35 +433,38 @@ namespace iSynaptic.TestDomain
             return true;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public override Int32 GetHashCode()
         {
             return Value.GetHashCode();
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static implicit operator ServiceCaseId(Guid value) { return new ServiceCaseId(value); }
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static implicit operator Guid(ServiceCaseId value) { return value.Value; }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static Boolean operator ==(ServiceCaseId left, ServiceCaseId right)
         {
             if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
             return ReferenceEquals(left, null) || left.Equals(right);
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static Boolean operator !=(ServiceCaseId left, ServiceCaseId right) { return !(left == right); }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public System.Guid Value { get { return _value; } }
+
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
+        object IScalarValue.Value { get { return Value; } }
     }
 
     [ValueObject]
     public partial class SpecialServiceCaseId : ServiceCaseId, IEquatable<SpecialServiceCaseId>
     {
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public SpecialServiceCaseId(System.Guid value)
             : base(value)
         {
@@ -470,7 +473,7 @@ namespace iSynaptic.TestDomain
 
         partial void Validate(System.Guid value);
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(SpecialServiceCaseId other)
         {
             return Equals((Object)other);
@@ -484,14 +487,14 @@ namespace iSynaptic.TestDomain
     public class CustomerRoleIdentifier : RoleIdentifier, IEquatable<CustomerRoleIdentifier>
     {
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public CustomerRoleIdentifier(String baseIdentifier, String identifierType)
             : base(baseIdentifier, identifierType)
         {
 
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(CustomerRoleIdentifier other)
         {
             return Equals((Object)other);
@@ -522,7 +525,7 @@ namespace iSynaptic.TestDomain
         private readonly String _baseIdentifier;
         private readonly String _identifierType;
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         protected RoleIdentifier(String baseIdentifier, String identifierType)
         {
             if (ReferenceEquals(baseIdentifier, null)) throw new ArgumentNullException("baseIdentifier");
@@ -532,13 +535,13 @@ namespace iSynaptic.TestDomain
             _identifierType = identifierType;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public Boolean Equals(RoleIdentifier other)
         {
             return Equals((Object)other);
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public override Boolean Equals(Object obj)
         {
             RoleIdentifier other = obj as RoleIdentifier;
@@ -552,7 +555,7 @@ namespace iSynaptic.TestDomain
             return true;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public override Int32 GetHashCode()
         {
             int hash = 1;
@@ -563,19 +566,19 @@ namespace iSynaptic.TestDomain
             return hash;
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static Boolean operator ==(RoleIdentifier left, RoleIdentifier right)
         {
             if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
             return ReferenceEquals(left, null) || left.Equals(right);
         }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public static Boolean operator !=(RoleIdentifier left, RoleIdentifier right) { return !(left == right); }
 
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public String BaseIdentifier { get { return _baseIdentifier; } }
-        [GeneratedCode("iSynaptic.Core", "0.1.14.0")]
+        [GeneratedCode("iSynaptic.Core", "0.1.15.0")]
         public String IdentifierType { get { return _identifierType; } }
     }
 }

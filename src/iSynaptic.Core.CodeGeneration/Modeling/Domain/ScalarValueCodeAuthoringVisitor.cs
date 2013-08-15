@@ -57,9 +57,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             var isBaseScalarValue = baseType is ScalarValueSyntax;
 
             var baseTypes = new List<String>();
-            baseTypes.Add(isBaseScalarValue
-                ? value.Base.ToString()
-                : String.Format("IEquatable<{0}>", value.Base));
+            baseTypes.AddRange(isBaseScalarValue
+                ? new []{value.Base.ToString()}
+                : new []{String.Format("IScalarValue<{0}>", value.Base), String.Format("IEquatable<{0}>", value.Base)});
 
             baseTypes.Add(String.Format("IEquatable<{0}>", value.Name));
 
@@ -163,6 +163,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 WriteGeneratedCodeAttribute();
                 WriteLine();
                 WriteLine("public {0} Value {{ get {{ return _value; }} }}", builtInType.FullName);
+
+                WriteLine();
+                WriteGeneratedCodeAttribute();
+                WriteLine();
+                WriteLine("object IScalarValue.Value { get { return Value; } }");
             }
         }
     }
