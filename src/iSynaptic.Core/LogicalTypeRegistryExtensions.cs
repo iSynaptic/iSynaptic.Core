@@ -1,4 +1,4 @@
-﻿// The MIT License
+// The MIT License
 // 
 // Copyright (c) 2013 Jordan E. Terrell
 // 
@@ -20,36 +20,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Collections.Generic;
-using Newtonsoft.Json;
+using System;
 using iSynaptic.Commons;
 
-namespace iSynaptic.Serialization
+namespace iSynaptic
 {
-    public static class JsonSerializerBuilder
+    public static class LogicalTypeRegistryExtensions
     {
-        public static JsonSerializer Build(ILogicalTypeRegistry logicalTypeRegistry)
+        public static Type LookupActualType(this ILogicalTypeRegistry @this, LogicalType logicalType)
         {
-            return JsonSerializer.Create(BuildSettings(logicalTypeRegistry));
+            Guard.NotNull(@this, "this");
+
+            var result = @this.TryLookupActualType(logicalType);
+            if (!result.HasValue)
+                throw new InvalidOperationException(String.Format("Unable to find actual type for logical type: '{0}'.", logicalType));
+
+            return result.Value;
         }
 
-        public static JsonSerializerSettings BuildSettings(ILogicalTypeRegistry logicalTypeRegistry)
+        public static LogicalType LookupLogicalType(this ILogicalTypeRegistry @this, Type type)
         {
-            Guard.NotNull(logicalTypeRegistry, "logicalTypeRegistry");
-            return new JsonSerializerSettings
-            {
-                MissingMemberHandling = MissingMemberHandling.Error, // fail-fast
-                TypeNameHandling = TypeNameHandling.Objects,
-                Binder = new LogicalTypeSerializationBinder(logicalTypeRegistry),
-                ContractResolver = new PrivateSetterAwareContractResolver(),
-                Converters = new List<JsonConverter>
-                {
-                    new LogicalTypeJsonConverter(logicalTypeRegistry),
-                    new MaybeJsonConverter(),
-                    new OutcomeJsonConverter(),
-                    new ResultJsonConverter()
-                }
-            };
+            Guard.NotNull(@this, "this");
+
+            var result = @this.TryLookupLogicalType(type);
+            if(!result.HasValue)
+                throw new InvalidOperationException(String.Format("Unable to find logical type for actual type: '{0}'.", type.FullName));
+
+            return result.Value;
         }
     }
 }

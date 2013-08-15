@@ -28,9 +28,9 @@ namespace iSynaptic.Serialization
 {
     public class LogicalTypeSerializationBinder : SerializationBinder
     {
-        private readonly LogicalTypeRegistry _logicalTypeRegistry;
+        private readonly ILogicalTypeRegistry _logicalTypeRegistry;
 
-        public LogicalTypeSerializationBinder(LogicalTypeRegistry logicalTypeRegistry)
+        public LogicalTypeSerializationBinder(ILogicalTypeRegistry logicalTypeRegistry)
         {
             _logicalTypeRegistry = Guard.NotNull(logicalTypeRegistry, "logicalTypeRegistry");
         }

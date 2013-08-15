@@ -28,9 +28,9 @@ namespace iSynaptic.Serialization
 {
     public class LogicalTypeJsonConverter : JsonConverter
     {
-        private readonly LogicalTypeRegistry _logicalTypeRegistry;
+        private readonly ILogicalTypeRegistry _logicalTypeRegistry;
 
-        public LogicalTypeJsonConverter(LogicalTypeRegistry logicalTypeRegistry)
+        public LogicalTypeJsonConverter(ILogicalTypeRegistry logicalTypeRegistry)
         {
             _logicalTypeRegistry = Guard.NotNull(logicalTypeRegistry, "logicalTypeRegistry");
         }

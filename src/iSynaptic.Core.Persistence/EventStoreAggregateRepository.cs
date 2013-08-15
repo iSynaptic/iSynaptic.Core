@@ -42,14 +42,14 @@ namespace iSynaptic.Core.Persistence
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly LogicalTypeRegistry _logicalTypeRegistry;
+        private readonly ILogicalTypeRegistry _logicalTypeRegistry;
 
         private readonly JsonSerializer _dataSerializer;
         private readonly JsonSerializer _metadataSerializer;
 
         private readonly Func<EventStoreConnection> _connectionFactory;
 
-        public EventStoreAggregateRepository(LogicalTypeRegistry logicalTypeRegistry, Func<EventStoreConnection> connectionFactory)
+        public EventStoreAggregateRepository(ILogicalTypeRegistry logicalTypeRegistry, Func<EventStoreConnection> connectionFactory)
         {
             _logicalTypeRegistry = Guard.NotNull(logicalTypeRegistry, "logicalTypeRegistry");
             _connectionFactory = Guard.NotNull(connectionFactory, "connectionFactory");

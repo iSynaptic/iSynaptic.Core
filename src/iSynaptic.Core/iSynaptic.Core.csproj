@@ -48,11 +48,13 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ILogicalTypeRegistry.cs" />
     <Compile Include="InterleavingUniqueNumberGenerator.cs" />
     <Compile Include="IUniqueNumberGenerator.cs" />
     <Compile Include="LogicalType.cs" />
     <Compile Include="LogicalTypeAttribute.cs" />
     <Compile Include="LogicalTypeRegistry.cs" />
+    <Compile Include="LogicalTypeRegistryExtensions.cs" />
     <Compile Include="Modeling\Domain\Aggregate.cs" />
     <Compile Include="Modeling\Domain\AggregateConcurrencyException.cs" />
     <Compile Include="Modeling\Domain\AggregateEventsLoadFrame.cs" />

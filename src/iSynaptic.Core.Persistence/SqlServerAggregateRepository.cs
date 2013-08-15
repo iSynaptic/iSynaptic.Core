@@ -182,12 +182,12 @@ namespace iSynaptic.Core.Persistence
 
         #endregion
 
-        private readonly LogicalTypeRegistry _logicalTypeRegistry;
+        private readonly ILogicalTypeRegistry _logicalTypeRegistry;
         private readonly JsonSerializer _dataSerializer;
 
         private readonly string _connectionString;
 
-        public SqlServerAggregateRepository(LogicalTypeRegistry logicalTypeRegistry, string connectionString)
+        public SqlServerAggregateRepository(ILogicalTypeRegistry logicalTypeRegistry, string connectionString)
         {
             _logicalTypeRegistry = Guard.NotNull(logicalTypeRegistry, "logicalTypeRegistry");
             _dataSerializer = JsonSerializerBuilder.Build(logicalTypeRegistry);
