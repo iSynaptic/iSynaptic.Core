@@ -10,7 +10,7 @@ namespace iSynaptic.Modeling.Domain
 {
     public abstract class AggregateRepositoryTests
     {
-        protected IAggregateRepository<ServiceCase, Guid> Repo { get; set; }
+        protected IAggregateRepository<ServiceCase, ServiceCaseId> Repo { get; set; }
 
         [Test]
         public async Task RoundTrip()

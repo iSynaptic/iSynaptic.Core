@@ -13,7 +13,7 @@ namespace iSynaptic.Persistence
     {
         public InMemoryJsonAggregateRepositoryTests()
         {
-            Repo = new InMemoryJsonAggregateRepository<ServiceCase, Guid>(
+            Repo = new InMemoryJsonAggregateRepository<ServiceCase, ServiceCaseId>(
                 JsonSerializerBuilder.Build(LogicalTypeRegistryBuilder.Build()));
         }
     }

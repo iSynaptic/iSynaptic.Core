@@ -21,6 +21,8 @@
 // THE SOFTWARE.
 
 using System;
+using System.IO;
+using System.Text;
 using NUnit.Framework;
 
 using iSynaptic.Commons;
@@ -33,8 +35,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         [Test]
         public void CanGenerateCode()
         {
-            var visitor = new CompilationCodeAuthoringVisitor(Console.Out, SymbolTable);
+            var writer = new StringWriter();
+            
+            var visitor = new CompilationCodeAuthoringVisitor(writer, SymbolTable);
             visitor.Dispatch(Compilation);
+
+            string code = writer.GetStringBuilder().ToString();
+            Console.Write(code);
         }
     }
 }

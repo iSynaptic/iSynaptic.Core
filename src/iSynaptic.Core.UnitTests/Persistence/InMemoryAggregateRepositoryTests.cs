@@ -34,7 +34,7 @@ namespace iSynaptic.Persistence
     {
         public InMemoryAggregateRepositoryTests()
         {
-            Repo = new InMemoryAggregateRepository<ServiceCase, Guid>();
+            Repo = new InMemoryAggregateRepository<ServiceCase, ServiceCaseId>();
         }
     }
 }

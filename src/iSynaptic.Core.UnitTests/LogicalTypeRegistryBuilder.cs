@@ -38,7 +38,9 @@ namespace iSynaptic
             registry.AddMapping(new LogicalType("sys", "Guid"), typeof(Guid));
             registry.AddMapping(new LogicalType("sys", "StringToStringDictionary"), typeof(Dictionary<String, String>));
 
-            registry.AddMapping(new LogicalType("tst", "AggregateMemento.Guid"), typeof(AggregateMemento<Guid>));
+            registry.AddMapping(new LogicalType("tst", "ServiceCaseId"), typeof(ServiceCaseId));
+
+            registry.AddMapping(new LogicalType("tst", "AggregateMemento.ServiceCaseId"), typeof(AggregateMemento<ServiceCaseId>));
             registry.AddMapping(new LogicalType("tst", "AggregateMemento.RoleIdentifier"), typeof(AggregateMemento<RoleIdentifier>));
 
             registry.AddMapping(new LogicalType("tst", "CustomerRoleIdentifier"), typeof(CustomerRoleIdentifier));

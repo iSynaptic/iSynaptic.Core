@@ -39,7 +39,7 @@ namespace iSynaptic.Persistence
         {
             var ltr = LogicalTypeRegistryBuilder.Build();
 
-            Repo = new SqlServerAggregateRepository<ServiceCase, Guid>(ltr, ConnectionString);
+            Repo = new SqlServerAggregateRepository<ServiceCase, ServiceCaseId>(ltr, ConnectionString);
         }
 
         [TestFixtureSetUp]

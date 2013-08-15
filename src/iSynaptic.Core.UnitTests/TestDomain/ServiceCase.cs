@@ -82,7 +82,7 @@ namespace iSynaptic.TestDomain
             _threads = new List<CommunicationThread>();
         }
 
-        public override IAggregateSnapshot<Guid> TakeSnapshot()
+        public override IAggregateSnapshot<ServiceCaseId> TakeSnapshot()
         {
             return new Snapshot(_lastThreadId,
                                 _threads.Select(x => new CommunicationThreadSnapshot(x.ThreadId, x.Topic, x.Description)),
@@ -133,7 +133,7 @@ namespace iSynaptic.TestDomain
             _threads.Add(thread);
         }
 
-        protected override bool ConflictsWith(IEnumerable<IAggregateEvent<Guid>> committedEvents, IEnumerable<IAggregateEvent<Guid>> attemptedEvents)
+        protected override bool ConflictsWith(IEnumerable<IAggregateEvent<ServiceCaseId>> committedEvents, IEnumerable<IAggregateEvent<ServiceCaseId>> attemptedEvents)
         {
             return !committedEvents.All(x => x is CommunicationRecorded) &&
                    !attemptedEvents.All(x => x is CommunicationRecorded);

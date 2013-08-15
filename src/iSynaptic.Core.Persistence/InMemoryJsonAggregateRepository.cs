@@ -35,8 +35,8 @@ namespace iSynaptic.Core.Persistence
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly Dictionary<TIdentifier, String> _state =
-            new Dictionary<TIdentifier, String>();
+        private readonly Dictionary<String, String> _state =
+            new Dictionary<String, String>();
 
         private readonly JsonSerializer _serializer;
 
@@ -49,7 +49,7 @@ namespace iSynaptic.Core.Persistence
         {
             lock (_state)
             {
-                return _state.TryGetValue(id)
+                return _state.TryGetValue(_serializer.Serialize(id))
                              .Select(json => _serializer.Deserialize<AggregateMemento<TIdentifier>>(json));
             }
         }
@@ -59,7 +59,7 @@ namespace iSynaptic.Core.Persistence
             lock (_state)
             {
                 var memento = mementoFactory();
-                _state[memento.Key] = _serializer.Serialize(memento.Value);
+                _state[_serializer.Serialize(memento.Key)] = _serializer.Serialize(memento.Value);
             }
         }
     }

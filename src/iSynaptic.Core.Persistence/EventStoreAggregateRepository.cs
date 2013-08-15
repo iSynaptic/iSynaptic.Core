@@ -168,6 +168,19 @@ namespace iSynaptic.Core.Persistence
                             )
                         );
                 }
+                else
+                {
+                    await cn.AppendToStreamAsync(
+                        streamId,
+                        stream.NextEventNumber,
+                        BuildEventData(
+                            snapshot.SnapshotId,
+                            snapshot,
+                            aggregateType,
+                            metadata
+                        )
+                    );    
+                }
             }
         }
 
@@ -242,7 +255,7 @@ namespace iSynaptic.Core.Persistence
 
         protected virtual String BuildStreamIdentifier(TIdentifier id)
         {
-            return String.Format("{0}-{1}", _logicalTypeRegistry.LookupLogicalType(id.GetType()), id);
+            return _dataSerializer.Serialize(id);
         }
 
         protected virtual String BuildSnapshotStreamIdentifier(TIdentifier id)

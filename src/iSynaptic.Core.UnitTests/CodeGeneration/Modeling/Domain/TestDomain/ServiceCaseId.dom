@@ -3,7 +3,7 @@
 namespace iSynaptic.TestDomain
 {
     [Annotation(Key = "Value")]
-    partial value ServiceCaseId : UInt64;
+    partial value ServiceCaseId : Guid;
 
     partial value SpecialServiceCaseId : ServiceCaseId;
 }

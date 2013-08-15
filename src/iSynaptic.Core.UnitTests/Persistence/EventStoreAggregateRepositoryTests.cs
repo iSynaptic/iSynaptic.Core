@@ -39,7 +39,7 @@ namespace iSynaptic.Persistence
         {
             var ltr = LogicalTypeRegistryBuilder.Build();
 
-            Repo = new EventStoreAggregateRepository<ServiceCase, Guid>(ltr, () => 
+            Repo = new EventStoreAggregateRepository<ServiceCase, ServiceCaseId>(ltr, () => 
             {
                 var cn = EventStoreConnection.Create();
                 cn.Connect(new IPEndPoint(IPAddress.Loopback, 1113));

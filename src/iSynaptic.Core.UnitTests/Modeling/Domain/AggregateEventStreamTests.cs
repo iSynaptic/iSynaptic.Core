@@ -50,7 +50,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void Appending_OutOfOrder_ThrowsException()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
             var e2 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 2);
 
             stream.AppendEvent(e2);
@@ -62,7 +62,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void Appending_WithGaps_ThrowsException()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
             var outOfOrderEvent = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 3);
 
             stream.AppendEvent(_openedEvent);
@@ -74,7 +74,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void AppendingInitialEvent_WithVersionEqualToOne_IsNotTruncated()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
             stream.AppendEvent(_openedEvent);
             stream.IsTruncated.Should().BeFalse();
         }
@@ -82,7 +82,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void AppendingInitialEvent_WithVersionGreaterThanOne_IsTruncated()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
             stream.AppendEvent(new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 7));
             stream.IsTruncated.Should().BeTrue();
         }
@@ -91,7 +91,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void AppendingInitialEvent_EventStreamsAndVersionCorrect()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
             stream.AppendEvent(_openedEvent);
 
             stream.Events.Count().Should().Be(1);
@@ -107,7 +107,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void CommittingInitialEvent_EventStreamsAndVersionCorrect()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
             stream.AppendEvent(_openedEvent);
             stream.CommitEvents();
 
@@ -124,7 +124,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void AppendingManyEvents_EventStreamsAndVersionCorrect()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
 
             var e2 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 2);
             var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 3);
@@ -148,7 +148,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void CommittingManyEvents_EventStreamsAndVersionCorrect()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
 
             var e2 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 2);
             var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 3);
@@ -174,7 +174,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void CommittingEvents_UpToVersion_EventStreamsAndVersionCorrect()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
 
             var e2 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 2);
             var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 3);
@@ -200,7 +200,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void CommittingEvents_UpToVersion_WhenStreamIsTruncated_YieldsSomeCommittedEvents()
         {
-            var stream = new AggregateEventStream<Guid>();
+            var stream = new AggregateEventStream<ServiceCaseId>();
 
             var e1 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 7);
             var e2 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 8);

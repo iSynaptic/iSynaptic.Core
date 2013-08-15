@@ -476,7 +476,8 @@ namespace iSynaptic.Core.Persistence
 
         protected virtual string ConvertIdentifierToString(TIdentifier id)
         {
-            return Guard.NotNull(id, "id").ToString();
+            Guard.NotNull(id, "id");
+            return _dataSerializer.Serialize(id);
         }
     }
 }
