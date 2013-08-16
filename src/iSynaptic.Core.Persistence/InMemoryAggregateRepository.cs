@@ -22,9 +22,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
 using iSynaptic.Modeling.Domain;
+using iSynaptic.Serialization;
 
 namespace iSynaptic.Core.Persistence
 {
@@ -35,20 +38,30 @@ namespace iSynaptic.Core.Persistence
         private readonly Dictionary<TIdentifier, AggregateMemento<TIdentifier>> _state =
             new Dictionary<TIdentifier, AggregateMemento<TIdentifier>>();
 
-        protected override Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id)
+        protected override Task<Maybe<AggregateMemento<TIdentifier>>> TryLoadMemento(TIdentifier id)
         {
             lock (_state)
             {
-                return _state.TryGetValue(id);
+                return Task.FromResult(_state.TryGetValue(id));
             }
         }
 
-        protected override void StoreMemento(Func<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>> mementoFactory)
+        protected override async Task StoreMemento(Func<Task<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>>> mementoFactory)
         {
-            lock (_state)
+            bool lockTaken = false;
+            
+            try
             {
-                var memento = mementoFactory();
+                Monitor.Enter(_state, ref lockTaken);
+
+                var memento = await mementoFactory();
                 _state[memento.Key] = memento.Value;
+                
+            }
+            finally
+            {
+                if(lockTaken)
+                    Monitor.Exit(_state);
             }
         }
     }

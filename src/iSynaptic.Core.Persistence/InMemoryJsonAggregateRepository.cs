@@ -22,6 +22,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
@@ -45,21 +47,26 @@ namespace iSynaptic.Core.Persistence
             _serializer = Guard.NotNull(serializer, "serializer");
         }
 
-        protected override Maybe<AggregateMemento<TIdentifier>> TryLoadMemento(TIdentifier id)
+        protected override Task<Maybe<AggregateMemento<TIdentifier>>> TryLoadMemento(TIdentifier id)
         {
-            lock (_state)
-            {
-                return _state.TryGetValue(_serializer.Serialize(id))
-                             .Select(json => _serializer.Deserialize<AggregateMemento<TIdentifier>>(json));
-            }
+            return Task.FromResult(_state.TryGetValue(_serializer.Serialize(id))
+                       .Select(json => _serializer.Deserialize<AggregateMemento<TIdentifier>>(json)));
         }
 
-        protected override void StoreMemento(Func<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>> mementoFactory)
+        protected override async Task StoreMemento(Func<Task<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>>> mementoFactory)
         {
-            lock (_state)
+            bool lockTaken = false;
+            try
             {
-                var memento = mementoFactory();
+                Monitor.Enter(_state, ref lockTaken);
+                
+                var memento = await mementoFactory();
                 _state[_serializer.Serialize(memento.Key)] = _serializer.Serialize(memento.Value);
+            }
+            finally
+            {
+                if(lockTaken)
+                    Monitor.Exit(_state);
             }
         }
     }
