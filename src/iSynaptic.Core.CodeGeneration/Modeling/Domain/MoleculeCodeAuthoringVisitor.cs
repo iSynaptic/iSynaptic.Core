@@ -72,9 +72,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if (baseTypes.Length > 0)
                 baseTypes = String.Format(" : {0}", baseTypes);
 
-            if(molecule is ValueSyntax)
-                WriteLine("[ValueObject]");
-
+            WriteModuleClassAttributes(molecule);
             using (WriteBlock("public {0}{1}class {2}{3}", 
                               molecule.IsAbstract ? "abstract " : "",
                               molecule.IsPartial ? "partial " : "",
@@ -129,6 +127,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
                 Dispatch(molecule.Atoms, "property");
             }
+        }
+
+        protected virtual void WriteModuleClassAttributes(MoleculeSyntax molecule)
+        {
         }
 
         protected virtual IEnumerable<AtomInfo> GetBaseAtomInfo(MoleculeSyntax molecule, Maybe<MoleculeSyntax> baseValue)

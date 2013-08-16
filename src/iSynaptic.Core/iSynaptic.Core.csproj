@@ -61,6 +61,7 @@
     <Compile Include="Modeling\Domain\AggregateEventsSaveFrame.cs" />
     <Compile Include="Modeling\Domain\AggregateEvent.cs" />
     <Compile Include="Modeling\Domain\AggregateEventStream.cs" />
+    <Compile Include="Modeling\Domain\AggregateEventVersionAttribute.cs" />
     <Compile Include="Modeling\Domain\AggregateHelper.cs" />
     <Compile Include="Modeling\Domain\AggregateLoadFrame.cs" />
     <Compile Include="Modeling\Domain\AggregateMemento.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Modeling\Domain\IAggregateSnapshot.cs" />
     <Compile Include="Modeling\Domain\ImmuneToResetAttribute.cs" />
     <Compile Include="Modeling\Domain\IScalarValue.cs" />
+    <Compile Include="Modeling\Domain\IUpgradeableEvent.cs" />
     <Compile Include="Modeling\Domain\ValueObjectAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

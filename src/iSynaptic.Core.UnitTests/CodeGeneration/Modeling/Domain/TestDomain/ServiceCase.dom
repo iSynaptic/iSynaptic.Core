@@ -15,6 +15,7 @@ namespace iSynaptic.TestDomain
             ServiceCasePriority Priority;
         }
 
+		[Event(Version = "3")]
         event Opened
         {
             String Title;

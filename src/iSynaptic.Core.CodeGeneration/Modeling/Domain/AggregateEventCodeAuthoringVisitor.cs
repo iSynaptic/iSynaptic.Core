@@ -66,6 +66,18 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 .Or(String.Format("AggregateEvent<{0}>", id));
         }
 
+        protected override void WriteModuleClassAttributes(MoleculeSyntax molecule)
+        {
+            var version = molecule.Annotations.TrySingle(x => x.Name == "Event")
+                .SelectMaybe(x => x.Pairs.TryFirst(y => y.Name == "Version"))
+                .Select(x => x.Value)
+                .TrySelect<string, int>(int.TryParse)
+                .Where(x => x > 0)
+                .ValueOrDefault(1);
+
+            WriteLine("[AggregateEventVersion({0})]", version);
+        }
+
         protected override bool ShouldBeEquatable(MoleculeSyntax molecule)
         {
             return false;

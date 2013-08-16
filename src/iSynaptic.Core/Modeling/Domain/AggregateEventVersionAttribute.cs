@@ -21,27 +21,20 @@
 // THE SOFTWARE.
 
 using System;
-using System.Linq;
-using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
-using iSynaptic.Commons.Text;
 
-namespace iSynaptic.CodeGeneration.Modeling.Domain
+namespace iSynaptic.Modeling.Domain
 {
-    public class ValueCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
+    [AttributeUsage(AttributeTargets.Class,  AllowMultiple = false, Inherited = false)]
+    public class AggregateEventVersionAttribute : Attribute
     {
-        public ValueCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable) 
-            : base(writer, symbolTable)
+        public AggregateEventVersionAttribute(int version)
         {
+            if(version <= 0)
+                throw new ArgumentOutOfRangeException("version", "Version must be greater than or equal to one.");
+
+            Version = version;
         }
 
-        protected override Boolean NotInterestedIn(Object subject, string state)
-        {
-            return subject is MoleculeSyntax && !(subject is ValueSyntax);
-        }
-
-        protected override void WriteModuleClassAttributes(MoleculeSyntax molecule)
-        {
-            WriteLine("[ValueObject]");
-        }
+        public int Version { get; private set; }
     }
 }
