@@ -85,12 +85,14 @@ namespace iSynaptic
         [Test]
         public void RountTrip_Sampling()
         {
-            const ulong step = UInt64.MaxValue / 65535;
+            const UInt64 step = UInt64.MaxValue / 65535;
 
             UInt64 value = 0;
 
+            UInt64 count = 0;
             while (value <= UInt64.MaxValue)
             {
+                count++;
                 AssertRoundTrip(value);
 
                 if (value + step < value)
@@ -98,6 +100,29 @@ namespace iSynaptic
 
                 value += step;
             }
+
+            Console.WriteLine(count);
+        }
+
+        [Test]
+        public void Parse_WithInvalidCharacters_ThrowsException()
+        {
+            Assert.Throws<ArgumentException>(() => Base50EncodedUInt64.Parse("%$&#(-"));
+        }
+
+        [Test]
+        public void TryParse_WithInvalidCharacters_ReturnsNoValue()
+        {
+            var result = Base50EncodedUInt64.TryParse("%$&#(-");
+            Assert.IsFalse(result.HasValue);
+        }
+
+        [Test]
+        public void TryParse_WithValidInput_ReturnsValue()
+        {
+            var result = Base50EncodedUInt64.TryParse("10");
+            Assert.IsTrue(result.HasValue);
+            Assert.AreEqual(50, result.Value);
         }
 
         private void AssertRoundTrip(UInt64 startValue)

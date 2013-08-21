@@ -82,11 +82,5 @@
       <frameworkAssembly assemblyName="System.Xml" targetFramework="" />
       <frameworkAssembly assemblyName="System.Xml.Linq" targetFramework="" />
     </frameworkAssemblies>
-    <references>
-      <reference file="FluentAssertions.dll" />
-      <reference file="FluentAssertions.WindowsPhone.dll" />
-      <reference file="FluentAssertions.Silverlight.dll" />
-      <reference file="Microsoft.VisualStudio.QualityTools.UnitTesting.Silverlight.dll" />
-    </references>
   </metadata>
 </package>

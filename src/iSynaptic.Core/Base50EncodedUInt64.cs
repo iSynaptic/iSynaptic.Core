@@ -65,6 +65,17 @@ namespace iSynaptic
             _text = result.Value;
         }
 
+        private Base50EncodedUInt64(UInt64 value, String text)
+        {
+            _value = value;
+            _text = text;
+        }
+
+        public static Base50EncodedUInt64 Parse(String value)
+        {
+            return new Base50EncodedUInt64(value);
+        }
+
         public static Maybe<Base50EncodedUInt64> TryParse(String value)
         {
             if (value == null)
@@ -74,10 +85,13 @@ namespace iSynaptic
                 return Maybe<Base50EncodedUInt64>.NoValue;
 
             var result = FromString(value);
-            return new Base50EncodedUInt64(result).ToMaybe();
+
+            return result.HasValue 
+                ? new Maybe<Base50EncodedUInt64>(new Base50EncodedUInt64(result.Value, value)) 
+                : default(Maybe<Base50EncodedUInt64>);
         }
 
-        private static UInt64 FromString(String value)
+        private static Maybe<UInt64> FromString(String value)
         {
             UInt64 result = 0;
 
@@ -88,10 +102,14 @@ namespace iSynaptic
                 if (ch == '0')
                     continue;
 
-                result += IndexOf(ch) * Multiplier[i];
+                var index = IndexOf(ch);
+                if (index == UInt64.MaxValue)
+                    return default(Maybe<UInt64>);
+
+                result += index * Multiplier[i];
             }
 
-            return result;
+            return new Maybe<UInt64>(result);
         }
 
         private static String ToString(UInt64 value)
@@ -115,18 +133,18 @@ namespace iSynaptic
             return new String(result, indexOfLastNonZeroChar, MaxTextLenth - indexOfLastNonZeroChar);
         }
 
-        public override string ToString()
-        {
-            return _text ?? "0";
-        }
-
         private static UInt64 IndexOf(Char value)
         {
             Int32 index = value;
-            if(index >= AlphabetMap.Length || AlphabetMap[index] == UInt64.MaxValue)
-                throw new ArgumentException("Unrecognized character.");
+            if (index >= AlphabetMap.Length || AlphabetMap[index] == UInt64.MaxValue)
+                return UInt64.MaxValue;
 
             return AlphabetMap[index];
+        }
+
+        public override string ToString()
+        {
+            return _text ?? "0";
         }
 
         public bool Equals(Base50EncodedUInt64 other)
