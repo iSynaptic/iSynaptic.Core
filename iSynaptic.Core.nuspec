@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>iSynaptic.Core</id>
-    <version>0.1.17</version>
+    <version>0.1.18</version>
     <authors>Jordan Terrell</authors>
     <description>Framework for common application infrastructure.</description>
     <language>en-US</language>
@@ -13,7 +13,7 @@
       <frameworkAssembly assemblyName="System.Core" targetFramework="net45" />
     </frameworkAssemblies>
     <dependencies>
-      <dependency id="iSynaptic.Commons" version="0.4.22" />
+      <dependency id="iSynaptic.Commons" version="[0.4.22]" />
     </dependencies>
   </metadata>
   <files>
