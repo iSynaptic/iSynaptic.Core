@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>iSynaptic.Core.Persistence</id>
-    <version>0.1.19</version>
+    <version>0.1.20</version>
     <authors>Jordan Terrell</authors>
     <description>Persistence support for common application infrastructure.</description>
     <language>en-US</language>
@@ -13,9 +13,9 @@
       <frameworkAssembly assemblyName="System.Core" targetFramework="net45" />
     </frameworkAssemblies>
     <dependencies>
-      <dependency id="iSynaptic.Commons" version="[0.4.22]" />
-      <dependency id="iSynaptic.Core" version="[0.1.19]" />
-      <dependency id="iSynaptic.Core.Serialization" version="[0.1.19]" />
+      <dependency id="iSynaptic.Commons" version="[0.4.23,0.5)" />
+      <dependency id="iSynaptic.Core" version="[0.1.20]" />
+      <dependency id="iSynaptic.Core.Serialization" version="[0.1.20]" />
       <dependency id="Newtonsoft.Json" version="[5.0,6.0)" />
       <dependency id="EventStore.Client" version="[1.0.1]" />
     </dependencies>

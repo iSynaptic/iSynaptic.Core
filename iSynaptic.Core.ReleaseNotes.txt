@@ -3,6 +3,15 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.20 (October 10, 2013) ====
+
+---- Features ----
+
+* Upgraded to the latest version of iSynaptic.Commons and relaxed what
+  version of iSynaptic.Commons is supported
+
+
+
 ==== v0.1.19 (October 8, 2013) ====
 
 ---- Features ----
