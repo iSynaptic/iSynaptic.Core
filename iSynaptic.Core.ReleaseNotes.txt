@@ -3,6 +3,16 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.21 (January 13, 2014) ====
+
+---- Features ----
+
+* Bug Fix: InterleavingUniqueNumberGenerator doesn't allow you to generate
+  duplicate ids if you generate more than 4194304 ids per minute. It now 
+  throws an exception when you generate too many ids per minute.
+
+
+
 ==== v0.1.20 (October 10, 2013) ====
 
 ---- Features ----
