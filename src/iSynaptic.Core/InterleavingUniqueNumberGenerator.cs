@@ -67,6 +67,7 @@ namespace iSynaptic
         private sealed class Version00Generator : IVersionedGenerator
         {
             private const UInt64 MostSignificantBit = ((UInt64) 1) << 63;
+            private const UInt32 MaxSequenceNumber = (((UInt32) 1) << 22) - 1;
 
             private readonly UInt32 _nodeId;
             private readonly DateTime _epoch;
@@ -147,8 +148,9 @@ namespace iSynaptic
 
             public Version00Generator(UInt32 nodeId, DateTime epoch)
             {
-                if(_nodeId > 65535)
-                    throw new ArgumentException("Node Id cannot be greater than 4095.", "nodeId");
+                // TODO: Ensure this validation is correct...
+                if(nodeId > 65535)
+                    throw new ArgumentException("Node Id cannot be greater than 65535.", "nodeId");
 
                 _nodeId = nodeId;
                 _epoch = epoch;
@@ -172,6 +174,9 @@ namespace iSynaptic
                     }
 
                     UInt32 sequenceNumber = _nextSequenceNumber;
+                    if(_nextSequenceNumber + count > MaxSequenceNumber)
+                        throw new InvalidOperationException(String.Format("You can only generate {0} per minute.", MaxSequenceNumber));
+
                     _nextSequenceNumber += count;
 
                     UInt64[] ids = new UInt64[count];
@@ -188,9 +193,9 @@ namespace iSynaptic
                 }
             }
 
-            private UInt64 ComputeId(UInt32 time, UInt32 sequence)
+            private UInt64 ComputeId(UInt32 minutesFromEpoch, UInt32 sequence)
             {
-                _components[0] = new Component(time, ComponentKind.Time);
+                _components[0] = new Component(minutesFromEpoch, ComponentKind.Time);
                 _components[1] = new Component(_nodeId, ComponentKind.Node);
                 _components[2] = new Component(sequence, ComponentKind.Sequence);
 
