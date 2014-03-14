@@ -2,5 +2,5 @@
 
 namespace iSynaptic.TestDomain
 {
-    aggregate<T:*> Base { }
+    aggregate<T:*> Base;
 }

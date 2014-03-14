@@ -115,7 +115,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               from isExternal in Flag("external")
               from keyword in Parse.String("enum")
               from name in SimpleName
-              from values in Blocked(EnumValue.Delimit(",").Optional())
+              from values in Blocked(EnumValue.Delimit(",").Optional()).Or(StatementEnd.Select(x => Enumerable.Empty<EnumValueSyntax>()))
               select Syntax.Enum(isExternal, name, values, annotations);
 
         public static readonly Parser<ScalarValueSyntax> ScalarValue
@@ -137,7 +137,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               from keyword in Parse.String("value")
               from name in SimpleName
               from @base in InheritsFrom(Name).Optional()
-              from atoms in Blocked(Atom.Many())
+              from atoms in Blocked(Atom.Many()).Or(StatementEnd.Select(x => Enumerable.Empty<AtomSyntax>()))
               select Syntax.Value(isExternal, isAbstract, isPartial, name, @base, atoms, annotations);
 
         public static readonly Parser<Maybe<TypeReferenceSyntax>> AggregateIdentifierConstraint
@@ -160,7 +160,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               from keyword in Parse.String("event")
               from name in IdentifierName
               from @base in InheritsFrom(Name).Optional()
-              from atoms in Blocked(Atom.Many())
+              from atoms in Blocked(Atom.Many()).Or(StatementEnd.Select(x => Enumerable.Empty<AtomSyntax>()))
               select Syntax.AggregateEvent(false, isAbstract, isPartial, name, @base, atoms, annotations);
 
         public static readonly Parser<AggregateSnapshotSyntax> AggregateSnapshot
@@ -184,7 +184,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
               from identifier in AggregateIdentifier.Surround('<', '>').Optional()
               from name in SimpleName
               from baseAggregate in InheritsFrom(Name).Optional()
-              from members in Blocked(AggregateMember.Many())
+              from members in Blocked(AggregateMember.Many()).Or(StatementEnd.Select(x => Enumerable.Empty<IAggregateMember>()))
               select Syntax.Aggregate(false, isAbstract, name, identifier, baseAggregate, members, annotations);
 
         public static readonly Parser<NamespaceSyntax> Namespace

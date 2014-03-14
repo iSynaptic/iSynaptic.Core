@@ -3,5 +3,5 @@
 namespace iSynaptic.TestDomain
 {
     external enum TimeOfDay { }
-    external value DateRange { }
+    external value DateRange;
 }
