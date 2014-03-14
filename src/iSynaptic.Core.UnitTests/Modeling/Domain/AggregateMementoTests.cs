@@ -46,8 +46,9 @@ namespace iSynaptic.Modeling.Domain
 
             thread.RecordCommunication(
                 CommunicationDirection.Incoming, 
-                ServiceCase.SampleContent.CommunicationContent, 
-                SystemClock.UtcNow);
+                ServiceCase.SampleContent.CommunicationContent,
+                SystemClock.UtcNow,
+                ServiceCase.SampleContent.CommunicationDuration);
 
             var memento = new AggregateMemento<ServiceCaseId>(
                 typeof (ServiceCase),

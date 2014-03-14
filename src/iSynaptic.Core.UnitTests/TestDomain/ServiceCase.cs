@@ -39,6 +39,7 @@ namespace iSynaptic.TestDomain
             public const String Topic = "Warranty lapsed";
             public const String TopicDescription = "Warranty no longer covers battery since the warranty expires after 90 days.";
             public const String CommunicationContent = "I can't believe your not going to replace this battery!!!";
+            public static readonly TimeSpan CommunicationDuration = TimeSpan.FromMinutes(20);
         }
 
         private Int32 _lastThreadId;
@@ -58,9 +59,9 @@ namespace iSynaptic.TestDomain
                 Description = description;
             }
 
-            public void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime)
+            public void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration)
             {
-                _serviceCase.ApplyEvent((id, ver) => new CommunicationRecorded(ThreadId, direction, content, communicationTime, id, ver));
+                _serviceCase.ApplyEvent((id, ver) => new CommunicationRecorded(ThreadId, direction, content, communicationTime, duration, id, ver));
             }
 
             // these exists ONLY for testing purposes; aggregates should not expose state
@@ -151,7 +152,7 @@ namespace iSynaptic.TestDomain
 
     public interface ICommunicationThread
     {
-        void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime);
+        void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration);
 
         // these exists ONLY for testing purposes; aggregates should not expose state
         Int32 ThreadId { get; }

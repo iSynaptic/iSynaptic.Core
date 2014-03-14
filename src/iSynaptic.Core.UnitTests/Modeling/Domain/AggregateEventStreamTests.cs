@@ -127,7 +127,7 @@ namespace iSynaptic.Modeling.Domain
             var stream = new AggregateEventStream<ServiceCaseId>();
 
             var e2 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 2);
-            var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 3);
+            var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, _id, 3);
 
             stream.AppendEvent(_openedEvent);
             stream.AppendEvent(e2);
@@ -151,7 +151,7 @@ namespace iSynaptic.Modeling.Domain
             var stream = new AggregateEventStream<ServiceCaseId>();
 
             var e2 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 2);
-            var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 3);
+            var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, _id, 3);
 
             stream.AppendEvent(_openedEvent);
             stream.AppendEvent(e2);
@@ -177,7 +177,7 @@ namespace iSynaptic.Modeling.Domain
             var stream = new AggregateEventStream<ServiceCaseId>();
 
             var e2 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 2);
-            var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 3);
+            var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, _id, 3);
 
             stream.AppendEvent(_openedEvent);
             stream.AppendEvent(e2);
@@ -203,8 +203,8 @@ namespace iSynaptic.Modeling.Domain
             var stream = new AggregateEventStream<ServiceCaseId>();
 
             var e1 = new ServiceCase.CommunicationThreadStarted(1, ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, _id, 7);
-            var e2 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 8);
-            var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, _id, 9);
+            var e2 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, _id, 8);
+            var e3 = new ServiceCase.CommunicationRecorded(1, CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, _id, 9);
 
             stream.AppendEvent(e1);
             stream.AppendEvent(e2);

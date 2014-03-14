@@ -46,7 +46,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
             new BuiltInType((NameSyntax)"sbyte", typeof(sbyte)),
             new BuiltInType((NameSyntax)"string", typeof(string)),
             new BuiltInType((NameSyntax)"guid", typeof(Guid)),
-            new BuiltInType((NameSyntax)"datetime", typeof(DateTime))
+            new BuiltInType((NameSyntax)"datetime", typeof(DateTime)),
+            new BuiltInType((NameSyntax)"timespan", typeof(TimeSpan))
         };
 
         private readonly NameSyntax _alias;

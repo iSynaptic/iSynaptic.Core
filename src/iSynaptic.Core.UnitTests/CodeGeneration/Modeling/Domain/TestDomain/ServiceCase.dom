@@ -36,6 +36,7 @@ namespace iSynaptic.TestDomain
             CommunicationDirection Direction;
             String Content;
             DateTime CommunicationTime;
+			TimeSpan Duration;
         }
     }
 }

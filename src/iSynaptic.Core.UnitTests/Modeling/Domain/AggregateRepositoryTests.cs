@@ -29,6 +29,24 @@ namespace iSynaptic.Modeling.Domain
             reconsituted.Title.Should().Be(serviceCase.Title);
             reconsituted.Description.Should().Be(serviceCase.Description);
             reconsituted.Priority.Should().Be(serviceCase.Priority);
+
+            var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
+            thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration);
+
+            await Repo.Save(serviceCase);
+
+            reconsituted = await Repo.Get(serviceCase.Id);
+            reconsituted.Should().NotBeNull();
+            reconsituted.Should().NotBeSameAs(serviceCase);
+
+            reconsituted.GetEvents().Count().Should().Be(3);
+            var events = reconsituted.GetEvents().ToArray();
+
+            var commRecordedEvent = events[2] as ServiceCase.CommunicationRecorded;
+            commRecordedEvent.Should().NotBeNull();
+            commRecordedEvent.Direction.Should().Be(CommunicationDirection.Incoming);
+            commRecordedEvent.Content.Should().Be(ServiceCase.SampleContent.CommunicationContent);
+            commRecordedEvent.Duration.Should().Be(ServiceCase.SampleContent.CommunicationDuration);
         }
 
         [Test]
@@ -85,7 +103,7 @@ namespace iSynaptic.Modeling.Domain
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
 
-            thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow);
+            thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration);
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
 
@@ -155,7 +173,7 @@ namespace iSynaptic.Modeling.Domain
             winner.StartCommunicationThread("Win", "Winning");
             await Repo.Save(winner);
 
-            secondWinner.Threads.First().RecordCommunication(CommunicationDirection.Outgoing, "Also Win", SystemClock.UtcNow);
+            secondWinner.Threads.First().RecordCommunication(CommunicationDirection.Outgoing, "Also Win", SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration);
             await Repo.Save(secondWinner);
 
             secondWinner.Version.Should().Be(4);
