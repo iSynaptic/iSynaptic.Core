@@ -2,8 +2,9 @@
 *.user
 *.vs10x
 *.docstates
+*.ide
 bin/
 obj/
 Build/
-_ReSharper.*/
+_ReSharper*
 *.dotCover
