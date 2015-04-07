@@ -15,7 +15,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task RoundTrip()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
 
@@ -30,8 +30,8 @@ namespace iSynaptic.Modeling.Domain
             reconsituted.Description.Should().Be(serviceCase.Description);
             reconsituted.Priority.Should().Be(serviceCase.Priority);
 
-            var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription);
-            thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration);
+            var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, ServiceCase.SampleContent.ResponsibleParty);
+            thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
 
@@ -52,7 +52,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task RoundTrip_UsingSnapshot()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
@@ -72,13 +72,14 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task RoundTrip_WithChangeAfterSnapshot()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
 
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
-                                                 ServiceCase.SampleContent.TopicDescription);
+                                                 ServiceCase.SampleContent.TopicDescription,
+                                                 ServiceCase.SampleContent.ResponsibleParty);
             await Repo.Save(serviceCase);
 
             var reconsituted = await Repo.Get(serviceCase.Id);
@@ -96,14 +97,15 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task RoundTrip_WithMultipleSnapshots()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
-                                                              ServiceCase.SampleContent.TopicDescription);
+                                                              ServiceCase.SampleContent.TopicDescription,
+                                                              ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
 
-            thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration);
+            thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, ServiceCase.SampleContent.ResponsibleParty);
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
 
@@ -122,9 +124,10 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task TakingSnapshot_ForSameVersion_IsOkay()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
-                                                 ServiceCase.SampleContent.TopicDescription);
+                                                 ServiceCase.SampleContent.TopicDescription,
+                                                 ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
@@ -134,19 +137,20 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task ConcurrecyConflict_WithTrueConflict_ThrowsException()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
-                                                 ServiceCase.SampleContent.TopicDescription);
+                                                 ServiceCase.SampleContent.TopicDescription,
+                                                 ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
 
             var winner = await Repo.Get(serviceCase.Id, Int32.MaxValue);
             var loser = await Repo.Get(serviceCase.Id, Int32.MaxValue);
 
-            winner.StartCommunicationThread("Win", "Winning");
+            winner.StartCommunicationThread("Win", "Winning", ServiceCase.SampleContent.ResponsibleParty);
             await Repo.Save(winner);
 
-            loser.StartCommunicationThread("Lose", "Loosing");
+            loser.StartCommunicationThread("Lose", "Loosing", ServiceCase.SampleContent.ResponsibleParty);
 
             try
             {
@@ -161,19 +165,20 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task ConcurrencyConflict_WithFalseConflict_ResolvesConflict()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
-                                                 ServiceCase.SampleContent.TopicDescription);
+                                                 ServiceCase.SampleContent.TopicDescription,
+                                                 ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
 
             var winner = await Repo.Get(serviceCase.Id, Int32.MaxValue);
             var secondWinner = await Repo.Get(serviceCase.Id, Int32.MaxValue);
 
-            winner.StartCommunicationThread("Win", "Winning");
+            winner.StartCommunicationThread("Win", "Winning", ServiceCase.SampleContent.ResponsibleParty);
             await Repo.Save(winner);
 
-            secondWinner.Threads.First().RecordCommunication(CommunicationDirection.Outgoing, "Also Win", SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration);
+            secondWinner.Threads.First().RecordCommunication(CommunicationDirection.Outgoing, "Also Win", SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, ServiceCase.SampleContent.ResponsibleParty);
             await Repo.Save(secondWinner);
 
             secondWinner.Version.Should().Be(4);

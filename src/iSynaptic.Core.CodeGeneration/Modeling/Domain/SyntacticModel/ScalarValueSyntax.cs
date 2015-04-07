@@ -43,6 +43,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         public Boolean IsValueType { get { return false; } }
         public Boolean HasValueSemantics { get { return true; } }
 
-        Maybe<NameSyntax> ITypeWithBase.Base { get { return Name.ToMaybe(); } }
+        Maybe<NameSyntax> ITypeWithBase.Base { get { return Base.ToMaybe(); } }
     }
 }

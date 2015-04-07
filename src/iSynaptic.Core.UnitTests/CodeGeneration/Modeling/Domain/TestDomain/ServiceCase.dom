@@ -16,21 +16,21 @@ namespace iSynaptic.TestDomain
         }
 
 		[Event(Version = "3")]
-        event Opened
+        event Opened : BaseEvent
         {
             String Title;
             String Description;
             ServiceCasePriority Priority;
         }
 
-        event CommunicationThreadStarted
+        event CommunicationThreadStarted : BaseEvent
         {
             Int32 ThreadId;
             String Topic;
             String Description;
         }
 
-        event CommunicationRecorded
+        event CommunicationRecorded : BaseEvent
         {
             Int32 ThreadId;
             CommunicationDirection Direction;

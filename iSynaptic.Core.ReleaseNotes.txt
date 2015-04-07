@@ -3,6 +3,15 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.22 (April 7, 2015) ====
+
+---- Features ----
+
+* AggregateEvents can now inherit from events defined in base aggregate
+  when defined in the DSL
+
+
+
 ==== v0.1.21 (January 13, 2014) ====
 
 ---- Features ----

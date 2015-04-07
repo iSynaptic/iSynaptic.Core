@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using iSynaptic.Commons;
@@ -59,6 +60,22 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if(symbol.HasValue)
                 return new SymbolResolution(symbol.Value);
 
+            var parent = context.Parent as ISymbol;
+            var typeWithBase = context as ITypeWithBase;
+
+            if (parent != null && typeWithBase != null && typeWithBase.Base.HasValue)
+            {
+                var @base = Resolve(parent, typeWithBase.Base.Value);
+
+                if (@base.Status == SymbolResolutionStatus.Found)
+                {
+                    var baseResolution = Resolve(@base.Symbol, name);
+
+                    if (baseResolution.Status != SymbolResolutionStatus.NotFound)
+                        return baseResolution;
+                }
+            }
+
             var usingsContainer = context as IUsingsContainer;
             if (usingsContainer != null)
             {
@@ -73,7 +90,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                    .Skip(1)
                    .SelectMaybe(x => _map.TryGetValue(x + name))
                    .Select(x => new SymbolResolution(x))
-                   .TryFirst(x => x.Status == SymbolResolutionStatus.Found)
+                   .TryFirst(x => x.Status != SymbolResolutionStatus.NotFound)
                    .ValueOrDefault();
 
             if (contextualResolution.Status != SymbolResolutionStatus.NotFound)

@@ -58,6 +58,23 @@ namespace iSynaptic.TestDomain
         [GeneratedCode("iSynaptic.Core", "0.1.21.0")]
         protected Base(AggregateEvent<T> startEvent) { ApplyEvent(startEvent); }
 
+        [AggregateEventVersion(1)]
+        public abstract class BaseEvent : AggregateEvent<T>
+        {
+            private readonly String _responsibleParty;
+
+            [GeneratedCode("iSynaptic.Core", "0.1.21.0")]
+            protected BaseEvent(String responsibleParty, T id, Int32 version)
+                : base(id, version)
+            {
+                if (ReferenceEquals(responsibleParty, null)) throw new ArgumentNullException("responsibleParty");
+
+                _responsibleParty = responsibleParty;
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.1.21.0")]
+            public String ResponsibleParty { get { return _responsibleParty; } }
+        }
     }
 }
 namespace iSynaptic.TestDomain
@@ -68,15 +85,15 @@ namespace iSynaptic.TestDomain
         protected ServiceCase(AggregateEvent<ServiceCaseId> startEvent) : base(startEvent) { }
 
         [AggregateEventVersion(3)]
-        public class Opened : AggregateEvent<ServiceCaseId>
+        public class Opened : BaseEvent
         {
             private readonly String _title;
             private readonly String _description;
             private readonly ServiceCasePriority _priority;
 
             [GeneratedCode("iSynaptic.Core", "0.1.21.0")]
-            public Opened(String title, String description, ServiceCasePriority priority, ServiceCaseId id, Int32 version)
-                : base(id, version)
+            public Opened(String title, String description, ServiceCasePriority priority, String responsibleParty, ServiceCaseId id, Int32 version)
+                : base(responsibleParty, id, version)
             {
                 if (ReferenceEquals(title, null)) throw new ArgumentNullException("title");
                 if (ReferenceEquals(description, null)) throw new ArgumentNullException("description");
@@ -94,15 +111,15 @@ namespace iSynaptic.TestDomain
             public ServiceCasePriority Priority { get { return _priority; } }
         }
         [AggregateEventVersion(1)]
-        public class CommunicationThreadStarted : AggregateEvent<ServiceCaseId>
+        public class CommunicationThreadStarted : BaseEvent
         {
             private readonly Int32 _threadId;
             private readonly String _topic;
             private readonly String _description;
 
             [GeneratedCode("iSynaptic.Core", "0.1.21.0")]
-            public CommunicationThreadStarted(Int32 threadId, String topic, String description, ServiceCaseId id, Int32 version)
-                : base(id, version)
+            public CommunicationThreadStarted(Int32 threadId, String topic, String description, String responsibleParty, ServiceCaseId id, Int32 version)
+                : base(responsibleParty, id, version)
             {
                 if (ReferenceEquals(topic, null)) throw new ArgumentNullException("topic");
                 if (ReferenceEquals(description, null)) throw new ArgumentNullException("description");
@@ -120,7 +137,7 @@ namespace iSynaptic.TestDomain
             public String Description { get { return _description; } }
         }
         [AggregateEventVersion(1)]
-        public class CommunicationRecorded : AggregateEvent<ServiceCaseId>
+        public class CommunicationRecorded : BaseEvent
         {
             private readonly Int32 _threadId;
             private readonly CommunicationDirection _direction;
@@ -129,8 +146,8 @@ namespace iSynaptic.TestDomain
             private readonly TimeSpan _duration;
 
             [GeneratedCode("iSynaptic.Core", "0.1.21.0")]
-            public CommunicationRecorded(Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, ServiceCaseId id, Int32 version)
-                : base(id, version)
+            public CommunicationRecorded(Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty, ServiceCaseId id, Int32 version)
+                : base(responsibleParty, id, version)
             {
                 if (ReferenceEquals(content, null)) throw new ArgumentNullException("content");
 
@@ -474,8 +491,7 @@ namespace iSynaptic.TestDomain
     public partial class SpecialServiceCaseId : ServiceCaseId, IEquatable<SpecialServiceCaseId>
     {
         [GeneratedCode("iSynaptic.Core", "0.1.21.0")]
-        public SpecialServiceCaseId(System.Guid value)
-            : base(value)
+        public SpecialServiceCaseId(System.Guid value) : base(value)
         {
             Validate(value);
         }

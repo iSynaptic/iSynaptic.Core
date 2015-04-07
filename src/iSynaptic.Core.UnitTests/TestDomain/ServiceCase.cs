@@ -39,6 +39,7 @@ namespace iSynaptic.TestDomain
             public const String Topic = "Warranty lapsed";
             public const String TopicDescription = "Warranty no longer covers battery since the warranty expires after 90 days.";
             public const String CommunicationContent = "I can't believe your not going to replace this battery!!!";
+            public const String ResponsibleParty = "John May Lives";
             public static readonly TimeSpan CommunicationDuration = TimeSpan.FromMinutes(20);
         }
 
@@ -59,9 +60,9 @@ namespace iSynaptic.TestDomain
                 Description = description;
             }
 
-            public void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration)
+            public void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty)
             {
-                _serviceCase.ApplyEvent((id, ver) => new CommunicationRecorded(ThreadId, direction, content, communicationTime, duration, id, ver));
+                _serviceCase.ApplyEvent((id, ver) => new CommunicationRecorded(ThreadId, direction, content, communicationTime, duration, responsibleParty, id, ver));
             }
 
             // these exists ONLY for testing purposes; aggregates should not expose state
@@ -72,8 +73,8 @@ namespace iSynaptic.TestDomain
 
         #endregion
 
-        public ServiceCase(String title, String description, ServiceCasePriority priority)
-            : this(new Opened(title, description, priority, Guid.NewGuid(), 1))
+        public ServiceCase(String title, String description, ServiceCasePriority priority, String responsibleParty)
+            : this(new Opened(title, description, priority, responsibleParty, Guid.NewGuid(), 1))
         {
         }
 
@@ -106,11 +107,11 @@ namespace iSynaptic.TestDomain
 
         #region Commands
 
-        public virtual ICommunicationThread StartCommunicationThread(String topic, String description)
+        public virtual ICommunicationThread StartCommunicationThread(String topic, String description, String responsibleParty)
         {
             Int32 newThreadId = _lastThreadId + 1;
 
-            ApplyEvent((id, ver) => new CommunicationThreadStarted(newThreadId, topic, description, id, ver));
+            ApplyEvent((id, ver) => new CommunicationThreadStarted(newThreadId, topic, description, responsibleParty, id, ver));
 
             return _threads.Single(x => x.ThreadId == newThreadId);
         }
@@ -152,7 +153,7 @@ namespace iSynaptic.TestDomain
 
     public interface ICommunicationThread
     {
-        void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration);
+        void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty);
 
         // these exists ONLY for testing purposes; aggregates should not expose state
         Int32 ThreadId { get; }

@@ -4,3 +4,4 @@
 * Move Visitor implementation into Commons
 * Make IVisitableChildren contract pattern-based instead on nominally type-based
 * Collapse all Visitor & Project "dispatch" logic into one helper (perhaps a general dispatcher in Commons)
+* Implement real domain model in unit tests instead of convoluted abitrary model

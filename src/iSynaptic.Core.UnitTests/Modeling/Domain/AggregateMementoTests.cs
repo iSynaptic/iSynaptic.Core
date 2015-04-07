@@ -38,17 +38,20 @@ namespace iSynaptic.Modeling.Domain
             var serviceCase = new ServiceCase(
                 ServiceCase.SampleContent.Title, 
                 ServiceCase.SampleContent.Description, 
-                ServiceCasePriority.Normal);
+                ServiceCasePriority.Normal,
+                ServiceCase.SampleContent.ResponsibleParty);
 
             var thread = serviceCase.StartCommunicationThread(
                 ServiceCase.SampleContent.Topic, 
-                ServiceCase.SampleContent.TopicDescription);
+                ServiceCase.SampleContent.TopicDescription,
+                ServiceCase.SampleContent.ResponsibleParty);
 
             thread.RecordCommunication(
                 CommunicationDirection.Incoming, 
                 ServiceCase.SampleContent.CommunicationContent,
                 SystemClock.UtcNow,
-                ServiceCase.SampleContent.CommunicationDuration);
+                ServiceCase.SampleContent.CommunicationDuration,
+                ServiceCase.SampleContent.ResponsibleParty);
 
             var memento = new AggregateMemento<ServiceCaseId>(
                 typeof (ServiceCase),

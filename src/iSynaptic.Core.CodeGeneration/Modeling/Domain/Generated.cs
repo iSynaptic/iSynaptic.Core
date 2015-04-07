@@ -385,8 +385,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         private readonly Internal.NamedAggregateIdentifierSyntax _underlying;
 
-        internal NamedAggregateIdentifierSyntax(AggregateSyntax parent, Internal.NamedAggregateIdentifierSyntax underlying)
-            : base(parent, underlying)
+        internal NamedAggregateIdentifierSyntax(AggregateSyntax parent, Internal.NamedAggregateIdentifierSyntax underlying) : base(parent, underlying)
         {
             _underlying = underlying;
         }
@@ -406,8 +405,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         private readonly Internal.GenericAggregateIdentifierSyntax _underlying;
 
-        internal GenericAggregateIdentifierSyntax(AggregateSyntax parent, Internal.GenericAggregateIdentifierSyntax underlying)
-            : base(parent, underlying)
+        internal GenericAggregateIdentifierSyntax(AggregateSyntax parent, Internal.GenericAggregateIdentifierSyntax underlying) : base(parent, underlying)
         {
             _underlying = underlying;
         }
@@ -718,8 +716,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         private readonly AggregateSyntax _parent;
         private readonly Internal.AggregateEventSyntax _underlying;
 
-        internal AggregateEventSyntax(AggregateSyntax parent, Internal.AggregateEventSyntax underlying)
-            : base(parent, underlying)
+        internal AggregateEventSyntax(AggregateSyntax parent, Internal.AggregateEventSyntax underlying) : base(parent, underlying)
         {
             _parent = parent;
             _underlying = underlying;
@@ -735,8 +732,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         private readonly AggregateSyntax _parent;
         private readonly Internal.AggregateSnapshotSyntax _underlying;
 
-        internal AggregateSnapshotSyntax(AggregateSyntax parent, Internal.AggregateSnapshotSyntax underlying)
-            : base(parent, underlying)
+        internal AggregateSnapshotSyntax(AggregateSyntax parent, Internal.AggregateSnapshotSyntax underlying) : base(parent, underlying)
         {
             _parent = parent;
             _underlying = underlying;
@@ -864,8 +860,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         private readonly NamespaceSyntax _parent;
         private readonly Internal.ValueSyntax _underlying;
 
-        internal ValueSyntax(NamespaceSyntax parent, Internal.ValueSyntax underlying)
-            : base(parent, underlying)
+        internal ValueSyntax(NamespaceSyntax parent, Internal.ValueSyntax underlying) : base(parent, underlying)
         {
             _parent = parent;
             _underlying = underlying;
@@ -922,8 +917,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         private readonly Internal.SimpleNameSyntax _underlying;
 
-        internal SimpleNameSyntax(Internal.SimpleNameSyntax underlying)
-            : base(underlying)
+        internal SimpleNameSyntax(Internal.SimpleNameSyntax underlying) : base(underlying)
         {
             _underlying = underlying;
         }
@@ -943,8 +937,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         private readonly Internal.IdentifierNameSyntax _underlying;
 
-        internal IdentifierNameSyntax(Internal.IdentifierNameSyntax underlying)
-            : base(underlying)
+        internal IdentifierNameSyntax(Internal.IdentifierNameSyntax underlying) : base(underlying)
         {
             _underlying = underlying;
         }
@@ -957,8 +950,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         private readonly Internal.GenericNameSyntax _underlying;
 
-        internal GenericNameSyntax(Internal.GenericNameSyntax underlying)
-            : base(underlying)
+        internal GenericNameSyntax(Internal.GenericNameSyntax underlying) : base(underlying)
         {
             _underlying = underlying;
         }
@@ -984,8 +976,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
     {
         private readonly Internal.QualifiedNameSyntax _underlying;
 
-        internal QualifiedNameSyntax(Internal.QualifiedNameSyntax underlying)
-            : base(underlying)
+        internal QualifiedNameSyntax(Internal.QualifiedNameSyntax underlying) : base(underlying)
         {
             _underlying = underlying;
         }
@@ -1396,8 +1387,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         internal class AggregateEventSyntax : MoleculeSyntax, IAggregateMember, IAstUnderlyingNode<SyntacticModel.AggregateEventSyntax, SyntacticModel.AggregateSyntax>
         {
 
-            public AggregateEventSyntax(Boolean isExternal, Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
-                : base(isExternal, isAbstract, isPartial, simpleName, @base, atoms, annotations)
+            public AggregateEventSyntax(Boolean isExternal, Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations) : base(isExternal, isAbstract, isPartial, simpleName, @base, atoms, annotations)
             {
             }
 
@@ -1416,8 +1406,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         internal class AggregateSnapshotSyntax : MoleculeSyntax, IAggregateMember, IAstUnderlyingNode<SyntacticModel.AggregateSnapshotSyntax, SyntacticModel.AggregateSyntax>
         {
 
-            public AggregateSnapshotSyntax(Boolean isExternal, Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
-                : base(isExternal, isAbstract, isPartial, simpleName, @base, atoms, annotations)
+            public AggregateSnapshotSyntax(Boolean isExternal, Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations) : base(isExternal, isAbstract, isPartial, simpleName, @base, atoms, annotations)
             {
             }
 
@@ -1501,8 +1490,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         internal class ValueSyntax : MoleculeSyntax, INamespaceMember, IAstUnderlyingNode<SyntacticModel.ValueSyntax, SyntacticModel.NamespaceSyntax>
         {
 
-            public ValueSyntax(Boolean isExternal, Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations)
-                : base(isExternal, isAbstract, isPartial, simpleName, @base, atoms, annotations)
+            public ValueSyntax(Boolean isExternal, Boolean isAbstract, Boolean isPartial, SimpleNameSyntax simpleName, Maybe<NameSyntax> @base, IEnumerable<AtomSyntax> atoms, IEnumerable<AnnotationSyntax> annotations) : base(isExternal, isAbstract, isPartial, simpleName, @base, atoms, annotations)
             {
             }
 
@@ -1571,8 +1559,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         internal class IdentifierNameSyntax : SimpleNameSyntax, IAstUnderlyingNode<SyntacticModel.IdentifierNameSyntax, Object>
         {
 
-            public IdentifierNameSyntax(String identifier)
-                : base(identifier)
+            public IdentifierNameSyntax(String identifier) : base(identifier)
             {
             }
 
@@ -1592,8 +1579,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         {
             private readonly NameSyntax[] _typeArguments;
 
-            public GenericNameSyntax(IEnumerable<NameSyntax> typeArguments, String identifier)
-                : base(identifier)
+            public GenericNameSyntax(IEnumerable<NameSyntax> typeArguments, String identifier) : base(identifier)
             {
                 _typeArguments = typeArguments.ToArray();
             }
@@ -1637,4 +1623,5 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel
         }
     }
 }
+
 
