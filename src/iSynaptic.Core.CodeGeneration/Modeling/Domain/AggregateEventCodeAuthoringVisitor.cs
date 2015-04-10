@@ -82,5 +82,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
             return false;
         }
+
+        protected override bool ShouldImplementEssencePattern(MoleculeSyntax molecule)
+        {
+            return false;
+        }
     }
 }

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>iSynaptic.Core</id>
-    <version>0.1.22</version>
+    <version>0.1.23</version>
     <authors>Jordan Terrell</authors>
     <description>Framework for common application infrastructure.</description>
     <language>en-US</language>

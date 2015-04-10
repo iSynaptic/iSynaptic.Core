@@ -42,6 +42,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return true;
         }
 
+        protected virtual bool ShouldImplementEssencePattern(MoleculeSyntax molecule)
+        {
+            return true;
+        }
+
         protected virtual Maybe<String> GetBaseMolecule(MoleculeSyntax molecule)
         {
             return molecule.Base.Select(x => x.ToString());
@@ -125,6 +130,12 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                     WriteLine();
                 }
 
+                if (ShouldImplementEssencePattern(molecule))
+                {
+                    WriteEssenceImplementation(molecule);
+                    WriteLine();
+                }
+
                 Dispatch(molecule.Atoms, "property");
             }
         }
@@ -202,6 +213,74 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             WriteLine("public static Boolean operator !=({0} left, {0} right) {{ return !(left == right); }}", molecule.Name);
         }
 
+        private void WriteEssenceImplementation(MoleculeSyntax molecule)
+        {
+            if (!molecule.Atoms.Any() && molecule.IsAbstract)
+                return;
+
+            var baseMolecules = molecule.GetInheritanceHierarchy(SymbolTable).Cast<MoleculeSyntax>().ToArray();
+            var baseAtoms = baseMolecules.SelectMany(x => x.Atoms).ToArray();
+            var allAtoms = molecule.Atoms.Concat(baseAtoms).ToArray();
+
+            Func<MoleculeSyntax, bool> needsEssence = x => x.Atoms.Any();
+
+            var closestBase = baseMolecules.TryFirst(needsEssence);
+            var furthestBase = baseMolecules.TryLast(needsEssence);
+
+            string newFlag = closestBase.HasValue ? "new " : "";
+            string inheritanceFlag = furthestBase.HasValue ? "override " : "virtual ";
+
+            WriteGeneratedCodeAttribute();
+            WriteLine();
+            using (WriteBlock("public {0}{1}class Essence{2}",
+                newFlag,
+                molecule.IsAbstract ? "abstract " : "",
+                closestBase.Select(x => string.Format(" : {0}.Essence", x.Name)).ValueOrDefault("")))
+            {
+                Dispatch(molecule.Atoms, "essenceProperty");
+                WriteLine();
+
+                using (WriteBlock("public {0}{1} Create()", newFlag, molecule.Name))
+                {
+                    WriteLine("return ({0})CreateValue();", molecule.Name);
+                }
+                WriteLine();
+
+                if (!molecule.IsAbstract)
+                {
+                    using (WriteBlock("protected {0}{1} CreateValue()", inheritanceFlag, furthestBase.ValueOrDefault(molecule).Name))
+                    {
+                        Write("return new {0}(", molecule.Name);
+                        Delimit(allAtoms, "name", ", ");
+                        WriteLine(");");
+                    }
+                }
+                else if(!furthestBase.HasValue)
+                    WriteLine("protected abstract {0} CreateValue();", molecule.Name);
+            }
+            WriteLine();
+
+            using (WriteBlock("public {0}Essence ToEssence()", newFlag))
+            {
+                WriteLine("return (Essence)CreateEssence();");
+            }
+            WriteLine();
+
+            if (!molecule.IsAbstract)
+            {
+                using (WriteBlock("protected {0}{1}.Essence CreateEssence()", inheritanceFlag, furthestBase.ValueOrDefault(molecule).Name))
+                {
+                    using (WriteStatementBlock("return new Essence"))
+                    {
+                        Delimit(allAtoms, "essenceCopyProperty", ",\r\n");
+                        WriteLine();
+                    }
+                }
+            }
+            else if (!furthestBase.HasValue)
+                WriteLine("protected abstract {0}.Essence CreateEssence();", molecule.Name);
+        }
+
         protected class AtomInfo
         {
             private readonly SimpleNameSyntax _name;
@@ -248,13 +327,29 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             String argumentName = SafeIdentifier(Camelize(atom.Name));
             String propertyName = Pascalize(atom.Name);
 
+            if(mode == "name")
+                Write(propertyName);
+
             if (mode == "field")
                 WriteLine("private readonly {0} {1};", typeString, fieldName);
 
             if (mode == "property")
             {
                 WriteGeneratedCodeAttribute();
-                WriteLine(" public {0} {1} {{ get {{ return {2}; }} }}", typeString, propertyName, fieldName);
+                WriteLine();
+                WriteLine("public {0} {1} {{ get {{ return {2}; }} }}", typeString, propertyName, fieldName);
+            }
+
+            if (mode == "essenceProperty")
+            {
+                WriteGeneratedCodeAttribute();
+                WriteLine();
+                WriteLine("public {0} {1} {{ protected get; set; }}", typeString, propertyName);
+            }
+
+            if (mode == "essenceCopyProperty")
+            {
+                Write("{0} = {0}", propertyName);
             }
 
             if (mode == "validateArgument")

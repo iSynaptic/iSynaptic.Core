@@ -3,7 +3,7 @@
 namespace iSynaptic.TestDomain
 {
     [Annotation(Key = "Value")]
-    value CommunicationThreadSnapshot
+    partial value CommunicationThreadSnapshot
     {
         [Annotation(Key = "Value")]
         Int32 ThreadId;

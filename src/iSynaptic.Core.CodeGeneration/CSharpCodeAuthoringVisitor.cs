@@ -50,7 +50,7 @@ namespace iSynaptic.CodeGeneration
 
         protected virtual IDisposable WithStatementBlock()
         {
-            return WithBlock("{", "}");
+            return WithBlock("{", "};");
         }
 
         protected virtual IDisposable WriteBlock(String formatString, params object[] args)

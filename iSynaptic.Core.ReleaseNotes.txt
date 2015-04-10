@@ -3,6 +3,14 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.23 (April 10, 2015) ====
+
+---- Features ----
+
+* Adding Essence pattern implementation to Domain Model generator.
+
+
+
 ==== v0.1.22 (April 7, 2015) ====
 
 ---- Features ----
