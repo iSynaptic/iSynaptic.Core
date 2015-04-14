@@ -55,6 +55,7 @@
     <Compile Include="LogicalTypeSerializationBinder.cs" />
     <Compile Include="LogicalTypeJsonConverter.cs" />
     <Compile Include="ResultJsonConverter.cs" />
+    <Compile Include="ScalarValueConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\iSynaptic.Core\iSynaptic.Core.csproj">

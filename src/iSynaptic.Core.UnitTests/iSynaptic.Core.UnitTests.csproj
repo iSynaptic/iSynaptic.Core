@@ -101,6 +101,7 @@
     <Compile Include="LogicalTypeTests.cs" />
     <Compile Include="Modeling\Domain\ValueObjectTests.cs" />
     <Compile Include="Persistence\SqlServerAggregateRepositoryTests.cs" />
+    <Compile Include="Serialization\ScalarValueConverterTests.cs" />
     <Compile Include="TestDomain\Generated.cs" />
     <Compile Include="InterleavingUniqueNumberGeneratorTests.cs" />
     <Compile Include="Modeling\Domain\AggregateEventStreamTests.cs" />

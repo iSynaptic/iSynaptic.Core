@@ -3,6 +3,14 @@ RELEASE NOTES: iSynaptic.Core
 ======================================
 
 
+==== v0.1.24 (April 14, 2015) ====
+
+---- Features ----
+
+* Added better support for serializing scalar values.
+
+
+
 ==== v0.1.23 (April 10, 2015) ====
 
 ---- Features ----
