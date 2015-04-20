@@ -35,13 +35,6 @@ namespace iSynaptic.Core.Persistence
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly Task _completedTask;
-
-        protected MementoBasedAggregateRepository()
-        {
-            _completedTask = Task.FromResult(true);
-        }
-
         protected abstract Task<Maybe<AggregateMemento<TIdentifier>>> TryLoadMemento(TIdentifier id);
         protected abstract Task StoreMemento(Func<Task<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>>> mementoFactory);
 

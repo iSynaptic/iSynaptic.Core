@@ -40,9 +40,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         protected BuiltInType GetBuiltInType(ScalarValueSyntax value)
         {
             var scalarValue =
-                value.RecurseSelect(x => SymbolTable.Resolve(x, x.Base).Symbol.ToMaybe<ScalarValueSyntax>(),
-                                    x => SymbolTable.Resolve(x, x.Base).Symbol)
-                     .Last();
+                value.Recurse(x => SymbolTable.Resolve(x, x.Base).Symbol.ToMaybe<ScalarValueSyntax>())
+                    .Select(x => SymbolTable.Resolve(x, x.Base).Symbol)
+                    .Last();
 
             return (BuiltInType)scalarValue;
         }
