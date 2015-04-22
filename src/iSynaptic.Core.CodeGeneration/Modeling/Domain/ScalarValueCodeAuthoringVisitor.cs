@@ -140,10 +140,24 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 WriteLine();
 
                 WriteGeneratedCodeAttribute();
-                WriteLine(" public static implicit operator {0}({1} value) {{ return new {0}(value); }}", value.Name, value.Base);
-
+                if (baseType.IsValueType)
+                {
+                    WriteLine(" public static implicit operator {0}({1} value) {{ return new {0}(value); }}", value.Name, value.Base);
+                }
+                else
+                {
+                    WriteLine(" public static implicit operator {0}({1} value) {{ return ReferenceEquals(value, null) ? null : new {0}(value); }}", value.Name, value.Base);
+                } 
+                
                 WriteGeneratedCodeAttribute();
-                WriteLine(" public static implicit operator {0}({1} value) {{ return value.Value; }}", value.Base, value.Name);
+                if (baseType.IsValueType)
+                {
+                    WriteLine(" public static implicit operator {0}({1} value) {{ return value.Value; }}", value.Base, value.Name);
+                }
+                else
+                {
+                    WriteLine(" public static implicit operator {0}({1} value) {{ return ReferenceEquals(value, null) ? null : value.Value; }}", value.Base, value.Name);
+                }
 
                 WriteLine();
                 WriteGeneratedCodeAttribute();
