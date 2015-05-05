@@ -48,7 +48,6 @@ namespace iSynaptic.Core.Persistence
         private readonly ILogicalTypeRegistry _logicalTypeRegistry;
 
         private readonly JsonSerializer _dataSerializer;
-        private readonly JsonSerializer _metadataSerializer;
 
         private readonly Func<IEventStoreConnection> _connectionFactory;
 
@@ -58,11 +57,6 @@ namespace iSynaptic.Core.Persistence
             _connectionFactory = Guard.NotNull(connectionFactory, "connectionFactory");
 
             _dataSerializer = JsonSerializerBuilder.Build(logicalTypeRegistry);
-
-            var metadataSerializerSettings = JsonSerializerBuilder.BuildSettings(logicalTypeRegistry);
-            metadataSerializerSettings.TypeNameHandling = TypeNameHandling.None;
-
-            _metadataSerializer = JsonSerializer.Create(metadataSerializerSettings);
         }
 
         protected override async Task<AggregateEventsLoadFrame<TIdentifier>> GetEvents(TIdentifier id, int minVersion, int maxVersion)
