@@ -80,8 +80,11 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                                   builtInType.FullName,
                                   isBaseScalarValue ? " : base(value)" : ""))
                 {
-                    if(value.IsPartial)
+                    if (value.IsPartial)
+                    {
+                        WriteLine("Normalize(ref value);");
                         WriteLine("Validate(value);");
+                    }
 
                     if (!isBaseScalarValue)
                         WriteLine("_value = value;");
@@ -89,6 +92,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
                 if (value.IsPartial)
                 {
+                    WriteLine();
+                    WriteLine("partial void Normalize(ref {0} value);", builtInType.FullName);
+                    
                     WriteLine();
                     WriteLine("partial void Validate({0} value);", builtInType.FullName);
                 }
