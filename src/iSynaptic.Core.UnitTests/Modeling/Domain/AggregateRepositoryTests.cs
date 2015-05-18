@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using iSynaptic.Commons;
-using iSynaptic.Commons.Linq;
 using iSynaptic.TestDomain;
 
 namespace iSynaptic.Modeling.Domain
@@ -12,6 +11,12 @@ namespace iSynaptic.Modeling.Domain
     public abstract class NonGenericAggregateRepositoryTests
     {
         protected IAggregateRepository Repo { get; set; }
+
+        [Test, ExpectedExceptionAttribute(typeof (ArgumentException))]
+        public async Task Get_InvalidAggregateType_Throws()
+        {
+            await Repo.Get(typeof (string), 1);
+        }
 
         [Test]
         public async Task SaveEvents_NewAggregate()

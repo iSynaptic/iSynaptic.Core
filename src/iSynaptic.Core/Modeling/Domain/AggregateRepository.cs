@@ -26,6 +26,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Reflection;
 using iSynaptic.Commons.Threading.Tasks;
 
 namespace iSynaptic.Modeling.Domain
@@ -36,6 +37,9 @@ namespace iSynaptic.Modeling.Domain
 
         public async Task<IAggregate> Get(Type aggregateType, object id, int maxVersion = int.MaxValue)
         {
+            if (!aggregateType.DoesImplementType(typeof(IAggregate)))
+                throw new ArgumentException("AggregateType must implement IAggregate.");
+
             var memento = await GetMemento(id, maxVersion);
 
             if (memento == null)
