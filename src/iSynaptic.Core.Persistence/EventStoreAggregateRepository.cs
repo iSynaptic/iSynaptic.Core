@@ -40,10 +40,7 @@ namespace iSynaptic.Core.Persistence
         private static readonly EventData _offsetEvent = new EventData(_offsetEventId, "streamOffset", true, Encoding.Default.GetBytes("{}"), null);
 
         private readonly ILogicalTypeRegistry _logicalTypeRegistry;
-
         private readonly JsonSerializer _dataSerializer;
-        private readonly JsonSerializer _metadataSerializer;
-
         private readonly Func<IEventStoreConnection> _connectionFactory;
 
         public EventStoreAggregateRepository(ILogicalTypeRegistry logicalTypeRegistry, Func<IEventStoreConnection> connectionFactory)
@@ -55,8 +52,6 @@ namespace iSynaptic.Core.Persistence
 
             var metadataSerializerSettings = JsonSerializerBuilder.BuildSettings(logicalTypeRegistry);
             metadataSerializerSettings.TypeNameHandling = TypeNameHandling.None;
-
-            _metadataSerializer = JsonSerializer.Create(metadataSerializerSettings);
         }
 
         protected override async Task<AggregateEventsLoadFrame> GetEvents(object id, int minVersion, int maxVersion)
