@@ -25,6 +25,17 @@ using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
+    public class AggregateSnapshotSaveFrame : AggregateSaveFrame
+    {
+        public AggregateSnapshotSaveFrame(Type aggregateType, object id, Boolean isNew, IAggregateSnapshot snapshot)
+            : base(aggregateType, id, isNew)
+        {
+            Snapshot = Guard.NotNull(snapshot, "snapshot");
+        }
+
+        public IAggregateSnapshot Snapshot { get; private set; }
+    }
+
     public class AggregateSnapshotSaveFrame<TIdentifier> : AggregateSaveFrame<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {

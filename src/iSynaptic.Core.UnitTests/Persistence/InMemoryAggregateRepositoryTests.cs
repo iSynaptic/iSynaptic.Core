@@ -20,15 +20,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using NUnit.Framework;
 using iSynaptic.Core.Persistence;
-using iSynaptic.Modeling;
 using iSynaptic.Modeling.Domain;
 using iSynaptic.TestDomain;
+using NUnit.Framework;
 
 namespace iSynaptic.Persistence
 {
+    [TestFixture]
+    public class NonGenericInMemoryAggregateRepositoryTests : NonGenericAggregateRepositoryTests
+    {
+        public NonGenericInMemoryAggregateRepositoryTests()
+        {
+            Repo = new InMemoryAggregateRepository();
+        }
+    }
+
     [TestFixture]
     public class InMemoryAggregateRepositoryTests : AggregateRepositoryTests
     {

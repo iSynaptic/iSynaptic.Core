@@ -20,17 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using System.Net;
 using EventStore.ClientAPI;
-using NUnit.Framework;
 using iSynaptic.Core.Persistence;
-using iSynaptic.Modeling;
 using iSynaptic.Modeling.Domain;
 using iSynaptic.TestDomain;
+using NUnit.Framework;
 
 namespace iSynaptic.Persistence
 {
+    [TestFixture]
+    [Explicit("Integration tests - requires EventStore to be running locally.")]
+    public class NonGenericEventStoreAggregateRepositoryTests : NonGenericAggregateRepositoryTests
+    {
+        public NonGenericEventStoreAggregateRepositoryTests()
+        {
+            var ltr = LogicalTypeRegistryBuilder.Build();
+
+            Repo = new EventStoreAggregateRepository(ltr, () => EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse("10.8.80.11"), 1113)));
+        }
+    }
+
     [TestFixture]
     [Explicit("Integration tests - requires EventStore to be running locally.")]
     public class EventStoreAggregateRepositoryTests : AggregateRepositoryTests
@@ -39,7 +49,7 @@ namespace iSynaptic.Persistence
         {
             var ltr = LogicalTypeRegistryBuilder.Build();
 
-            Repo = new EventStoreAggregateRepository<ServiceCase, ServiceCaseId>(ltr, () => EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1113)));
+            Repo = new EventStoreAggregateRepository<ServiceCase, ServiceCaseId>(ltr, () => EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse("10.8.80.11"), 1113)));
         }
     }
 }

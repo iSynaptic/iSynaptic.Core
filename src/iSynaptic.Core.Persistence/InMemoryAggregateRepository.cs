@@ -27,10 +27,42 @@ using System.Threading.Tasks;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Generic;
 using iSynaptic.Modeling.Domain;
-using iSynaptic.Serialization;
 
 namespace iSynaptic.Core.Persistence
 {
+    public class InMemoryAggregateRepository : MementoBasedAggregateRepository
+    {
+        private readonly Dictionary<object, AggregateMemento> _state =
+            new Dictionary<object, AggregateMemento>();
+
+        protected override Task<Maybe<AggregateMemento>> TryLoadMemento(object id)
+        {
+            lock (_state)
+            {
+                return Task.FromResult(_state.TryGetValue(id));
+            }
+        }
+
+        protected override async Task StoreMemento(Func<Task<KeyValuePair<object, AggregateMemento>>> mementoFactory)
+        {
+            bool lockTaken = false;
+
+            try
+            {
+                Monitor.Enter(_state, ref lockTaken);
+
+                var memento = await mementoFactory();
+                _state[memento.Key] = memento.Value;
+
+            }
+            finally
+            {
+                if (lockTaken)
+                    Monitor.Exit(_state);
+            }
+        }
+    }
+
     public class InMemoryAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>

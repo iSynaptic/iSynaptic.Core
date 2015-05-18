@@ -20,20 +20,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
 using iSynaptic.Core.Persistence;
 using iSynaptic.Modeling.Domain;
 using iSynaptic.TestDomain;
+using NUnit.Framework;
 
 namespace iSynaptic.Persistence
 {
     [TestFixture]
     [Explicit("Integration tests - requires Sql Server to be running locally.")]
+    public class NonGenericSqlServerAggregateRepositoryTests : NonGenericAggregateRepositoryTests
+    {
+        private const string ConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=AggregateStore;Integrated Security=true;";
+
+        public NonGenericSqlServerAggregateRepositoryTests()
+        {
+            var ltr = LogicalTypeRegistryBuilder.Build();
+
+            Repo = new SqlServerAggregateRepository(ltr, ConnectionString);
+        }
+
+        [TestFixtureSetUp]
+        public void FixtureSetup()
+        {
+            SqlServerAggregateRepository.EnsureTablesExist(ConnectionString).Wait();
+        }
+    }
+
+    [TestFixture]
+    [Explicit("Integration tests - requires Sql Server to be running locally.")]
     public class SqlServerAggregateRepositoryTests : AggregateRepositoryTests
     {
-        private const string ConnectionString = "Data Source=(local);Initial Catalog=AggregateStore;Integrated Security=true;";
+        private const string ConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=AggregateStore;Integrated Security=true;";
 
         public SqlServerAggregateRepositoryTests()
         {

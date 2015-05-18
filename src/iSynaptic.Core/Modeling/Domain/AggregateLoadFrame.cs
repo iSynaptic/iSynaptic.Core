@@ -25,6 +25,18 @@ using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
+    public abstract class AggregateLoadFrame
+    {
+        protected AggregateLoadFrame(Type aggregateType, object id)
+        {
+            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
+            Id = id;
+        }
+
+        public Type AggregateType { get; private set; }
+        public object Id { get; private set; }
+    }
+
     public abstract class AggregateLoadFrame<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {

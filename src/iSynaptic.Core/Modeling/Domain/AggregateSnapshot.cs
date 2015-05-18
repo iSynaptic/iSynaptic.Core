@@ -25,7 +25,7 @@ using System;
 namespace iSynaptic.Modeling.Domain
 {
     [Serializable]
-    public abstract class AggregateSnapshot<TIdentifier> : IAggregateSnapshot<TIdentifier>
+    public abstract class AggregateSnapshot<TIdentifier> : IAggregateSnapshot<TIdentifier>, IAggregateSnapshot
         where TIdentifier : IEquatable<TIdentifier>
     {
         protected AggregateSnapshot(TIdentifier id, Int32 version, DateTime takenAt)
@@ -44,6 +44,7 @@ namespace iSynaptic.Modeling.Domain
 
         public Guid SnapshotId { get; private set; }
         public TIdentifier Id { get; private set; }
+        object IAggregateSnapshot.Id { get { return ((IAggregateSnapshot<TIdentifier>) this).Id; }}
         public Int32 Version { get; private set; }
         public DateTime TakenAt { get; private set; }
     }

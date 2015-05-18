@@ -29,15 +29,11 @@ using iSynaptic.Commons.Linq;
 
 namespace iSynaptic.Modeling.Domain
 {
-    internal interface IAggregateInternal<out TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    internal interface IAggregateInternal
     {
         void Initialize(IAggregateMemento memento);
-
         void ApplyEvents(IEnumerable<IAggregateEvent> events);
-
         Boolean ConflictsWith(IEnumerable<IAggregateEvent> committedEvents, IEnumerable<IAggregateEvent> attemptedEvents);
-
         void CommitEvents();
     }
 
@@ -54,7 +50,7 @@ namespace iSynaptic.Modeling.Domain
         internal static Func<FieldInfo, bool> FieldResetImmunityPredicate { get { return _fieldResetImmunityPredicate; }}
     }
 
-    public abstract class Aggregate<TIdentifier> : IAggregate<TIdentifier>, IAggregateInternal<TIdentifier>
+    public abstract class Aggregate<TIdentifier> : IAggregate<TIdentifier>, IAggregateInternal, IAggregate
         where TIdentifier : IEquatable<TIdentifier>
     {
         [ImmuneToReset]
@@ -96,7 +92,7 @@ namespace iSynaptic.Modeling.Domain
             }
         }
 
-        void IAggregateInternal<TIdentifier>.Initialize(IAggregateMemento memento)
+        void IAggregateInternal.Initialize(IAggregateMemento memento)
         {
             Initialize(memento.ToMemento<TIdentifier>());
         }
@@ -127,7 +123,7 @@ namespace iSynaptic.Modeling.Domain
             ApplyEventsCore(new[] { @event });
         }
 
-        void IAggregateInternal<TIdentifier>.ApplyEvents(IEnumerable<IAggregateEvent> events)
+        void IAggregateInternal.ApplyEvents(IEnumerable<IAggregateEvent> events)
         {
             ApplyEventsCore(events.Cast<IAggregateEvent<TIdentifier>>());
         }
@@ -174,12 +170,12 @@ namespace iSynaptic.Modeling.Domain
             return _events.UncommittedEvents;
         }
 
-        void IAggregateInternal<TIdentifier>.CommitEvents()
+        void IAggregateInternal.CommitEvents()
         {
             _events.CommitEvents();
         }
 
-        Boolean IAggregateInternal<TIdentifier>.ConflictsWith(IEnumerable<IAggregateEvent> committedEvents,
+        Boolean IAggregateInternal.ConflictsWith(IEnumerable<IAggregateEvent> committedEvents,
                                                               IEnumerable<IAggregateEvent> attemptedEvents)
         {
             return ConflictsWith(committedEvents.Cast<IAggregateEvent<TIdentifier>>(),
@@ -196,8 +192,25 @@ namespace iSynaptic.Modeling.Domain
         }
 
         protected internal virtual Boolean ConflictsWith(IAggregateEvent<TIdentifier> committedEvent, IAggregateEvent<TIdentifier> attemptedEvent) { return true; }
-        
+
         public TIdentifier Id { get; private set; }
         public Int32 Version { get; private set; }
+
+        object IAggregate.Id { get { return Id; } }
+
+        IEnumerable<IAggregateEvent> IAggregate.GetUncommittedEvents()
+        {
+            return GetUncommittedEvents();
+        }
+
+        IEnumerable<IAggregateEvent> IAggregate.GetEvents()
+        {
+            return GetEvents();
+        }
+
+        IAggregateSnapshot IAggregate.TakeSnapshot()
+        {
+            return TakeSnapshot();
+        }
     }
 }

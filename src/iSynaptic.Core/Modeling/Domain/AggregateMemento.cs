@@ -27,6 +27,30 @@ using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
+    public sealed class AggregateMemento : IAggregateMemento
+    {
+        public AggregateMemento(Type aggregateType, Maybe<IAggregateSnapshot> snapshot, IEnumerable<IAggregateEvent> events)
+        {
+            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
+            Snapshot = snapshot;
+            Events = events ?? Enumerable.Empty<IAggregateEvent>();
+        }
+
+        AggregateMemento<TDesiredIdentifier> IAggregateMemento.ToMemento<TDesiredIdentifier>()
+        {
+            var m = this as AggregateMemento<TDesiredIdentifier>;
+
+            return m ?? new AggregateMemento<TDesiredIdentifier>(AggregateType,
+                Snapshot.Cast<IAggregateSnapshot<TDesiredIdentifier>>(),
+                Events.Cast<IAggregateEvent<TDesiredIdentifier>>()
+            );
+        }
+
+        public Type AggregateType { get; private set; }
+        public Maybe<IAggregateSnapshot> Snapshot { get; private set; }
+        public IEnumerable<IAggregateEvent> Events { get; private set; }
+    }
+    
     public sealed class AggregateMemento<TIdentifier> : IAggregateMemento
         where TIdentifier : IEquatable<TIdentifier>
     {

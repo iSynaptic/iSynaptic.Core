@@ -25,6 +25,20 @@ using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
+    public abstract class AggregateSaveFrame
+    {
+        protected AggregateSaveFrame(Type aggregateType, object id, Boolean isNew)
+        {
+            AggregateType = Guard.NotNull(aggregateType, "aggregateType");
+            Id = id;
+            IsNew = isNew;
+        }
+
+        public Type AggregateType { get; private set; }
+        public object Id { get; private set; }
+        public Boolean IsNew { get; private set; }
+    }
+
     public abstract class AggregateSaveFrame<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {

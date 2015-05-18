@@ -25,6 +25,17 @@ using iSynaptic.Commons;
 
 namespace iSynaptic.Modeling.Domain
 {
+    public class AggregateSnapshotLoadFrame : AggregateLoadFrame
+    {
+        public AggregateSnapshotLoadFrame(Type aggregateType, object id, IAggregateSnapshot snapshot)
+            : base(aggregateType, id)
+        {
+            Snapshot = Guard.NotNull(snapshot, "snapshot");
+        }
+
+        public IAggregateSnapshot Snapshot { get; private set; }
+    }
+
     public class AggregateSnapshotLoadFrame<TIdentifier> : AggregateLoadFrame<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {

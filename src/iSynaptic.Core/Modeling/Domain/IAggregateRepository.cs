@@ -26,6 +26,13 @@ using iSynaptic.Commons.Threading.Tasks;
 
 namespace iSynaptic.Modeling.Domain
 {
+    public interface IAggregateRepository
+    {
+        Task<IAggregate> Get(Type aggregateType, object id, int maxVersion = int.MaxValue);
+        Task Save(IAggregate aggregate);
+        Task SaveSnapshot(IAggregate aggregate);
+    }
+
     public interface IAggregateRepository<TAggregate, in TIdentifier> : IAggregateRepositoryCommands<TAggregate, TIdentifier>, IAggregateRepositoryQueries<TAggregate, TIdentifier>
         where TAggregate : IAggregate<TIdentifier> 
         where TIdentifier : IEquatable<TIdentifier>

@@ -24,14 +24,19 @@ using System;
 
 namespace iSynaptic.Modeling.Domain
 {
-    public interface IAggregateSnapshot<out TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
+    public interface IAggregateSnapshot
     {
         Guid SnapshotId { get; }
 
-        TIdentifier Id { get; }
+        object Id { get; }
         Int32 Version { get; }
 
         DateTime TakenAt { get; }
+    }
+
+    public interface IAggregateSnapshot<out TIdentifier> : IAggregateSnapshot
+        where TIdentifier : IEquatable<TIdentifier>
+    {
+        new TIdentifier Id { get; }
     }
 }
