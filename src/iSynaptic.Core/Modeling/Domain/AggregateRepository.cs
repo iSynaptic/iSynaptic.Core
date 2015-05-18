@@ -124,6 +124,23 @@ namespace iSynaptic.Modeling.Domain
             await OnSnapshotSaved(aggregateType, snapshot);
         }
 
+        public async Task SaveEvents(Type aggregateType, object id, IEnumerable<IAggregateEvent> events)
+        {
+            Guard.NotNull(aggregateType, "aggregateType");
+            Guard.NotNull(id, "id");
+            Guard.NotNull(events, "events");
+
+            var eventsToSave = events as IAggregateEvent[] ?? events.ToArray();
+            if (eventsToSave.Length <= 0)
+                return;
+
+            var firstEvent = eventsToSave[0];
+            var data = new AggregateEventsSaveFrame(aggregateType, id, firstEvent.Version == 1, firstEvent.Version - 1, firstEvent.Version + eventsToSave.Length, eventsToSave);
+
+            await SaveEvents(data);
+            await OnEventStreamSaved(aggregateType, id, eventsToSave);
+        }
+
         private IAggregateInternal AsInternal(IAggregate aggregate)
         {
             var ag = aggregate as IAggregateInternal;

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Linq;
 using iSynaptic.TestDomain;
 
 namespace iSynaptic.Modeling.Domain
@@ -11,6 +12,48 @@ namespace iSynaptic.Modeling.Domain
     public abstract class NonGenericAggregateRepositoryTests
     {
         protected IAggregateRepository Repo { get; set; }
+
+        [Test]
+        public async Task SaveEvents_NewAggregate()
+        {
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var events = ((IAggregate)serviceCase).GetEvents();
+
+            await Repo.SaveEvents(typeof(ServiceCase), serviceCase.Id, events);
+
+            var reconsituted = await Repo.Get(typeof(ServiceCase), serviceCase.Id);
+            reconsituted.Should().NotBeNull();
+            reconsituted.Should().NotBeSameAs(serviceCase);
+
+            reconsituted.GetEvents().Count().Should().Be(1);
+            reconsituted.Id.Should().Be(serviceCase.Id);
+            reconsituted.Version.Should().Be(serviceCase.Version);
+            var reconsitutedServiceCase = (ServiceCase)reconsituted;
+            reconsitutedServiceCase.Title.Should().Be(serviceCase.Title);
+            reconsitutedServiceCase.Description.Should().Be(serviceCase.Description);
+            reconsitutedServiceCase.Priority.Should().Be(serviceCase.Priority);
+        }
+
+        [Test]
+        public async Task SaveEvents_ExistingAggregate()
+        {
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            await Repo.Save(serviceCase);
+
+            var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, ServiceCase.SampleContent.ResponsibleParty);
+            var events = ((IAggregate)serviceCase).GetUncommittedEvents().ToArray();
+            events.Length.Should().Be(1);
+
+            await Repo.SaveEvents(typeof(ServiceCase), serviceCase.Id, events);
+
+            var reconsituted = await Repo.Get(typeof(ServiceCase), serviceCase.Id);
+            reconsituted.Should().NotBeNull();
+            reconsituted.Should().NotBeSameAs(serviceCase);
+
+            reconsituted.GetEvents().Count().Should().Be(2);
+            reconsituted.Id.Should().Be(serviceCase.Id);
+            reconsituted.Version.Should().Be(serviceCase.Version);
+        }
 
         [Test]
         public async Task RoundTrip()
