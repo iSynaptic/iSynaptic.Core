@@ -31,7 +31,7 @@ namespace iSynaptic.Persistence
     [Explicit("Integration tests - requires Sql Server to be running locally.")]
     public class SqlServerAggregateRepositoryTests : AggregateRepositoryTests
     {
-        private const string ConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=AggregateStore;Integrated Security=true;";
+        private const string ConnectionString = "Data Source=(local);Initial Catalog=AggregateStore;Integrated Security=true;";
 
         public SqlServerAggregateRepositoryTests()
         {
@@ -51,7 +51,7 @@ namespace iSynaptic.Persistence
     [Explicit("Integration tests - requires Sql Server to be running locally.")]
     public class SqlServerGenericAggregateRepositoryTests : GenericAggregateRepositoryTests
     {
-        private const string ConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=AggregateStore;Integrated Security=true;";
+        private const string ConnectionString = "Data Source=(local);Initial Catalog=AggregateStore;Integrated Security=true;";
 
         public SqlServerGenericAggregateRepositoryTests()
         {
