@@ -40,8 +40,6 @@ namespace iSynaptic
 
             registry.AddMapping(new LogicalType("tst", "ServiceCaseId"), typeof(ServiceCaseId));
 
-            registry.AddMapping(new LogicalType("tst", "AggregateMemento.ServiceCaseId"), typeof(AggregateMemento<ServiceCaseId>));
-            registry.AddMapping(new LogicalType("tst", "AggregateMemento.RoleIdentifier"), typeof(AggregateMemento<RoleIdentifier>));
             registry.AddMapping(new LogicalType("tst", "AggregateMemento"), typeof(AggregateMemento));
 
             registry.AddMapping(new LogicalType("tst", "CustomerRoleIdentifier"), typeof(CustomerRoleIdentifier));

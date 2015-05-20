@@ -8,7 +8,7 @@ using iSynaptic.TestDomain;
 
 namespace iSynaptic.Modeling.Domain
 {
-    public abstract class NonGenericAggregateRepositoryTests
+    public abstract class AggregateRepositoryTests
     {
         protected IAggregateRepository Repo { get; set; }
 
@@ -246,7 +246,7 @@ namespace iSynaptic.Modeling.Domain
         }
     }
 
-    public abstract class AggregateRepositoryTests
+    public abstract class GenericAggregateRepositoryTests
     {
         protected IAggregateRepository<ServiceCase, ServiceCaseId> Repo { get; set; }
 

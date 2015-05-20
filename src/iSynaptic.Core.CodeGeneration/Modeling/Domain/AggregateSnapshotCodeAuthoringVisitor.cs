@@ -60,10 +60,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
             var aggregate = (AggregateSyntax)molecule.Parent;
 
-            var id = aggregate.GetIdTypeName(SymbolTable);
-
             return base.GetBaseMolecule(molecule)
-                       .Or(String.Format("AggregateSnapshot<{0}>", id));
+                       .Or("AggregateSnapshot");
         }
 
         protected override bool ShouldBeEquatable(MoleculeSyntax molecule)

@@ -31,9 +31,9 @@ namespace iSynaptic.Persistence
 {
     [TestFixture]
     [Explicit("Integration tests - requires EventStore to be running locally.")]
-    public class NonGenericEventStoreAggregateRepositoryTests : NonGenericAggregateRepositoryTests
+    public class EventStoreAggregateRepositoryTests : AggregateRepositoryTests
     {
-        public NonGenericEventStoreAggregateRepositoryTests()
+        public EventStoreAggregateRepositoryTests()
         {
             var ltr = LogicalTypeRegistryBuilder.Build();
 
@@ -43,9 +43,9 @@ namespace iSynaptic.Persistence
 
     [TestFixture]
     [Explicit("Integration tests - requires EventStore to be running locally.")]
-    public class EventStoreAggregateRepositoryTests : AggregateRepositoryTests
+    public class EventStoreGenericAggregateRepositoryTests : GenericAggregateRepositoryTests
     {
-        public EventStoreAggregateRepositoryTests()
+        public EventStoreGenericAggregateRepositoryTests()
         {
             var ltr = LogicalTypeRegistryBuilder.Build();
 

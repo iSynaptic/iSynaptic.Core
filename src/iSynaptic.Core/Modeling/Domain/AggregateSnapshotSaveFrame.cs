@@ -35,16 +35,4 @@ namespace iSynaptic.Modeling.Domain
 
         public IAggregateSnapshot Snapshot { get; private set; }
     }
-
-    public class AggregateSnapshotSaveFrame<TIdentifier> : AggregateSaveFrame<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
-    {
-        public AggregateSnapshotSaveFrame(Type aggregateType, TIdentifier id, Boolean isNew, IAggregateSnapshot<TIdentifier> snapshot)
-            : base(aggregateType, id, isNew)
-        {
-            Snapshot = Guard.NotNull(snapshot, "snapshot");
-        }
-
-        public IAggregateSnapshot<TIdentifier> Snapshot { get; private set; }
-    }
 }

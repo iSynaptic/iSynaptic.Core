@@ -33,10 +33,4 @@ namespace iSynaptic.Modeling.Domain
 
         DateTime TakenAt { get; }
     }
-
-    public interface IAggregateSnapshot<out TIdentifier> : IAggregateSnapshot
-        where TIdentifier : IEquatable<TIdentifier>
-    {
-        new TIdentifier Id { get; }
-    }
 }

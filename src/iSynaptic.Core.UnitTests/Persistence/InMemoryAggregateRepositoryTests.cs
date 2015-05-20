@@ -28,18 +28,18 @@ using NUnit.Framework;
 namespace iSynaptic.Persistence
 {
     [TestFixture]
-    public class NonGenericInMemoryAggregateRepositoryTests : NonGenericAggregateRepositoryTests
+    public class InMemoryAggregateRepositoryTests : AggregateRepositoryTests
     {
-        public NonGenericInMemoryAggregateRepositoryTests()
+        public InMemoryAggregateRepositoryTests()
         {
             Repo = new InMemoryAggregateRepository();
         }
     }
 
     [TestFixture]
-    public class InMemoryAggregateRepositoryTests : AggregateRepositoryTests
+    public class InMemoryGenericAggregateRepositoryTests : GenericAggregateRepositoryTests
     {
-        public InMemoryAggregateRepositoryTests()
+        public InMemoryGenericAggregateRepositoryTests()
         {
             Repo = new InMemoryAggregateRepository<ServiceCase, ServiceCaseId>();
         }

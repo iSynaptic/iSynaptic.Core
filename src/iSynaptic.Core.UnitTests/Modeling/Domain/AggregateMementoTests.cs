@@ -53,7 +53,7 @@ namespace iSynaptic.Modeling.Domain
                 ServiceCase.SampleContent.CommunicationDuration,
                 ServiceCase.SampleContent.ResponsibleParty);
 
-            var memento = new AggregateMemento<ServiceCaseId>(
+            var memento = new AggregateMemento(
                 typeof (ServiceCase),
                 serviceCase.TakeSnapshot().ToMaybe(),
                 serviceCase.GetEvents());
@@ -61,7 +61,7 @@ namespace iSynaptic.Modeling.Domain
             var serializer = JsonSerializerBuilder.Build(LogicalTypeRegistryBuilder.Build());
 
             String json = serializer.Serialize(memento);
-            var reconstituted = serializer.Deserialize<AggregateMemento<ServiceCaseId>>(json);
+            var reconstituted = serializer.Deserialize<AggregateMemento>(json);
 
             reconstituted.Should().NotBeNull();
             reconstituted.Should().NotBeSameAs(memento);

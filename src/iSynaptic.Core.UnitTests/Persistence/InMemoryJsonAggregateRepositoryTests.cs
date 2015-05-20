@@ -29,18 +29,18 @@ using NUnit.Framework;
 namespace iSynaptic.Persistence
 {
     [TestFixture]
-    public class NonGenericInMemoryJsonAggregateRepositoryTests : NonGenericAggregateRepositoryTests
+    public class InMemoryJsonAggregateRepositoryTests : AggregateRepositoryTests
     {
-        public NonGenericInMemoryJsonAggregateRepositoryTests()
+        public InMemoryJsonAggregateRepositoryTests()
         {
             Repo = new InMemoryJsonAggregateRepository(JsonSerializerBuilder.Build(LogicalTypeRegistryBuilder.Build()));
         }
     }
 
     [TestFixture]
-    public class InMemoryJsonAggregateRepositoryTests : AggregateRepositoryTests
+    public class InMemoryJsonGenericAggregateRepositoryTests : GenericAggregateRepositoryTests
     {
-        public InMemoryJsonAggregateRepositoryTests()
+        public InMemoryJsonGenericAggregateRepositoryTests()
         {
             Repo = new InMemoryJsonAggregateRepository<ServiceCase, ServiceCaseId>(
                 JsonSerializerBuilder.Build(LogicalTypeRegistryBuilder.Build()));

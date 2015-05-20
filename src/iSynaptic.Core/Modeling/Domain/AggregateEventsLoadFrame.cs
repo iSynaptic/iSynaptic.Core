@@ -36,16 +36,4 @@ namespace iSynaptic.Modeling.Domain
 
         public IEnumerable<IAggregateEvent> Events { get; private set; }
     }
-
-    public class AggregateEventsLoadFrame<TIdentifier> : AggregateLoadFrame<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
-    {
-        public AggregateEventsLoadFrame(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events)
-            : base(aggregateType, id)
-        {
-            Events = Guard.NotNull(events, "events");
-        }
-
-        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
-    }
 }

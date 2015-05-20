@@ -31,7 +31,7 @@ using iSynaptic.Commons.Threading.Tasks;
 
 namespace iSynaptic.Modeling.Domain
 {
-    public abstract class AggregateRepository : IAggregateRepository
+    public abstract class AggregateRepository : IAggregateRepository, IAggregateRepositoryInternal
     {
         private static readonly Task _completedTask = Task.FromResult(true);
 
@@ -40,16 +40,21 @@ namespace iSynaptic.Modeling.Domain
             if (!aggregateType.DoesImplementType(typeof(IAggregate)))
                 throw new ArgumentException("AggregateType must implement IAggregate.");
 
+            return await ((IAggregateRepositoryInternal)this).GetCore<IAggregate>(aggregateType, id, maxVersion);
+        }
+
+        async Task<T> IAggregateRepositoryInternal.GetCore<T>(Type aggregateType, object id, int maxVersion)
+        {
             var memento = await GetMemento(id, maxVersion);
 
             if (memento == null)
                 return null;
 
-            var aggregate = (IAggregate)FormatterServices.GetSafeUninitializedObject(aggregateType);
+            var aggregate = (IAggregate) FormatterServices.GetSafeUninitializedObject(memento.AggregateType);
             var ag = AsInternal(aggregate);
             ag.Initialize(memento);
 
-            return aggregate;
+            return (T)aggregate;
         }
 
         public async Task Save(IAggregate aggregate)
@@ -189,148 +194,43 @@ namespace iSynaptic.Modeling.Domain
         protected abstract Task SaveEvents(AggregateEventsSaveFrame frame);
     }
 
+    internal interface IAggregateRepositoryInternal
+    {
+        Task<T> GetCore<T>(Type aggregateId, object id, Int32 maxVersion)
+            where T : class, IAggregate;
+    }
+
     public abstract class AggregateRepository<TAggregate, TIdentifier> : IAggregateRepository<TAggregate, TIdentifier> 
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private static readonly Task _completedTask = Task.FromResult(true);
+        private readonly IAggregateRepository _innerRepository;
+        private readonly IAggregateRepositoryInternal _internalRepository;
+
+        protected AggregateRepository(IAggregateRepository innerRepository)
+        {
+            _innerRepository = Guard.NotNull(innerRepository, "innerRepository");
+            _internalRepository = innerRepository as IAggregateRepositoryInternal;
+
+            if (_internalRepository == null)
+            {
+                throw new ArgumentException("Inner IAggregateRepository must implement AggregateRepository.");
+            }
+        }
 
         ITask<TAggregate> IAggregateRepositoryQueries<TAggregate, TIdentifier>.Get(TIdentifier id, Int32 maxVersion)
         {
-            return Get(id, maxVersion).ToCovariantTask();
+            return _internalRepository.GetCore<TAggregate>(typeof (TAggregate), id, maxVersion).ToCovariantTask();
         }
 
-        public async Task<TAggregate> Get(TIdentifier id, Int32 maxVersion)
+        Task IAggregateRepositoryCommands<TAggregate, TIdentifier>.Save(TAggregate aggregate)
         {
-            var memento = await GetMemento(id, maxVersion);
-
-            if (memento == null)
-                return null;
-
-            var aggregate = (TAggregate)FormatterServices.GetSafeUninitializedObject(memento.AggregateType);
-            var ag = AsInternal(aggregate);
-            ag.Initialize(memento);
-
-            return aggregate;
+            return _innerRepository.Save(aggregate);
         }
 
-        public async Task Save(TAggregate aggregate)
+        Task IAggregateRepositoryCommands<TAggregate, TIdentifier>.SaveSnapshot(TAggregate aggregate)
         {
-            Guard.NotNull(aggregate, "aggregate");
-
-            var ag = AsInternal(aggregate);
-            var aggregateType = aggregate.GetType();
-            var events = aggregate.GetUncommittedEvents().ToArray();
-
-            if (events.Length <= 0)
-                return;
-
-            var firstEvent = events[0];
-
-            int saveAttempts = 0;
-            while(true)
-            {
-                var data = new AggregateEventsSaveFrame<TIdentifier>(aggregateType, aggregate.Id, firstEvent.Version == 1, firstEvent.Version - 1, aggregate.Version, events);
-
-                AggregateConcurrencyException originalException;
-                try
-                {
-                    saveAttempts++;
-
-                    await SaveEvents(data);
-                    break;
-                }
-                catch (AggregateConcurrencyException ace)
-                {
-                    if (saveAttempts == 3)
-                        throw;
-
-                    originalException = ace;
-                }
-                
-                var committedEvents = await GetEvents(aggregate.Id, events[0].Version, Int32.MaxValue);
-                if (ag.ConflictsWith(committedEvents.Events, events))
-                {
-                    throw new AggregateConcurrencyException(originalException.Message,
-                                                            originalException);
-                }
-
-                var newExpectedVersion = committedEvents.Events.Last().Version;
-
-                var memento = await GetMemento(aggregate.Id, newExpectedVersion);
-                ag.Initialize(memento);
-
-                for (int i = 1; i <= events.Length; i++)
-                    ((IAggregateEventInternal)events[i - 1]).Version = newExpectedVersion + i;
-
-                ag.ApplyEvents(events);
-            }
-
-            ag.CommitEvents();
-            await OnEventStreamSaved(aggregateType, aggregate.Id, events);
+            return _innerRepository.SaveSnapshot(aggregate);
         }
-
-        public async Task SaveSnapshot(TAggregate aggregate)
-        {
-            Guard.NotNull(aggregate, "aggregate");
-
-            var snapshot = aggregate.TakeSnapshot();
-            if (snapshot == null)
-                throw new ArgumentException("Aggregate doesn't support snapshots.", "aggregate");
-
-            var ag = AsInternal(aggregate);
-            var aggregateType = aggregate.GetType();
-
-            var events = aggregate.GetUncommittedEvents().ToArray();
-            bool isNew = events.Length > 0 && events[0].Version == 1;
-
-            var data = new AggregateSnapshotSaveFrame<TIdentifier>(aggregateType, aggregate.Id, isNew, snapshot);
-            await SaveSnapshot(data);
-
-            await OnSnapshotSaved(aggregateType, snapshot);
-        }
-
-        private IAggregateInternal AsInternal(TAggregate aggregate)
-        {
-            var ag = aggregate as IAggregateInternal;
-            if(ag == null) throw new InvalidOperationException("Aggregate must inherit from Aggregate<TIdentifier>.");
-            return ag;
-        }
-
-        protected virtual Task OnEventStreamSaved(Type aggregateType, TIdentifier id, IEnumerable<IAggregateEvent<TIdentifier>> events) { return _completedTask; }
-        protected virtual Task OnSnapshotSaved(Type aggregateType, IAggregateSnapshot<TIdentifier> snapshot) { return _completedTask; }
-
-        public async Task<AggregateMemento<TIdentifier>> GetMemento(TIdentifier id, Int32 maxVersion)
-        {
-            var snapshotFrame = await GetSnapshot(id, maxVersion);
-            if (snapshotFrame != null)
-            {
-                var snapshot = snapshotFrame.Snapshot;
-                var events = Enumerable.Empty<IAggregateEvent<TIdentifier>>();
-                
-                if (snapshot.Version < maxVersion)
-                {
-                    var eventsFrame = await GetEvents(id, snapshot.Version + 1, maxVersion);
-                    if(eventsFrame != null)
-                        events = eventsFrame.Events;
-                }
-
-                return new AggregateMemento<TIdentifier>(snapshotFrame.AggregateType, snapshot.ToMaybe(), events);
-            }
-            else
-            {
-                var eventsFrame = await GetEvents(id, 1, maxVersion);
-
-                return eventsFrame != null 
-                    ? new AggregateMemento<TIdentifier>(eventsFrame.AggregateType, Maybe.NoValue, eventsFrame.Events)
-                    : null;
-            }
-        }
-
-        protected abstract Task<AggregateSnapshotLoadFrame<TIdentifier>> GetSnapshot(TIdentifier id, Int32 maxVersion);
-        protected abstract Task<AggregateEventsLoadFrame<TIdentifier>> GetEvents(TIdentifier id, Int32 minVersion, Int32 maxVersion);
-
-        protected abstract Task SaveSnapshot(AggregateSnapshotSaveFrame<TIdentifier> frame);
-        protected abstract Task SaveEvents(AggregateEventsSaveFrame<TIdentifier> frame);
     }
 }

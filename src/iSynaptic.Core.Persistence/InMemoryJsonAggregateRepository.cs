@@ -34,8 +34,7 @@ namespace iSynaptic.Core.Persistence
 {
     public class InMemoryJsonAggregateRepository : MementoBasedAggregateRepository
     {
-        private readonly Dictionary<String, String> _state =
-            new Dictionary<String, String>();
+        private readonly Dictionary<String, String> _state = new Dictionary<String, String>();
 
         private readonly JsonSerializer _serializer;
 
@@ -68,41 +67,13 @@ namespace iSynaptic.Core.Persistence
         }
     }
 
-    public class InMemoryJsonAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
+    public class InMemoryJsonAggregateRepository<TAggregate, TIdentifier> : AggregateRepository<TAggregate, TIdentifier>
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly Dictionary<String, String> _state =
-            new Dictionary<String, String>();
-
-        private readonly JsonSerializer _serializer;
-
         public InMemoryJsonAggregateRepository(JsonSerializer serializer)
+            : base(new InMemoryJsonAggregateRepository(serializer))
         {
-            _serializer = Guard.NotNull(serializer, "serializer");
-        }
-
-        protected override Task<Maybe<AggregateMemento<TIdentifier>>> TryLoadMemento(TIdentifier id)
-        {
-            return Task.FromResult(_state.TryGetValue(_serializer.Serialize(id))
-                       .Select(json => _serializer.Deserialize<AggregateMemento<TIdentifier>>(json)));
-        }
-
-        protected override async Task StoreMemento(Func<Task<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>>> mementoFactory)
-        {
-            bool lockTaken = false;
-            try
-            {
-                Monitor.Enter(_state, ref lockTaken);
-                
-                var memento = await mementoFactory();
-                _state[_serializer.Serialize(memento.Key)] = _serializer.Serialize(memento.Value);
-            }
-            finally
-            {
-                if(lockTaken)
-                    Monitor.Exit(_state);
-            }
         }
     }
 }

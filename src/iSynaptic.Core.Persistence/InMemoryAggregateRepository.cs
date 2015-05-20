@@ -32,8 +32,7 @@ namespace iSynaptic.Core.Persistence
 {
     public class InMemoryAggregateRepository : MementoBasedAggregateRepository
     {
-        private readonly Dictionary<object, AggregateMemento> _state =
-            new Dictionary<object, AggregateMemento>();
+        private readonly Dictionary<object, AggregateMemento> _state = new Dictionary<object, AggregateMemento>();
 
         protected override Task<Maybe<AggregateMemento>> TryLoadMemento(object id)
         {
@@ -63,38 +62,13 @@ namespace iSynaptic.Core.Persistence
         }
     }
 
-    public class InMemoryAggregateRepository<TAggregate, TIdentifier> : MementoBasedAggregateRepository<TAggregate, TIdentifier>
+    public class InMemoryAggregateRepository<TAggregate, TIdentifier> : AggregateRepository<TAggregate, TIdentifier>
         where TAggregate : class, IAggregate<TIdentifier>
         where TIdentifier : IEquatable<TIdentifier>
     {
-        private readonly Dictionary<TIdentifier, AggregateMemento<TIdentifier>> _state =
-            new Dictionary<TIdentifier, AggregateMemento<TIdentifier>>();
-
-        protected override Task<Maybe<AggregateMemento<TIdentifier>>> TryLoadMemento(TIdentifier id)
+        public InMemoryAggregateRepository()
+            : base(new InMemoryAggregateRepository())
         {
-            lock (_state)
-            {
-                return Task.FromResult(_state.TryGetValue(id));
-            }
-        }
-
-        protected override async Task StoreMemento(Func<Task<KeyValuePair<TIdentifier, AggregateMemento<TIdentifier>>>> mementoFactory)
-        {
-            bool lockTaken = false;
-            
-            try
-            {
-                Monitor.Enter(_state, ref lockTaken);
-
-                var memento = await mementoFactory();
-                _state[memento.Key] = memento.Value;
-                
-            }
-            finally
-            {
-                if(lockTaken)
-                    Monitor.Exit(_state);
-            }
         }
     }
 }

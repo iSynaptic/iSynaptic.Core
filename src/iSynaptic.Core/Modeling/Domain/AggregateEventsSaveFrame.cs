@@ -40,20 +40,4 @@ namespace iSynaptic.Modeling.Domain
         public Int32 NewVersion { get; private set; }
         public IEnumerable<IAggregateEvent> Events { get; private set; }
     }
-
-    public class AggregateEventsSaveFrame<TIdentifier> : AggregateSaveFrame<TIdentifier>
-        where TIdentifier : IEquatable<TIdentifier>
-    {
-        public AggregateEventsSaveFrame(Type aggregateType, TIdentifier id, Boolean isNew, Int32 expectedVersion, Int32 newVersion, IEnumerable<IAggregateEvent<TIdentifier>> events)
-            : base (aggregateType, id, isNew)
-        {
-            ExpectedVersion = expectedVersion;
-            NewVersion = newVersion;
-            Events = Guard.NotNull(events, "events");
-        }
-
-        public Int32 ExpectedVersion { get; private set; }
-        public Int32 NewVersion { get; private set; }
-        public IEnumerable<IAggregateEvent<TIdentifier>> Events { get; private set; }
-    }
 }

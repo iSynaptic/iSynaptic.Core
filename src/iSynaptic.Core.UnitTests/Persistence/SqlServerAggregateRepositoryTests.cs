@@ -29,11 +29,11 @@ namespace iSynaptic.Persistence
 {
     [TestFixture]
     [Explicit("Integration tests - requires Sql Server to be running locally.")]
-    public class NonGenericSqlServerAggregateRepositoryTests : NonGenericAggregateRepositoryTests
+    public class SqlServerAggregateRepositoryTests : AggregateRepositoryTests
     {
         private const string ConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=AggregateStore;Integrated Security=true;";
 
-        public NonGenericSqlServerAggregateRepositoryTests()
+        public SqlServerAggregateRepositoryTests()
         {
             var ltr = LogicalTypeRegistryBuilder.Build();
 
@@ -49,11 +49,11 @@ namespace iSynaptic.Persistence
 
     [TestFixture]
     [Explicit("Integration tests - requires Sql Server to be running locally.")]
-    public class SqlServerAggregateRepositoryTests : AggregateRepositoryTests
+    public class SqlServerGenericAggregateRepositoryTests : GenericAggregateRepositoryTests
     {
         private const string ConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=AggregateStore;Integrated Security=true;";
 
-        public SqlServerAggregateRepositoryTests()
+        public SqlServerGenericAggregateRepositoryTests()
         {
             var ltr = LogicalTypeRegistryBuilder.Build();
 

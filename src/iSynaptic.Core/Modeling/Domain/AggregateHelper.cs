@@ -51,10 +51,10 @@ namespace iSynaptic.Modeling.Domain
             return GetDispatcher<IAggregateEvent<TIdentifier>, TIdentifier>(aggregateType, "On", _eventDispatchers);
         }
 
-        public static Action<IAggregate<TIdentifier>, IAggregateSnapshot<TIdentifier>> GetSnapshotDispatcher<TIdentifier>(Type aggregateType)
+        public static Action<IAggregate<TIdentifier>, IAggregateSnapshot> GetSnapshotDispatcher<TIdentifier>(Type aggregateType)
             where TIdentifier : IEquatable<TIdentifier>
         {
-            return GetDispatcher<IAggregateSnapshot<TIdentifier>, TIdentifier>(aggregateType, "Apply", _snapshotDispatchers);
+            return GetDispatcher<IAggregateSnapshot, TIdentifier>(aggregateType, "Apply", _snapshotDispatchers);
         }
 
         private static Action<IAggregate<TIdentifier>, T> GetDispatcher<T, TIdentifier>(Type aggregateType, String methodName, ConcurrentDictionary<Type, Delegate> dictionary)
