@@ -31,8 +31,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     public class AggregateSnapshotCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
     {
-        public AggregateSnapshotCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable)
-            : base(writer, symbolTable)
+        public AggregateSnapshotCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings)
+            : base(writer, symbolTable, settings)
         {
         }
 
@@ -41,13 +41,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return subject is MoleculeSyntax && !(subject is AggregateSnapshotSyntax);
         }
 
-        protected override IEnumerable<AtomInfo> GetBaseAtomInfo(MoleculeSyntax molecule, Maybe<MoleculeSyntax> baseValue)
+        protected override IEnumerable<AtomInfo> GetBaseAtomInfo(MoleculeSyntax molecule)
         {
             var aggregate = (AggregateSyntax)molecule.Parent;
 
             var id = aggregate.GetIdTypeName(SymbolTable);
 
-            return base.GetBaseAtomInfo(molecule, baseValue)
+            return base.GetBaseAtomInfo(molecule)
                 .Concat(new[]
                 {
                     new AtomInfo(Syntax.IdentifierName("id"), new TypeReferenceSyntax(id, new TypeCardinalitySyntax(1, 1)), true), 

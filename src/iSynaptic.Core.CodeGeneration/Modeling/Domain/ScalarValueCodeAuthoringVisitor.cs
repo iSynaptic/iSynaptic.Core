@@ -32,8 +32,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     public class ScalarValueCodeAuthoringVisitor : DomainCodeAuthoringVisitor<string>
     {
-        public ScalarValueCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable)
-            : base(writer, symbolTable)
+        public ScalarValueCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings)
+            : base(writer, symbolTable, settings)
         {
         }
 

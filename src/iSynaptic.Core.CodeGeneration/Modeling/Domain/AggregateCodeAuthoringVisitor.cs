@@ -24,13 +24,14 @@ using System;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Text;
+using System.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     public class AggregateCodeAuthoringVisitor : DomainCodeAuthoringVisitor<string>
     {
-        public AggregateCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable) 
-            : base(writer, symbolTable)
+        public AggregateCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings) 
+            : base(writer, symbolTable, settings)
         {
         }
 
@@ -92,15 +93,60 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 WriteGeneratedCodeAttribute();
                 WriteLine();
 
-                if(baseAggregate.HasValue)
-                    WriteLine("protected {0} (AggregateEvent<{1}> startEvent) : base(startEvent) {{ }}", aggregate.Name, id);
-                else
-                    WriteLine("protected {0} (AggregateEvent<{1}> startEvent) {{ ApplyEvent(startEvent); }}", aggregate.Name, id);
+                new ApplyAggregateEventCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
 
+                new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
+                new AggregateSnapshotCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
+            }
+        }
+    }
+
+    public class ApplyAggregateEventCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
+    {
+        public ApplyAggregateEventCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings) : base(writer, symbolTable, settings)
+        {
+        }
+
+        protected override bool NotInterestedIn(object subject, string state)
+        {
+            return subject is MoleculeSyntax && !(subject is AggregateEventSyntax);
+        }
+
+        protected override void Visit(MoleculeSyntax molecule)
+        {
+            if (molecule.IsAbstract) return;
+
+            var atoms = molecule.Atoms.Select(GetAtomInfo).Concat(GetBaseAtomInfo(molecule));
+
+            Write($"protected void Apply{molecule.Name}(");
+            Delimit(atoms, "parameter", ", ");
+            WriteLine(")");
+            using (WithBlock())
+            {
+                WriteLine($"if (Version <= 0) throw new InvalidOperationException(\"This overload of Apply{molecule.Name} can only be called after the first event is applied.\");");
                 WriteLine();
 
-                new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate.Members);
-                new AggregateSnapshotCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate.Members);
+                Write($"ApplyEvent(new {molecule.Name}(");
+                Delimit(atoms, "argument", ", ");
+                WriteLine($"{(atoms.Any() ? ", " : "")}Id, Version + 1));");
+            }
+
+            var aggregate = (AggregateSyntax)molecule.Parent;
+
+            var id = aggregate.GetIdTypeName(SymbolTable);
+            var idAtom = new AtomInfo(Syntax.IdentifierName("id"), new TypeReferenceSyntax(id, new TypeCardinalitySyntax(1, 1)), true);
+
+            atoms = atoms.Concat(new[] { idAtom });
+
+            Write($"protected void Apply{molecule.Name}(");
+            Delimit(atoms, "parameter", ", ");
+            WriteLine(")");
+            using (WithBlock())
+            {
+                Write($"ApplyEvent(new {molecule.Name}(");
+                Delimit(atoms, "argument", ", ");
+                WriteLine($", Version + 1));");
+
             }
         }
     }

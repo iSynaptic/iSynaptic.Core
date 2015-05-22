@@ -29,8 +29,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     public class ValueCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
     {
-        public ValueCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable) 
-            : base(writer, symbolTable)
+        public ValueCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings) 
+            : base(writer, symbolTable, settings)
         {
         }
 

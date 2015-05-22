@@ -41,6 +41,9 @@ namespace iSynaptic.Modeling.Domain
         {
             Guard.NotNull(@event, "event");
 
+            if (@event.Version < 1)
+                throw new InvalidOperationException("Events version number must be at or after version 1.");
+
             lock (_events)
             {
                 var isNextEvent = _events

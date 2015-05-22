@@ -55,7 +55,10 @@
     <Compile Include="Modeling\AbstractSyntaxTree\SymbolTableConstructionVisitor.cs" />
     <Compile Include="Modeling\Domain\AggregateCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\AggregateEventCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\AggregateEventGenerationSite.cs" />
     <Compile Include="Modeling\Domain\AggregateSnapshotCodeAuthoringVisitor.cs" />
+    <Compile Include="Modeling\Domain\DomainCodeAuthoringSettings.cs" />
+    <Compile Include="Modeling\Domain\DomainGenerator.cs" />
     <Compile Include="Modeling\Domain\SemanticRulesVisitor.AggregateRules.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\CompilationCodeAuthoringVisitor.cs" />

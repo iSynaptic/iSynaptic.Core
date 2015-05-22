@@ -62,7 +62,7 @@ namespace iSynaptic.TestDomain
 
             public void RecordCommunication(CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty)
             {
-                _serviceCase.ApplyEvent((id, ver) => new CommunicationRecorded(ThreadId, direction, content, communicationTime, duration, responsibleParty, id, ver));
+                _serviceCase.ApplyCommunicationRecorded(ThreadId, direction, content, communicationTime, duration, responsibleParty);
             }
 
             // these exists ONLY for testing purposes; aggregates should not expose state
@@ -74,8 +74,8 @@ namespace iSynaptic.TestDomain
         #endregion
 
         public ServiceCase(String title, String description, ServiceCasePriority priority, String responsibleParty)
-            : this(new Opened(title, description, priority, responsibleParty, Guid.NewGuid(), 1))
         {
+            ApplyOpened(title, description, priority, responsibleParty, Guid.NewGuid());
         }
 
         protected override void OnInitialize()
@@ -111,7 +111,7 @@ namespace iSynaptic.TestDomain
         {
             Int32 newThreadId = _lastThreadId + 1;
 
-            ApplyEvent((id, ver) => new CommunicationThreadStarted(newThreadId, topic, description, responsibleParty, id, ver));
+            ApplyCommunicationThreadStarted(newThreadId, topic, description, responsibleParty);
 
             return _threads.Single(x => x.ThreadId == newThreadId);
         }

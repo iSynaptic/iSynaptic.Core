@@ -109,17 +109,12 @@ namespace iSynaptic.Modeling.Domain
             DispatchSnapshot(snapshot);
         }
 
-        protected void ApplyEvent(Func<TIdentifier, Int32, IAggregateEvent<TIdentifier>> eventFactory)
-        {
-            if(Version <= 0)
-                throw new InvalidOperationException("This overload of ApplyEvent can only be called after the first event is applied.");
-
-            ApplyEvent(eventFactory(Id, Version + 1));
-        }
-
         protected void ApplyEvent(IAggregateEvent<TIdentifier> @event)
         {
             Guard.NotNull(@event, "event");
+
+            if (@event.Version <= 0)
+                throw new InvalidOperationException("Events version number must be at or after version 1.");
 
             if (_events == null)
                 throw new InvalidOperationException("Events cannot be applied until aggregate is initialized. Ensure base constructor is called.");
@@ -138,7 +133,7 @@ namespace iSynaptic.Modeling.Domain
             {
                 foreach (var @event in events)
                 {
-                    if (_events.Version <= 0)
+                    if (_events.Version <= 1)
                         Id = @event.Id;
 
                     Version = @event.Version;

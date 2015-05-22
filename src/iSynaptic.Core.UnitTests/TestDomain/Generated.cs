@@ -114,8 +114,6 @@ namespace iSynaptic.TestDomain
         where T : IEquatable<T>
     {
         [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        protected Base(AggregateEvent<T> startEvent) { ApplyEvent(startEvent); }
-
         [AggregateEventVersion(1)]
         public abstract class BaseEvent : AggregateEvent<T>
         {
@@ -140,8 +138,36 @@ namespace iSynaptic.TestDomain
     public partial class ServiceCase : Base<ServiceCaseId>
     {
         [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        protected ServiceCase(AggregateEvent<ServiceCaseId> startEvent) : base(startEvent) { }
+        protected void ApplyOpened(String title, String description, ServiceCasePriority priority, String responsibleParty)
+        {
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyOpened can only be called after the first event is applied.");
 
+            ApplyEvent(new Opened(title, description, priority, responsibleParty, Id, Version + 1));
+        }
+        protected void ApplyOpened(String title, String description, ServiceCasePriority priority, String responsibleParty, ServiceCaseId id)
+        {
+            ApplyEvent(new Opened(title, description, priority, responsibleParty, id, Version + 1));
+        }
+        protected void ApplyCommunicationThreadStarted(Int32 threadId, String topic, String description, String responsibleParty)
+        {
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyCommunicationThreadStarted can only be called after the first event is applied.");
+
+            ApplyEvent(new CommunicationThreadStarted(threadId, topic, description, responsibleParty, Id, Version + 1));
+        }
+        protected void ApplyCommunicationThreadStarted(Int32 threadId, String topic, String description, String responsibleParty, ServiceCaseId id)
+        {
+            ApplyEvent(new CommunicationThreadStarted(threadId, topic, description, responsibleParty, id, Version + 1));
+        }
+        protected void ApplyCommunicationRecorded(Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty)
+        {
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyCommunicationRecorded can only be called after the first event is applied.");
+
+            ApplyEvent(new CommunicationRecorded(threadId, direction, content, communicationTime, duration, responsibleParty, Id, Version + 1));
+        }
+        protected void ApplyCommunicationRecorded(Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty, ServiceCaseId id)
+        {
+            ApplyEvent(new CommunicationRecorded(threadId, direction, content, communicationTime, duration, responsibleParty, id, Version + 1));
+        }
         [AggregateEventVersion(3)]
         public class Opened : BaseEvent
         {
@@ -269,8 +295,26 @@ namespace iSynaptic.TestDomain
         where TRoleIdentifier : RoleIdentifier, IEquatable<TRoleIdentifier>
     {
         [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        protected HomogeneousRole(AggregateEvent<TRoleIdentifier> startEvent) { ApplyEvent(startEvent); }
+        protected void ApplyRegistered(string name)
+        {
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyRegistered can only be called after the first event is applied.");
 
+            ApplyEvent(new Registered(name, Id, Version + 1));
+        }
+        protected void ApplyRegistered(string name, TRoleIdentifier id)
+        {
+            ApplyEvent(new Registered(name, id, Version + 1));
+        }
+        protected void ApplyStatusChanged(HomogeneousRoleStatus status)
+        {
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyStatusChanged can only be called after the first event is applied.");
+
+            ApplyEvent(new StatusChanged(status, Id, Version + 1));
+        }
+        protected void ApplyStatusChanged(HomogeneousRoleStatus status, TRoleIdentifier id)
+        {
+            ApplyEvent(new StatusChanged(status, id, Version + 1));
+        }
         [AggregateEventVersion(1)]
         public class Registered : AggregateEvent<TRoleIdentifier>
         {

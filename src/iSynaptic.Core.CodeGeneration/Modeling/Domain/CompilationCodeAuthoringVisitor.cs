@@ -31,8 +31,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     public class CompilationCodeAuthoringVisitor : DomainCodeAuthoringVisitor<Unit>
     {
-        public CompilationCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable) 
-            : base(writer, symbolTable)
+        public CompilationCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings) 
+            : base(writer, symbolTable, settings)
         {
         }
 
@@ -51,7 +51,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             }
             .Concat(compilation.Trees.SelectMany(x => x.UsingStatements))
             .Distinct(x => x.Namespace);
-
+            
             Dispatch(topLevelUsings);
             WriteLine();
 
@@ -69,17 +69,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             Dispatch(tree.Namespaces);
         }
 
-        protected virtual void Visit(NamespaceSyntax @namespace)
+        protected virtual void Visit(NamespaceSyntax @namespaces)
         {
-            using (WriteBlock("namespace {0}", @namespace.Name))
+            using (WriteBlock("namespace {0}", @namespaces.Name))
             {
-                if (@namespace.UsingStatements.Any())
+                if (@namespaces.UsingStatements.Any())
                 {
-                    Dispatch(@namespace.UsingStatements);
+                    Dispatch(@namespaces.UsingStatements);
                     WriteLine();
                 }
 
-                Delimit(@namespace.Members, new Unit(), Environment.NewLine);
+                Delimit(@namespaces.Members, new Unit(), Environment.NewLine);
             }
         }
 
@@ -101,17 +101,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected virtual void Visit(ValueSyntax value)
         {
-            new ValueCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(value);
+            new ValueCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(value);
         }
 
         protected virtual void Visit(AggregateSyntax aggregate)
         {
-            new AggregateCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(aggregate);
+            new AggregateCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate);
         }
 
         protected virtual void Visit(ScalarValueSyntax value)
         {
-            new ScalarValueCodeAuthoringVisitor(Writer, SymbolTable).Dispatch(value);
+            new ScalarValueCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(value);
         }
     }
 }

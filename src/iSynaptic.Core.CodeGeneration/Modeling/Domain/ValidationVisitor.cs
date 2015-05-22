@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
-using ISymbol = iSynaptic.Commons.ISymbol;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {

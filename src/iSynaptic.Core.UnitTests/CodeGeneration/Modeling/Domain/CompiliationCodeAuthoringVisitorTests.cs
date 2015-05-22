@@ -37,7 +37,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
             var writer = new StringWriter();
             
-            var visitor = new CompilationCodeAuthoringVisitor(writer, SymbolTable);
+            var visitor = new CompilationCodeAuthoringVisitor(writer, SymbolTable, new DomainCodeAuthoringSettings());
             visitor.Dispatch(Compilation);
 
             string code = writer.GetStringBuilder().ToString();

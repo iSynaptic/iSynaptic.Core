@@ -32,8 +32,8 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     public abstract class MoleculeCodeAuthoringVisitor : DomainCodeAuthoringVisitor<String>
     {
-        protected MoleculeCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable)
-            : base(writer, symbolTable)
+        protected MoleculeCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings)
+            : base(writer, symbolTable, settings)
         {
         }
 
@@ -71,7 +71,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 .Select(x => SymbolTable.Resolve(molecule.Parent, x).Symbol)
                 .Cast<MoleculeSyntax>();
 
-            var baseAtoms = GetBaseAtomInfo(molecule, baseValue).ToArray();
+            var baseAtoms = GetBaseAtomInfo(molecule).ToArray();
 
             String baseTypes = GetInheritedTypes(molecule).Delimit(", ");
             if (baseTypes.Length > 0)
@@ -144,8 +144,44 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
         }
 
-        protected virtual IEnumerable<AtomInfo> GetBaseAtomInfo(MoleculeSyntax molecule, Maybe<MoleculeSyntax> baseValue)
+        protected class AtomInfo
         {
+            private readonly SimpleNameSyntax _name;
+            private readonly TypeReferenceSyntax _type;
+            private readonly Boolean _isValueType;
+
+            public AtomInfo(SimpleNameSyntax name, TypeReferenceSyntax type, Boolean isValueType)
+            {
+                _name = name;
+                _type = type;
+                _isValueType = isValueType;
+            }
+
+            public SimpleNameSyntax Name { get { return _name; } }
+            public TypeReferenceSyntax Type { get { return _type; } }
+            public Boolean IsValueType { get { return _isValueType; } }
+        }
+
+        protected virtual AtomInfo GetAtomInfo(AtomSyntax atom)
+        {
+            var typeSymbol = SymbolTable.Resolve(atom.Parent.Parent, atom.Type.Name).Symbol;
+            var type = typeSymbol as IType;
+
+            if (type == null)
+                throw new InvalidOperationException("Unable to find type of property.");
+
+            if (!type.HasValueSemantics)
+                throw new InvalidOperationException("Only types with value semantics can be used in molecule atoms.");
+
+            return new AtomInfo(atom.SimpleName, atom.Type, type.IsValueType);
+        }
+
+        protected virtual IEnumerable<AtomInfo> GetBaseAtomInfo(MoleculeSyntax molecule)
+        {
+            var baseValue = molecule.Base
+                .Select(x => SymbolTable.Resolve(molecule.Parent, x).Symbol)
+                .Cast<MoleculeSyntax>();
+
             return baseValue
                 .Recurse(x => x.Base.Select(b => SymbolTable.Resolve(molecule, b).Symbol).Cast<MoleculeSyntax>())
                 .SelectMany(x => x.Atoms)
@@ -279,38 +315,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             }
             else if (!furthestBase.HasValue)
                 WriteLine("protected abstract {0}.Essence CreateEssence();", molecule.Name);
-        }
-
-        protected class AtomInfo
-        {
-            private readonly SimpleNameSyntax _name;
-            private readonly TypeReferenceSyntax _type;
-            private readonly Boolean _isValueType;
-
-            public AtomInfo(SimpleNameSyntax name, TypeReferenceSyntax type, Boolean isValueType)
-            {
-                _name = name;
-                _type = type;
-                _isValueType = isValueType;
-            }
-
-            public SimpleNameSyntax Name { get { return _name; } }
-            public TypeReferenceSyntax Type { get { return _type; } }
-            public Boolean IsValueType { get { return _isValueType; } }
-        }
-
-        protected virtual AtomInfo GetAtomInfo(AtomSyntax atom)
-        {
-            var typeSymbol = SymbolTable.Resolve(atom.Parent.Parent, atom.Type.Name).Symbol;
-            var type = typeSymbol as IType;
-
-            if (type == null)
-                throw new InvalidOperationException("Unable to find type of property.");
-
-            if (!type.HasValueSemantics)
-                throw new InvalidOperationException("Only types with value semantics can be used in molecule atoms.");
-
-            return new AtomInfo(atom.SimpleName, atom.Type, type.IsValueType);
         }
 
         protected virtual void Visit(AtomSyntax atom, String mode)

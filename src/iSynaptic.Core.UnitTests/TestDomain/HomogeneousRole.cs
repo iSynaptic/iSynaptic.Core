@@ -30,23 +30,23 @@ namespace iSynaptic.TestDomain
     public partial class HomogeneousRole<TRoleIdentifier> : IHomogeneousRole<TRoleIdentifier>
     {
         public HomogeneousRole(TRoleIdentifier id, String name)
-            : this(new Registered(name, id, 1))
         {
+            ApplyRegistered(name, id);
         }
 
         public void StartApproval()
         {
-            ApplyEvent((id, ver) => new StatusChanged(HomogeneousRoleStatus.PendingApproval, id, ver));
+            ApplyStatusChanged(HomogeneousRoleStatus.PendingApproval);
         }
 
         public void Approve()
         {
-            ApplyEvent((id, ver) => new StatusChanged(HomogeneousRoleStatus.Approved, id, ver));
+            ApplyStatusChanged(HomogeneousRoleStatus.Approved);
         }
 
         public void Retire()
         {
-            ApplyEvent((id, ver) => new StatusChanged(HomogeneousRoleStatus.Retired, id, ver));
+            ApplyStatusChanged(HomogeneousRoleStatus.Retired);
         }
 
         private void On(Registered @event)

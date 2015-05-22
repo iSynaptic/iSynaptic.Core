@@ -33,17 +33,17 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     public abstract class DomainCodeAuthoringVisitor<TState> : CSharpCodeAuthoringVisitor<TState>
     {
-        private readonly SymbolTable _symbolTable;
-
-        protected DomainCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable) : base(writer)
+        protected DomainCodeAuthoringVisitor(TextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings) : base(writer)
         {
-            _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
+            SymbolTable = Guard.NotNull(symbolTable, nameof(symbolTable));
+            Settings = Guard.NotNull(settings, nameof(settings));
         }
 
-        protected DomainCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable)
+        protected DomainCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings)
             : base(writer)
         {
-            _symbolTable = Guard.NotNull(symbolTable, "symbolTable");
+            SymbolTable = Guard.NotNull(symbolTable, nameof(symbolTable));
+            Settings = Guard.NotNull(settings, nameof(settings));
         }
 
         protected String GetTypeString(NameSyntax type, ISymbol relativeTo)
@@ -104,6 +104,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             WriteGeneratedCodeAttribute("iSynaptic.Core");
         }
 
-        protected SymbolTable SymbolTable { get { return _symbolTable; } }
+        protected SymbolTable SymbolTable { get; }
+        protected DomainCodeAuthoringSettings Settings { get; }
     }
 }
