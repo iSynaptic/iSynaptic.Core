@@ -51,16 +51,16 @@ namespace iSynaptic
             registry.AddMapping(new LogicalType("tst", "CustomerServiceRepresentativeRole"), typeof(HomogeneousRole<CustomerServiceRepresentativeRoleIdentifier>));
             registry.AddMapping(new LogicalType("tst", "CustomerAgentRole"), typeof(HomogeneousRole<CustomerAgentRoleIdentifier>));
 
-            registry.AddMapping(new LogicalType("tst", "CustomerRole.Registered"), typeof(HomogeneousRole<CustomerRoleIdentifier>.Registered));
-            registry.AddMapping(new LogicalType("tst", "CustomerServiceRepresentativeRole.Registered"), typeof(HomogeneousRole<CustomerServiceRepresentativeRoleIdentifier>.Registered));
-            registry.AddMapping(new LogicalType("tst", "CustomerAgentRole.Registered"), typeof(HomogeneousRole<CustomerAgentRoleIdentifier>.Registered));
+            registry.AddMapping(new LogicalType("tst", "CustomerRole.Registered"), typeof(HomogeneousRoleComponents<CustomerRoleIdentifier>.Registered));
+            registry.AddMapping(new LogicalType("tst", "CustomerServiceRepresentativeRole.Registered"), typeof(HomogeneousRoleComponents<CustomerServiceRepresentativeRoleIdentifier>.Registered));
+            registry.AddMapping(new LogicalType("tst", "CustomerAgentRole.Registered"), typeof(HomogeneousRoleComponents<CustomerAgentRoleIdentifier>.Registered));
 
             registry.AddMapping(new LogicalType("tst", "ServiceCase"), typeof(ServiceCase));
-            registry.AddMapping(new LogicalType("tst", "ServiceCase.Opened"), typeof(ServiceCase.Opened));
-            registry.AddMapping(new LogicalType("tst", "ServiceCase.Snapshot"), typeof(ServiceCase.Snapshot));
-            registry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationThreadStarted"), typeof(ServiceCase.CommunicationThreadStarted));
+            registry.AddMapping(new LogicalType("tst", "ServiceCase.Opened"), typeof(ServiceCaseComponents.Opened));
+            registry.AddMapping(new LogicalType("tst", "ServiceCase.Snapshot"), typeof(ServiceCaseComponents.Snapshot));
+            registry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationThreadStarted"), typeof(ServiceCaseComponents.CommunicationThreadStarted));
             registry.AddMapping(new LogicalType("tst", "CommunicationThreadSnapshot"), typeof(CommunicationThreadSnapshot));
-            registry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationRecorded"), typeof(ServiceCase.CommunicationRecorded));
+            registry.AddMapping(new LogicalType("tst", "ServiceCase.CommunicationRecorded"), typeof(ServiceCaseComponents.CommunicationRecorded));
 
             return registry;
         }

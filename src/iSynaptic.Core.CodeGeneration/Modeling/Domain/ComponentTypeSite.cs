@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
-    public enum AggregateEventGenerationSite
+    public enum ComponentTypeSite
     {
-        NestedInAggregate,
+        Nested,
         External
     }
 }

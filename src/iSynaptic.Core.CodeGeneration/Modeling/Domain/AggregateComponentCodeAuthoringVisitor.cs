@@ -1,4 +1,4 @@
-﻿// The MIT License
+// The MIT License
 // 
 // Copyright (c) 2013 Jordan E. Terrell
 // 
@@ -21,43 +21,44 @@
 // THE SOFTWARE.
 
 using System;
+using System.IO;
+using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
+using iSynaptic.Commons.Linq;
 using iSynaptic.Commons.Text;
-using System.Linq;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
-    public class AggregateCodeAuthoringVisitor : DomainCodeAuthoringVisitor<string>
+    public class AggregateComponentCodeAuthoringVisitor : DomainCodeAuthoringVisitor<string>
     {
-        public AggregateCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings) 
+        public AggregateComponentCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings) 
             : base(writer, symbolTable, settings)
         {
         }
 
-        protected void Visit(AggregateSyntax aggregate)
+        protected virtual void Visit(AggregateSyntax aggregate)
         {
             var genericId = aggregate.Identifier
-                                     .OfType<GenericAggregateIdentifierSyntax>();
+                         .OfType<GenericAggregateIdentifierSyntax>();
 
             var genericSuffix = genericId
                 .Select(x => x.Name)
                 .Select(n => String.Format("<{0}>", n))
                 .ValueOrDefault("");
 
-            var baseAggregate = aggregate.Base
-                                         .Select(x => SymbolTable.Resolve(aggregate.Parent, x))
-                                         .Select(x => x.Symbol)
-                                         .Cast<AggregateSyntax>();
-
-
             var baseName = aggregate.Base
-                                    .Select(x => x.ToString())
-                                    .ValueOrDefault("Aggregate");
+                        .Select(x => x.ToString());
+
+            var baseAggregate = aggregate.Base
+                             .Select(x => SymbolTable.Resolve(aggregate.Parent, x))
+                             .Select(x => x.Symbol)
+                             .Cast<AggregateSyntax>();
 
             var idType = aggregate.Identifier
-                                  .Cast<NamedAggregateIdentifierSyntax>()
-                                  .Select(x => x.Type.Name);
+                      .Cast<NamedAggregateIdentifierSyntax>()
+                      .Select(x => x.Type.Name);
+
 
             var baseGenericSuffix = genericId
                 .Select(x => x.Name)
@@ -70,18 +71,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
                 .Select(x => String.Format("<{0}>", x))
                 .ValueOrDefault("");
 
-            WriteLine("public {0} partial class {1}{2} : {3}{4}",
-                       aggregate.IsAbstract ? "abstract " : "",
-                       aggregate.Name,
-                       genericSuffix, 
-                       baseName, 
-                       baseGenericSuffix);
+            WriteLine($"public abstract class {aggregate.Name}Components{genericSuffix}{(baseName.HasValue ? $" : {baseName}Components{baseGenericSuffix}" : "")}");
 
             if (genericId.HasValue)
             {
                 using (WithIndentation())
                 {
-                    WriteLine("where {0} : {1}IEquatable<{0}>", 
+                    WriteLine("where {0} : {1}IEquatable<{0}>",
                         genericId.Value.Name,
                         genericId.Value.ConstrainedType.Select(x => x.Name + ", ").ValueOrDefault(""));
                 }
@@ -89,21 +85,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
             using (WithBlock())
             {
-                var id = aggregate.GetIdTypeName(SymbolTable);
+                WriteLine($"protected {aggregate.Name}Components() {{ }}");
 
-                new ApplyAggregateComponentCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
-
-                if (Settings.AggregateComponentSite == ComponentTypeSite.Nested &&
-                   Settings.TypesToGenerate.Contains(DomainTypes.AggregateEvents))
-                {
+                if(Settings.TypesToGenerate.Contains(DomainTypes.AggregateEvents))
                     new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
-                }
 
-                if (Settings.AggregateComponentSite == ComponentTypeSite.Nested &&
-                   Settings.TypesToGenerate.Contains(DomainTypes.AggregateSnapshots))
-                {
+                if (Settings.TypesToGenerate.Contains(DomainTypes.AggregateEvents))
                     new AggregateSnapshotCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
-                }
             }
         }
     }

@@ -49,13 +49,13 @@ namespace iSynaptic.TestDomain
             ApplyStatusChanged(HomogeneousRoleStatus.Retired);
         }
 
-        private void On(Registered @event)
+        private void On(HomogeneousRoleComponents<TRoleIdentifier>.Registered @event)
         {
             Name = @event.Name;
             Status = HomogeneousRoleStatus.New;
         }
 
-        private void On(StatusChanged @event)
+        private void On(HomogeneousRoleComponents<TRoleIdentifier>.StatusChanged @event)
         {
             Status = @event.Status;
         }

@@ -47,7 +47,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             return true;
         }
 
-        protected virtual Maybe<String> GetBaseMolecule(MoleculeSyntax molecule)
+        protected virtual Maybe<string> GetBaseMolecule(MoleculeSyntax molecule)
         {
             return molecule.Base.Select(x => x.ToString());
         }

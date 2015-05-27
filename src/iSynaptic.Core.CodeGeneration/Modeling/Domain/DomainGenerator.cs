@@ -19,7 +19,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             Guard.NotNull(symbolTable, nameof(symbolTable));
             Guard.NotNull(target, nameof(target));
 
-            var visitor = new CompilationCodeAuthoringVisitor(target, symbolTable, new DomainCodeAuthoringSettings());
+            var visitor = new CompilationCodeAuthoringVisitor(target, symbolTable, settings);
             visitor.Dispatch(compilation);
         }
     }

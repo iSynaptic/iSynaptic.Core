@@ -26,6 +26,7 @@ using System.Linq;
 using iSynaptic.CodeGeneration.Modeling.Domain.SyntacticModel;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Linq;
+using iSynaptic.Commons.Text;
 
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
@@ -85,7 +86,7 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected virtual void Visit(EnumSyntax @enum)
         {
-            if (@enum.IsExternal)
+            if (@enum.IsExternal || !Settings.TypesToGenerate.Contains(DomainTypes.Values))
                 return;
 
             using (WriteBlock("public enum {0}", @enum.Name))
@@ -101,16 +102,29 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
         protected virtual void Visit(ValueSyntax value)
         {
+            if (!Settings.TypesToGenerate.Contains(DomainTypes.Values))
+                return;
+
             new ValueCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(value);
         }
 
         protected virtual void Visit(AggregateSyntax aggregate)
         {
-            new AggregateCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate);
+            if (Settings.TypesToGenerate.Contains(DomainTypes.Aggregates))
+                new AggregateCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate);
+
+            if(Settings.AggregateComponentSite == ComponentTypeSite.External &&
+              (Settings.TypesToGenerate.Contains(DomainTypes.AggregateEvents) || Settings.TypesToGenerate.Contains(DomainTypes.AggregateEvents)))
+            {
+                new AggregateComponentCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate);
+            }
         }
 
         protected virtual void Visit(ScalarValueSyntax value)
         {
+            if (!Settings.TypesToGenerate.Contains(DomainTypes.Values))
+                return;
+
             new ScalarValueCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(value);
         }
     }

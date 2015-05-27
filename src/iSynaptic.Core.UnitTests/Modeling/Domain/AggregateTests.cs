@@ -68,8 +68,8 @@ namespace iSynaptic.Modeling.Domain
                        .Select(x => x.GetType())
                        .SequenceEqual(new[]
                        {
-                           typeof (ServiceCase.Opened), typeof (ServiceCase.CommunicationThreadStarted),
-                           typeof (ServiceCase.CommunicationRecorded)
+                           typeof (ServiceCaseComponents.Opened), typeof (ServiceCaseComponents.CommunicationThreadStarted),
+                           typeof (ServiceCaseComponents.CommunicationRecorded)
                        })
                        .Should().BeTrue();
         }

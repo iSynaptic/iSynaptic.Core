@@ -42,7 +42,7 @@ namespace iSynaptic.Modeling.Domain
             reconsituted.GetEvents().Count().Should().Be(3);
             var events = reconsituted.GetEvents().ToArray();
 
-            var commRecordedEvent = events[2] as ServiceCase.CommunicationRecorded;
+            var commRecordedEvent = events[2] as ServiceCaseComponents.CommunicationRecorded;
             commRecordedEvent.Should().NotBeNull();
             commRecordedEvent.Direction.Should().Be(CommunicationDirection.Incoming);
             commRecordedEvent.Content.Should().Be(ServiceCase.SampleContent.CommunicationContent);
@@ -184,10 +184,10 @@ namespace iSynaptic.Modeling.Domain
             secondWinner.Version.Should().Be(4);
             var events = secondWinner.GetEvents().ToArray();
 
-            events[2].Should().BeOfType<ServiceCase.CommunicationThreadStarted>();
-            events[3].Should().BeOfType<ServiceCase.CommunicationRecorded>();
+            events[2].Should().BeOfType<ServiceCaseComponents.CommunicationThreadStarted>();
+            events[3].Should().BeOfType<ServiceCaseComponents.CommunicationRecorded>();
 
-            var cre = (ServiceCase.CommunicationRecorded) events[3];
+            var cre = (ServiceCaseComponents.CommunicationRecorded) events[3];
             cre.Version.Should().Be(4);
             cre.Direction.Should().Be(CommunicationDirection.Outgoing);
             cre.Content.Should().Be("Also Win");
