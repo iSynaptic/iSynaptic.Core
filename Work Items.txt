@@ -3,4 +3,10 @@
 * Ensure framework does not hinder complex aggregate inheritence hierarchies and co/contra-variant interfaces
 * Make IVisitableChildren contract pattern-based instead on nominally type-based
 * Collapse all Visitor & Project "dispatch" logic into one helper (perhaps a general dispatcher in Commons)
-* Implement real domain model in unit tests instead of convoluted abitrary model
+* Implement real domain model in unit tests instead of convoluted abitrary model (e.g. MadScientist/LabRat conducting experiments)
+* Add support for complex enums
+* Work out proper Syntax/Symbolic model seperation (ie create a binder)
+* Allow setting prefix/suffic for Ast generator
+* Break out persistance providers into seperate assemblies/packages.
+* Logical type registry should support open generics
+* Move logical type system and serializer support into seperate assembly/package.
