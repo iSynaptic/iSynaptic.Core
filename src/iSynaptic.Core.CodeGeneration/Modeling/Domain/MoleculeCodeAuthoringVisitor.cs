@@ -77,12 +77,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             if (baseTypes.Length > 0)
                 baseTypes = String.Format(" : {0}", baseTypes);
 
+            var modifiers = new List<string>();
+
+            if (molecule.IsAbstract) modifiers.Add("abstract");
+            if (molecule.IsPartial) modifiers.Add("partial");
+
             WriteModuleClassAttributes(molecule);
-            using (WriteBlock("public {0}{1}class {2}{3}", 
-                              molecule.IsAbstract ? "abstract " : "",
-                              molecule.IsPartial ? "partial " : "",
-                              molecule.Name,
-                              baseTypes))
+            using (WriteBlock($"{molecule.Visibility.ToCSharpModifier()} {modifiers.Delimit(" ")} class {molecule.Name}{baseTypes}"))
             {
                 Dispatch(molecule.Atoms, "field");
                 WriteLine();

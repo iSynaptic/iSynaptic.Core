@@ -73,7 +73,7 @@ namespace iSynaptic.TestDomain
 
         #endregion
 
-        public ServiceCase(String title, String description, ServiceCasePriority priority, String responsibleParty)
+        public ServiceCase(String title, String description, Priority priority, String responsibleParty)
         {
             ApplyOpened(title, description, priority, responsibleParty, Guid.NewGuid());
         }
@@ -90,7 +90,7 @@ namespace iSynaptic.TestDomain
                                 _threads.Select(x => new CommunicationThreadSnapshot(x.ThreadId, x.Topic, x.Description)),
                                 Title,
                                 Description,
-                                Priority,
+                                ServiceCasePriority,
                                 Id,
                                 Version,
                                 SystemClock.UtcNow);
@@ -102,7 +102,7 @@ namespace iSynaptic.TestDomain
             _threads = snapshot.ThreadSnapshots.Select(x => new CommunicationThread(this, x.ThreadId, x.Topic, x.Description)).ToList();
             Title = snapshot.Title;
             Description = snapshot.Description;
-            Priority = snapshot.Priority;
+            ServiceCasePriority = snapshot.Priority;
         }
 
         #region Commands
@@ -124,7 +124,7 @@ namespace iSynaptic.TestDomain
         {
             Title = @event.Title;
             Description = @event.Description;
-            Priority = @event.Priority;
+            ServiceCasePriority = @event.Priority;
         }
 
         private void On(CommunicationThreadStarted @event)
@@ -148,7 +148,7 @@ namespace iSynaptic.TestDomain
         // these exists ONLY for testing purposes; aggregates should not expose state
         public String Title { get; private set; }
         public String Description { get; private set; }
-        public ServiceCasePriority Priority { get; private set; }
+        public Priority ServiceCasePriority { get; private set; }
     }
 
     public interface ICommunicationThread

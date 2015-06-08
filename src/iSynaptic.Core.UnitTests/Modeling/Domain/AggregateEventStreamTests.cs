@@ -35,7 +35,7 @@ namespace iSynaptic.Modeling.Domain
         private static readonly Guid _id = Guid.NewGuid();
 
         private static readonly ServiceCase.Opened _openedEvent
-            = new ServiceCase.Opened(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty, _id, 1);
+            = new ServiceCase.Opened(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty, _id, 1);
 
 
         [Test]

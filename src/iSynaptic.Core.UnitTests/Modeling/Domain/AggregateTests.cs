@@ -36,19 +36,19 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void CreatedServiceCase_AppliesEvent()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             
             serviceCase.Id.Should().NotBe(Guid.Empty);
             serviceCase.Version.Should().Be(1);
             serviceCase.Title.Should().Be(ServiceCase.SampleContent.Title);
             serviceCase.Description.Should().Be(ServiceCase.SampleContent.Description);
-            serviceCase.Priority.Should().Be(ServiceCasePriority.Normal);
+            serviceCase.ServiceCasePriority.Should().Be(ServiceCase.Priority.Normal);
         }
 
         [Test]
         public void StartCommunicationThead_YieldsEventAndReturnsThread()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, ServiceCase.SampleContent.ResponsibleParty);
 
             thread.Should().NotBeNull();
@@ -58,7 +58,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public void UncommittedEventsRetreivable()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, ServiceCase.SampleContent.ResponsibleParty);
 
             thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, ServiceCase.SampleContent.ResponsibleParty);
@@ -79,7 +79,7 @@ namespace iSynaptic.Modeling.Domain
         {
             Aggregate.FieldsImmuneToReset(f => f.FieldType.FullName.Contains("DynamicProxy") || f.FieldType.FullName.Contains("NSubstitute"));
 
-            var serviceCase = Substitute.For<ServiceCase>(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = Substitute.For<ServiceCase>(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
 
             serviceCase.When(x => x.StartCommunicationThread(null, null, ServiceCase.SampleContent.ResponsibleParty))
                 .Do(x => { throw new Exception("bad mojo!"); });

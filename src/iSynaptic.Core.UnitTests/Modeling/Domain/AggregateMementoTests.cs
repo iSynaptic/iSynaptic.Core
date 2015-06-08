@@ -38,7 +38,7 @@ namespace iSynaptic.Modeling.Domain
             var serviceCase = new ServiceCase(
                 ServiceCase.SampleContent.Title, 
                 ServiceCase.SampleContent.Description, 
-                ServiceCasePriority.Normal,
+                ServiceCase.Priority.Normal,
                 ServiceCase.SampleContent.ResponsibleParty);
 
             var thread = serviceCase.StartCommunicationThread(

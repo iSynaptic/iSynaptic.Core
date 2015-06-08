@@ -97,6 +97,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
                 new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
                 new AggregateSnapshotCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
+
+                new ValueCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
+                new ScalarValueCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
+                new EnumCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
             }
         }
     }

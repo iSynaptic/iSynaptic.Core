@@ -59,6 +59,7 @@
     <Compile Include="Modeling\Domain\ApplyAggregateEventCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringSettings.cs" />
     <Compile Include="Modeling\Domain\DomainGenerator.cs" />
+    <Compile Include="Modeling\Domain\EnumCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\SemanticRulesVisitor.AggregateRules.cs" />
     <Compile Include="Modeling\Domain\DomainCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\CompilationCodeAuthoringVisitor.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Modeling\Domain\SyntacticModel\MoleculeSyntax.cs" />
     <Compile Include="Modeling\Domain\MoleculeCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\Domain\SyntacticModel\ValueSyntax.cs" />
+    <Compile Include="Modeling\Domain\SyntacticModel\Visibility.cs" />
     <Compile Include="Modeling\Domain\ValidationVisitor.cs" />
     <Compile Include="Modeling\Domain\ValueCodeAuthoringVisitor.cs" />
     <Compile Include="Modeling\ParserExtensions.cs" />

@@ -79,9 +79,11 @@
         TypeReferenceSyntax? ConstrainedType;
     }
 
-    partial node EnumSyntax("Enum", NamespaceSyntax) : INamespaceMember, IType, IAnnotatableNode
+    partial node EnumSyntax("Enum", ISymbol) : INamespaceMember, IType, IAnnotatableNode, IAggregateMember
     {
         Boolean IsExternal;
+
+		Visibility Visibility;
 
         SimpleNameSyntax SimpleName;
         EnumValueSyntax* Values;
@@ -98,6 +100,8 @@
     {
         Boolean IsExternal;
 
+		Visibility Visibility;
+		
         Boolean IsAbstract;
         Boolean IsPartial;
         SimpleNameSyntax SimpleName;
@@ -144,9 +148,11 @@
         AnnotationSyntax* Annotations;
     }
 
-    partial node ScalarValueSyntax("ScalarValue", NamespaceSyntax) : INamespaceMember, ITypeWithBase, IAnnotatableNode
+    partial node ScalarValueSyntax("ScalarValue", ISymbol) : INamespaceMember, ITypeWithBase, IAggregateMember, IAnnotatableNode
     {
         Boolean IsExternal;
+
+		Visibility Visibility;
 
         Boolean IsAbstract;
         Boolean IsPartial;
@@ -156,7 +162,7 @@
         AnnotationSyntax* Annotations;
     }
 
-    partial node ValueSyntax("Value", NamespaceSyntax) : MoleculeSyntax, INamespaceMember
+    partial node ValueSyntax("Value", ISymbol) : MoleculeSyntax, INamespaceMember, IAggregateMember
     {
     }
 

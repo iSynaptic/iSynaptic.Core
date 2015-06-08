@@ -138,29 +138,29 @@ namespace iSynaptic.TestDomain
     public partial class ServiceCase : Base<ServiceCaseId>
     {
         [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        protected void ApplyOpened(String title, String description, ServiceCasePriority priority, String responsibleParty)
+        protected void ApplyOpened(String title, CaseDescription description, Priority priority, String responsibleParty)
         {
-            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyOpened can only be called after the first event is applied.");
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyOpened can only be called after the first event is applied. Please call the overload which requires the Aggregate's ID to be provided.");
 
             ApplyEvent(new Opened(title, description, priority, responsibleParty, Id, Version + 1));
         }
-        protected void ApplyOpened(String title, String description, ServiceCasePriority priority, String responsibleParty, ServiceCaseId id)
+        protected void ApplyOpened(String title, CaseDescription description, Priority priority, String responsibleParty, ServiceCaseId id)
         {
             ApplyEvent(new Opened(title, description, priority, responsibleParty, id, Version + 1));
         }
-        protected void ApplyCommunicationThreadStarted(Int32 threadId, String topic, String description, String responsibleParty)
+        protected void ApplyCommunicationThreadStarted(Int32 threadId, String topic, CaseDescription description, String responsibleParty)
         {
-            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyCommunicationThreadStarted can only be called after the first event is applied.");
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyCommunicationThreadStarted can only be called after the first event is applied. Please call the overload which requires the Aggregate's ID to be provided.");
 
             ApplyEvent(new CommunicationThreadStarted(threadId, topic, description, responsibleParty, Id, Version + 1));
         }
-        protected void ApplyCommunicationThreadStarted(Int32 threadId, String topic, String description, String responsibleParty, ServiceCaseId id)
+        protected void ApplyCommunicationThreadStarted(Int32 threadId, String topic, CaseDescription description, String responsibleParty, ServiceCaseId id)
         {
             ApplyEvent(new CommunicationThreadStarted(threadId, topic, description, responsibleParty, id, Version + 1));
         }
         protected void ApplyCommunicationRecorded(Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty)
         {
-            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyCommunicationRecorded can only be called after the first event is applied.");
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyCommunicationRecorded can only be called after the first event is applied. Please call the overload which requires the Aggregate's ID to be provided.");
 
             ApplyEvent(new CommunicationRecorded(threadId, direction, content, communicationTime, duration, responsibleParty, Id, Version + 1));
         }
@@ -172,11 +172,11 @@ namespace iSynaptic.TestDomain
         public class Opened : BaseEvent
         {
             private readonly String _title;
-            private readonly String _description;
-            private readonly ServiceCasePriority _priority;
+            private readonly CaseDescription _description;
+            private readonly Priority _priority;
 
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public Opened(String title, String description, ServiceCasePriority priority, String responsibleParty, ServiceCaseId id, Int32 version)
+            public Opened(String title, CaseDescription description, Priority priority, String responsibleParty, ServiceCaseId id, Int32 version)
                 : base(responsibleParty, id, version)
             {
                 if (ReferenceEquals(title, null)) throw new ArgumentNullException("title");
@@ -190,19 +190,19 @@ namespace iSynaptic.TestDomain
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
             public String Title { get { return _title; } }
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public String Description { get { return _description; } }
+            public CaseDescription Description { get { return _description; } }
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public ServiceCasePriority Priority { get { return _priority; } }
+            public Priority Priority { get { return _priority; } }
         }
         [AggregateEventVersion(1)]
         public class CommunicationThreadStarted : BaseEvent
         {
             private readonly Int32 _threadId;
             private readonly String _topic;
-            private readonly String _description;
+            private readonly CaseDescription _description;
 
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public CommunicationThreadStarted(Int32 threadId, String topic, String description, String responsibleParty, ServiceCaseId id, Int32 version)
+            public CommunicationThreadStarted(Int32 threadId, String topic, CaseDescription description, String responsibleParty, ServiceCaseId id, Int32 version)
                 : base(responsibleParty, id, version)
             {
                 if (ReferenceEquals(topic, null)) throw new ArgumentNullException("topic");
@@ -218,7 +218,7 @@ namespace iSynaptic.TestDomain
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
             public String Topic { get { return _topic; } }
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public String Description { get { return _description; } }
+            public CaseDescription Description { get { return _description; } }
         }
         [AggregateEventVersion(1)]
         public class CommunicationRecorded : BaseEvent
@@ -258,11 +258,11 @@ namespace iSynaptic.TestDomain
             private readonly Int32 _lastThreadId;
             private readonly IEnumerable<CommunicationThreadSnapshot> _threadSnapshots;
             private readonly String _title;
-            private readonly String _description;
-            private readonly ServiceCasePriority _priority;
+            private readonly CaseDescription _description;
+            private readonly Priority _priority;
 
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public Snapshot(Int32 lastThreadId, IEnumerable<CommunicationThreadSnapshot> threadSnapshots, String title, String description, ServiceCasePriority priority, ServiceCaseId id, Int32 version, DateTime takenAt)
+            public Snapshot(Int32 lastThreadId, IEnumerable<CommunicationThreadSnapshot> threadSnapshots, String title, CaseDescription description, Priority priority, ServiceCaseId id, Int32 version, DateTime takenAt)
                 : base(id, version, takenAt)
             {
                 if (ReferenceEquals(threadSnapshots, null)) throw new ArgumentNullException("threadSnapshots");
@@ -283,9 +283,199 @@ namespace iSynaptic.TestDomain
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
             public String Title { get { return _title; } }
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public String Description { get { return _description; } }
+            public CaseDescription Description { get { return _description; } }
             [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public ServiceCasePriority Priority { get { return _priority; } }
+            public Priority Priority { get { return _priority; } }
+        }
+        [ValueObject]
+        public class Details : IEquatable<Details>
+        {
+            private readonly Int32 _lastThreadId;
+            private readonly IEnumerable<CommunicationThreadSnapshot> _threadSnapshots;
+            private readonly String _title;
+            private readonly CaseDescription _description;
+            private readonly Priority _serviceCasePriority;
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public Details(Int32 lastThreadId, IEnumerable<CommunicationThreadSnapshot> threadSnapshots, String title, CaseDescription description, Priority serviceCasePriority)
+            {
+                if (ReferenceEquals(threadSnapshots, null)) throw new ArgumentNullException("threadSnapshots");
+                if (ReferenceEquals(title, null)) throw new ArgumentNullException("title");
+                if (ReferenceEquals(description, null)) throw new ArgumentNullException("description");
+
+                _lastThreadId = lastThreadId;
+                _threadSnapshots = threadSnapshots;
+                _title = title;
+                _description = description;
+                _serviceCasePriority = serviceCasePriority;
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public Boolean Equals(Details other)
+            {
+                return Equals((Object)other);
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public override Boolean Equals(Object obj)
+            {
+                Details other = obj as Details;
+
+                if (ReferenceEquals(other, null)) return false;
+                if (GetType() != other.GetType()) return false;
+
+                if (!LastThreadId.Equals(other.LastThreadId)) return false;
+                if (!ThreadSnapshots.SequenceEqual(other.ThreadSnapshots)) return false;
+                if (!Title.Equals(other.Title)) return false;
+                if (!Description.Equals(other.Description)) return false;
+                if (!ServiceCasePriority.Equals(other.ServiceCasePriority)) return false;
+
+                return true;
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public override Int32 GetHashCode()
+            {
+                int hash = 1;
+
+                hash = HashCode.MixJenkins32(hash + LastThreadId.GetHashCode());
+                hash = ThreadSnapshots.Aggregate(hash, (h, item) => HashCode.MixJenkins32(h + item.GetHashCode()));
+                hash = HashCode.MixJenkins32(hash + Title.GetHashCode());
+                hash = HashCode.MixJenkins32(hash + Description.GetHashCode());
+                hash = HashCode.MixJenkins32(hash + ServiceCasePriority.GetHashCode());
+
+                return hash;
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public static Boolean operator ==(Details left, Details right)
+            {
+                if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
+                return ReferenceEquals(left, null) || left.Equals(right);
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public static Boolean operator !=(Details left, Details right) { return !(left == right); }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public class Essence
+            {
+                [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+                public Int32 LastThreadId { protected get; set; }
+                [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+                public IEnumerable<CommunicationThreadSnapshot> ThreadSnapshots { protected get; set; }
+                [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+                public String Title { protected get; set; }
+                [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+                public CaseDescription Description { protected get; set; }
+                [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+                public Priority ServiceCasePriority { protected get; set; }
+
+                public Details Create()
+                {
+                    return (Details)CreateValue();
+                }
+
+                protected virtual Details CreateValue()
+                {
+                    return new Details(LastThreadId, ThreadSnapshots, Title, Description, ServiceCasePriority);
+                }
+            }
+
+            public Essence ToEssence()
+            {
+                return (Essence)CreateEssence();
+            }
+
+            protected virtual Details.Essence CreateEssence()
+            {
+                return new Essence
+                {
+                    LastThreadId = LastThreadId,
+                    ThreadSnapshots = ThreadSnapshots,
+                    Title = Title,
+                    Description = Description,
+                    ServiceCasePriority = ServiceCasePriority
+                };
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public Int32 LastThreadId { get { return _lastThreadId; } }
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public IEnumerable<CommunicationThreadSnapshot> ThreadSnapshots { get { return _threadSnapshots; } }
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public String Title { get { return _title; } }
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public CaseDescription Description { get { return _description; } }
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public Priority ServiceCasePriority { get { return _serviceCasePriority; } }
+        }
+        [ValueObject]
+        public class CaseDescription : IScalarValue<string>, IEquatable<string>, IEquatable<CaseDescription>
+        {
+            private readonly string _value;
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public CaseDescription(System.String value)
+            {
+                _value = value;
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public Boolean Equals(CaseDescription other)
+            {
+                return Equals((Object)other);
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public Boolean Equals(string other)
+            {
+                return Value == other;
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public override Boolean Equals(Object obj)
+            {
+                CaseDescription other = obj as CaseDescription;
+
+                if (ReferenceEquals(other, null)) return false;
+                if (GetType() != other.GetType()) return false;
+
+                if (Value != other.Value) return false;
+                return true;
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public override Int32 GetHashCode()
+            {
+                return Value.GetHashCode();
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public static implicit operator CaseDescription(string value) { return ReferenceEquals(value, null) ? null : new CaseDescription(value); }
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public static implicit operator string (CaseDescription value) { return ReferenceEquals(value, null) ? null : value.Value; }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public static Boolean operator ==(CaseDescription left, CaseDescription right)
+            {
+                if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
+                return ReferenceEquals(left, null) || left.Equals(right);
+            }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public static Boolean operator !=(CaseDescription left, CaseDescription right) { return !(left == right); }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            public System.String Value { get { return _value; } }
+
+            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
+            object IScalarValue.Value { get { return Value; } }
+        }
+        public enum Priority
+        {
+            Low,
+            Normal,
+            High
         }
     }
 }
@@ -297,7 +487,7 @@ namespace iSynaptic.TestDomain
         [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyRegistered(string name)
         {
-            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyRegistered can only be called after the first event is applied.");
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyRegistered can only be called after the first event is applied. Please call the overload which requires the Aggregate's ID to be provided.");
 
             ApplyEvent(new Registered(name, Id, Version + 1));
         }
@@ -307,7 +497,7 @@ namespace iSynaptic.TestDomain
         }
         protected void ApplyStatusChanged(HomogeneousRoleStatus status)
         {
-            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyStatusChanged can only be called after the first event is applied.");
+            if (Version <= 0) throw new InvalidOperationException("This overload of ApplyStatusChanged can only be called after the first event is applied. Please call the overload which requires the Aggregate's ID to be provided.");
 
             ApplyEvent(new StatusChanged(status, Id, Version + 1));
         }
@@ -470,138 +660,9 @@ namespace iSynaptic.TestDomain
 }
 namespace iSynaptic.TestDomain
 {
-    public enum ServiceCasePriority
-    {
-        Low,
-        Normal,
-        High
-    }
 }
 namespace iSynaptic.TestDomain
 {
-    [ValueObject]
-    public class ServiceCaseDetails : IEquatable<ServiceCaseDetails>
-    {
-        private readonly Int32 _lastThreadId;
-        private readonly IEnumerable<CommunicationThreadSnapshot> _threadSnapshots;
-        private readonly String _title;
-        private readonly String _description;
-        private readonly ServiceCasePriority _serviceCasePriority;
-
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public ServiceCaseDetails(Int32 lastThreadId, IEnumerable<CommunicationThreadSnapshot> threadSnapshots, String title, String description, ServiceCasePriority serviceCasePriority)
-        {
-            if (ReferenceEquals(threadSnapshots, null)) throw new ArgumentNullException("threadSnapshots");
-            if (ReferenceEquals(title, null)) throw new ArgumentNullException("title");
-            if (ReferenceEquals(description, null)) throw new ArgumentNullException("description");
-
-            _lastThreadId = lastThreadId;
-            _threadSnapshots = threadSnapshots;
-            _title = title;
-            _description = description;
-            _serviceCasePriority = serviceCasePriority;
-        }
-
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public Boolean Equals(ServiceCaseDetails other)
-        {
-            return Equals((Object)other);
-        }
-
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public override Boolean Equals(Object obj)
-        {
-            ServiceCaseDetails other = obj as ServiceCaseDetails;
-
-            if (ReferenceEquals(other, null)) return false;
-            if (GetType() != other.GetType()) return false;
-
-            if (!LastThreadId.Equals(other.LastThreadId)) return false;
-            if (!ThreadSnapshots.SequenceEqual(other.ThreadSnapshots)) return false;
-            if (!Title.Equals(other.Title)) return false;
-            if (!Description.Equals(other.Description)) return false;
-            if (!ServiceCasePriority.Equals(other.ServiceCasePriority)) return false;
-
-            return true;
-        }
-
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public override Int32 GetHashCode()
-        {
-            int hash = 1;
-
-            hash = HashCode.MixJenkins32(hash + LastThreadId.GetHashCode());
-            hash = ThreadSnapshots.Aggregate(hash, (h, item) => HashCode.MixJenkins32(h + item.GetHashCode()));
-            hash = HashCode.MixJenkins32(hash + Title.GetHashCode());
-            hash = HashCode.MixJenkins32(hash + Description.GetHashCode());
-            hash = HashCode.MixJenkins32(hash + ServiceCasePriority.GetHashCode());
-
-            return hash;
-        }
-
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public static Boolean operator ==(ServiceCaseDetails left, ServiceCaseDetails right)
-        {
-            if (ReferenceEquals(left, null) != ReferenceEquals(right, null)) return false;
-            return ReferenceEquals(left, null) || left.Equals(right);
-        }
-
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public static Boolean operator !=(ServiceCaseDetails left, ServiceCaseDetails right) { return !(left == right); }
-
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public class Essence
-        {
-            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public Int32 LastThreadId { protected get; set; }
-            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public IEnumerable<CommunicationThreadSnapshot> ThreadSnapshots { protected get; set; }
-            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public String Title { protected get; set; }
-            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public String Description { protected get; set; }
-            [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-            public ServiceCasePriority ServiceCasePriority { protected get; set; }
-
-            public ServiceCaseDetails Create()
-            {
-                return (ServiceCaseDetails)CreateValue();
-            }
-
-            protected virtual ServiceCaseDetails CreateValue()
-            {
-                return new ServiceCaseDetails(LastThreadId, ThreadSnapshots, Title, Description, ServiceCasePriority);
-            }
-        }
-
-        public Essence ToEssence()
-        {
-            return (Essence)CreateEssence();
-        }
-
-        protected virtual ServiceCaseDetails.Essence CreateEssence()
-        {
-            return new Essence
-            {
-                LastThreadId = LastThreadId,
-                ThreadSnapshots = ThreadSnapshots,
-                Title = Title,
-                Description = Description,
-                ServiceCasePriority = ServiceCasePriority
-            };
-        }
-
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public Int32 LastThreadId { get { return _lastThreadId; } }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public IEnumerable<CommunicationThreadSnapshot> ThreadSnapshots { get { return _threadSnapshots; } }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public String Title { get { return _title; } }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public String Description { get { return _description; } }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
-        public ServiceCasePriority ServiceCasePriority { get { return _serviceCasePriority; } }
-    }
 }
 namespace iSynaptic.TestDomain
 {

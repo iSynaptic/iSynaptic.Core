@@ -63,12 +63,13 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
 
             baseTypes.Add(String.Format("IEquatable<{0}>", value.Name));
 
+            var modifiers = new List<string>();
+
+            if (value.IsAbstract) modifiers.Add("abstract");
+            if (value.IsPartial) modifiers.Add("partial");
+
             WriteLine("[ValueObject]");
-            using (WriteBlock("public {0}{1}class {2}{3}",
-                              value.IsAbstract ? "abstract " : "",
-                              value.IsPartial ? "partial " : "",
-                              value.Name,
-                              String.Format(" : {0}", baseTypes.Delimit(", "))))
+            using (WriteBlock($"{value.Visibility.ToCSharpModifier()} {modifiers.Delimit(" ")} class {value.Name}{$" : {baseTypes.Delimit(", ")}"}"))
             {
                 if (!isBaseScalarValue)
                     WriteLine("private readonly {0} _value;", value.Base);

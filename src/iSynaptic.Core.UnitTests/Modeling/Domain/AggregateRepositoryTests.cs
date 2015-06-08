@@ -15,7 +15,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task RoundTrip()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
 
@@ -28,7 +28,7 @@ namespace iSynaptic.Modeling.Domain
             reconsituted.Version.Should().Be(serviceCase.Version);
             reconsituted.Title.Should().Be(serviceCase.Title);
             reconsituted.Description.Should().Be(serviceCase.Description);
-            reconsituted.Priority.Should().Be(serviceCase.Priority);
+            reconsituted.ServiceCasePriority.Should().Be(serviceCase.ServiceCasePriority);
 
             var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic, ServiceCase.SampleContent.TopicDescription, ServiceCase.SampleContent.ResponsibleParty);
             thread.RecordCommunication(CommunicationDirection.Incoming, ServiceCase.SampleContent.CommunicationContent, SystemClock.UtcNow, ServiceCase.SampleContent.CommunicationDuration, ServiceCase.SampleContent.ResponsibleParty);
@@ -52,7 +52,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task RoundTrip_UsingSnapshot()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
@@ -66,13 +66,13 @@ namespace iSynaptic.Modeling.Domain
             reconsituted.Version.Should().Be(serviceCase.Version);
             reconsituted.Title.Should().Be(serviceCase.Title);
             reconsituted.Description.Should().Be(serviceCase.Description);
-            reconsituted.Priority.Should().Be(serviceCase.Priority);
+            reconsituted.ServiceCasePriority.Should().Be(serviceCase.ServiceCasePriority);
         }
 
         [Test]
         public async Task RoundTrip_WithChangeAfterSnapshot()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
 
             await Repo.Save(serviceCase);
             await Repo.SaveSnapshot(serviceCase);
@@ -91,13 +91,13 @@ namespace iSynaptic.Modeling.Domain
             reconsituted.Version.Should().Be(serviceCase.Version);
             reconsituted.Title.Should().Be(serviceCase.Title);
             reconsituted.Description.Should().Be(serviceCase.Description);
-            reconsituted.Priority.Should().Be(serviceCase.Priority);
+            reconsituted.ServiceCasePriority.Should().Be(serviceCase.ServiceCasePriority);
         }
 
         [Test]
         public async Task RoundTrip_WithMultipleSnapshots()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             var thread = serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
                                                               ServiceCase.SampleContent.TopicDescription,
                                                               ServiceCase.SampleContent.ResponsibleParty);
@@ -118,13 +118,13 @@ namespace iSynaptic.Modeling.Domain
             reconsituted.Version.Should().Be(serviceCase.Version);
             reconsituted.Title.Should().Be(serviceCase.Title);
             reconsituted.Description.Should().Be(serviceCase.Description);
-            reconsituted.Priority.Should().Be(serviceCase.Priority);
+            reconsituted.ServiceCasePriority.Should().Be(serviceCase.ServiceCasePriority);
         }
 
         [Test]
         public async Task TakingSnapshot_ForSameVersion_IsOkay()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
                                                  ServiceCase.SampleContent.TopicDescription,
                                                  ServiceCase.SampleContent.ResponsibleParty);
@@ -137,7 +137,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task ConcurrecyConflict_WithTrueConflict_ThrowsException()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
                                                  ServiceCase.SampleContent.TopicDescription,
                                                  ServiceCase.SampleContent.ResponsibleParty);
@@ -165,7 +165,7 @@ namespace iSynaptic.Modeling.Domain
         [Test]
         public async Task ConcurrencyConflict_WithFalseConflict_ResolvesConflict()
         {
-            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCasePriority.Normal, ServiceCase.SampleContent.ResponsibleParty);
+            var serviceCase = new ServiceCase(ServiceCase.SampleContent.Title, ServiceCase.SampleContent.Description, ServiceCase.Priority.Normal, ServiceCase.SampleContent.ResponsibleParty);
             serviceCase.StartCommunicationThread(ServiceCase.SampleContent.Topic,
                                                  ServiceCase.SampleContent.TopicDescription,
                                                  ServiceCase.SampleContent.ResponsibleParty);

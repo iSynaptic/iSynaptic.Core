@@ -64,7 +64,7 @@ namespace iSynaptic.TestDomain
 
         public string Title { get; private set; }
         public string Description { get; private set; }
-        public ServiceCasePriority? Priority { get; private set; }
+        public ServiceCase.Priority? Priority { get; private set; }
 
         public IEnumerable<CommThread> Threads { get { return _threads; } }
 

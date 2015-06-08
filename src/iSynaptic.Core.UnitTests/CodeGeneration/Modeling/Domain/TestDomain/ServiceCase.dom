@@ -4,6 +4,24 @@ namespace iSynaptic.TestDomain
 {
     aggregate<ServiceCaseId> ServiceCase : Base
     {
+		value CaseDescription : string;
+		value Details
+		{
+			Int32 LastThreadId;
+			CommunicationThreadSnapshot* ThreadSnapshots;
+			String Title;
+			CaseDescription Description;
+			Priority ServiceCasePriority;
+		}
+
+		enum Priority
+		{
+			Low,
+			Normal,
+			High
+		}
+
+
         [Annotation(Key = "Value")]
         snapshot Snapshot
         {
@@ -11,23 +29,23 @@ namespace iSynaptic.TestDomain
             Int32 LastThreadId;
             CommunicationThreadSnapshot* ThreadSnapshots;
             String Title;
-            String Description;
-            ServiceCasePriority Priority;
+            CaseDescription Description;
+            Priority Priority;
         }
 
 		[Event(Version = "3")]
         event Opened : BaseEvent
         {
             String Title;
-            String Description;
-            ServiceCasePriority Priority;
+            CaseDescription Description;
+            Priority Priority;
         }
 
         event CommunicationThreadStarted : BaseEvent
         {
             Int32 ThreadId;
             String Topic;
-            String Description;
+            CaseDescription Description;
         }
 
         event CommunicationRecorded : BaseEvent
