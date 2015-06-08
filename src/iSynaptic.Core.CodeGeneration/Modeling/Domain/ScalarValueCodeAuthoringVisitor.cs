@@ -37,14 +37,6 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         {
         }
 
-        protected override bool NotInterestedIn(object subject, string state)
-        {
-            if (!Settings.TypesToGenerate.Contains(DomainTypes.Values))
-                return true;
-
-            return base.NotInterestedIn(subject, state);
-        }
-
         protected BuiltInType GetBuiltInType(ScalarValueSyntax value)
         {
             var scalarValue =

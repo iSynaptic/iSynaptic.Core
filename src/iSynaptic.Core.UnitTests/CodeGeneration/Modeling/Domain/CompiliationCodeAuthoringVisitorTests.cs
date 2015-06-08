@@ -30,18 +30,16 @@ using iSynaptic.Commons;
 namespace iSynaptic.CodeGeneration.Modeling.Domain
 {
     [TestFixture]
-    public class DomainGeneratorTests : TestDomainTestFixture
+    public class CompiliationCodeAuthoringVisitorTests : TestDomainTestFixture
     {
         [Test]
         public void CanGenerateCode()
         {
             var writer = new StringWriter();
-
-            var settings = new DomainCodeAuthoringSettings();
-            settings.AggregateComponentSite = ComponentTypeSite.External;
-
-            DomainGenerator.Generate(settings, Compilation, SymbolTable, writer);
             
+            var visitor = new CompilationCodeAuthoringVisitor(writer, SymbolTable, new DomainCodeAuthoringSettings());
+            visitor.Dispatch(Compilation);
+
             string code = writer.GetStringBuilder().ToString();
             Console.Write(code);
         }

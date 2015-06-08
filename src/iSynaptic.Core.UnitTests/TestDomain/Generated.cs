@@ -113,11 +113,7 @@ namespace iSynaptic.TestDomain
     public partial class Base<T> : Aggregate<T>
         where T : IEquatable<T>
     {
-    }
-    public abstract class BaseComponents<T>
-        where T : IEquatable<T>
-    {
-        protected BaseComponents() { }
+        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         [AggregateEventVersion(1)]
         public abstract class BaseEvent : AggregateEvent<T>
         {
@@ -146,41 +142,32 @@ namespace iSynaptic.TestDomain
         {
             if (Version <= 0) throw new InvalidOperationException("This overload of ApplyOpened can only be called after the first event is applied.");
 
-            ApplyEvent(new ServiceCaseComponents.Opened(title, description, priority, responsibleParty, Id, Version + 1));
+            ApplyEvent(new Opened(title, description, priority, responsibleParty, Id, Version + 1));
         }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyOpened(String title, String description, ServiceCasePriority priority, String responsibleParty, ServiceCaseId id)
         {
-            ApplyEvent(new ServiceCaseComponents.Opened(title, description, priority, responsibleParty, id, Version + 1));
+            ApplyEvent(new Opened(title, description, priority, responsibleParty, id, Version + 1));
         }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyCommunicationThreadStarted(Int32 threadId, String topic, String description, String responsibleParty)
         {
             if (Version <= 0) throw new InvalidOperationException("This overload of ApplyCommunicationThreadStarted can only be called after the first event is applied.");
 
-            ApplyEvent(new ServiceCaseComponents.CommunicationThreadStarted(threadId, topic, description, responsibleParty, Id, Version + 1));
+            ApplyEvent(new CommunicationThreadStarted(threadId, topic, description, responsibleParty, Id, Version + 1));
         }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyCommunicationThreadStarted(Int32 threadId, String topic, String description, String responsibleParty, ServiceCaseId id)
         {
-            ApplyEvent(new ServiceCaseComponents.CommunicationThreadStarted(threadId, topic, description, responsibleParty, id, Version + 1));
+            ApplyEvent(new CommunicationThreadStarted(threadId, topic, description, responsibleParty, id, Version + 1));
         }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyCommunicationRecorded(Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty)
         {
             if (Version <= 0) throw new InvalidOperationException("This overload of ApplyCommunicationRecorded can only be called after the first event is applied.");
 
-            ApplyEvent(new ServiceCaseComponents.CommunicationRecorded(threadId, direction, content, communicationTime, duration, responsibleParty, Id, Version + 1));
+            ApplyEvent(new CommunicationRecorded(threadId, direction, content, communicationTime, duration, responsibleParty, Id, Version + 1));
         }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyCommunicationRecorded(Int32 threadId, CommunicationDirection direction, String content, DateTime communicationTime, TimeSpan duration, String responsibleParty, ServiceCaseId id)
         {
-            ApplyEvent(new ServiceCaseComponents.CommunicationRecorded(threadId, direction, content, communicationTime, duration, responsibleParty, id, Version + 1));
+            ApplyEvent(new CommunicationRecorded(threadId, direction, content, communicationTime, duration, responsibleParty, id, Version + 1));
         }
-    }
-    public abstract class ServiceCaseComponents : BaseComponents<ServiceCaseId>
-    {
-        protected ServiceCaseComponents() { }
         [AggregateEventVersion(3)]
         public class Opened : BaseEvent
         {
@@ -312,30 +299,22 @@ namespace iSynaptic.TestDomain
         {
             if (Version <= 0) throw new InvalidOperationException("This overload of ApplyRegistered can only be called after the first event is applied.");
 
-            ApplyEvent(new HomogeneousRoleComponents<TRoleIdentifier>.Registered(name, Id, Version + 1));
+            ApplyEvent(new Registered(name, Id, Version + 1));
         }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyRegistered(string name, TRoleIdentifier id)
         {
-            ApplyEvent(new HomogeneousRoleComponents<TRoleIdentifier>.Registered(name, id, Version + 1));
+            ApplyEvent(new Registered(name, id, Version + 1));
         }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyStatusChanged(HomogeneousRoleStatus status)
         {
             if (Version <= 0) throw new InvalidOperationException("This overload of ApplyStatusChanged can only be called after the first event is applied.");
 
-            ApplyEvent(new HomogeneousRoleComponents<TRoleIdentifier>.StatusChanged(status, Id, Version + 1));
+            ApplyEvent(new StatusChanged(status, Id, Version + 1));
         }
-        [GeneratedCode("iSynaptic.Core", "0.2.0.0")]
         protected void ApplyStatusChanged(HomogeneousRoleStatus status, TRoleIdentifier id)
         {
-            ApplyEvent(new HomogeneousRoleComponents<TRoleIdentifier>.StatusChanged(status, id, Version + 1));
+            ApplyEvent(new StatusChanged(status, id, Version + 1));
         }
-    }
-    public abstract class HomogeneousRoleComponents<TRoleIdentifier>
-        where TRoleIdentifier : RoleIdentifier, IEquatable<TRoleIdentifier>
-    {
-        protected HomogeneousRoleComponents() { }
         [AggregateEventVersion(1)]
         public class Registered : AggregateEvent<TRoleIdentifier>
         {

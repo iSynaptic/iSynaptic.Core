@@ -10,13 +10,9 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
     {
         public DomainCodeAuthoringSettings()
         {
-            AggregateComponentSite = ComponentTypeSite.Nested;
-
-            TypesToGenerate = DomainTypes.All;
+            EventGenerationSite = AggregateEventGenerationSite.NestedInAggregate;
         }
 
-        public ComponentTypeSite AggregateComponentSite { get; set; }
-
-        public DomainTypes TypesToGenerate { get; set; }
+        public AggregateEventGenerationSite EventGenerationSite { get; set; }
     }
 }

@@ -44,19 +44,19 @@ namespace iSynaptic.TestDomain
             return message.GetType() != typeof (IgnoredEvent);
         }
 
-        private void On(ServiceCaseComponents.Opened @event)
+        private void On(ServiceCase.Opened @event)
         {
             Title = @event.Title;
             Description = @event.Description;
             Priority = @event.Priority;
         }
 
-        private Task On(ServiceCaseComponents.CommunicationThreadStarted @event)
+        private Task On(ServiceCase.CommunicationThreadStarted @event)
         {
             return Task.Run(() => _threads.Add(new CommThread(@event.ThreadId, @event.Topic, @event.Description)));
         }
 
-        private void On(ServiceCaseComponents.CommunicationRecorded @event)
+        private void On(ServiceCase.CommunicationRecorded @event)
         {
             var thread = _threads.First(x => x.ThreadId == @event.ThreadId);
             thread.Add(new Communication(@event.Direction, @event.Content, @event.CommunicationTime));

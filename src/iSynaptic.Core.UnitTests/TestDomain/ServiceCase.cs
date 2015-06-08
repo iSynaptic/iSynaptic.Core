@@ -86,7 +86,7 @@ namespace iSynaptic.TestDomain
 
         public override IAggregateSnapshot<ServiceCaseId> TakeSnapshot()
         {
-            return new ServiceCaseComponents.Snapshot(_lastThreadId,
+            return new Snapshot(_lastThreadId,
                                 _threads.Select(x => new CommunicationThreadSnapshot(x.ThreadId, x.Topic, x.Description)),
                                 Title,
                                 Description,
@@ -96,7 +96,7 @@ namespace iSynaptic.TestDomain
                                 SystemClock.UtcNow);
         }
 
-        private void Apply(ServiceCaseComponents.Snapshot snapshot)
+        private void Apply(Snapshot snapshot)
         {
             _lastThreadId = snapshot.LastThreadId;
             _threads = snapshot.ThreadSnapshots.Select(x => new CommunicationThread(this, x.ThreadId, x.Topic, x.Description)).ToList();
@@ -120,14 +120,14 @@ namespace iSynaptic.TestDomain
 
         #region Event Applicators
 
-        private void On(ServiceCaseComponents.Opened @event)
+        private void On(Opened @event)
         {
             Title = @event.Title;
             Description = @event.Description;
             Priority = @event.Priority;
         }
 
-        private void On(ServiceCaseComponents.CommunicationThreadStarted @event)
+        private void On(CommunicationThreadStarted @event)
         {
             _lastThreadId = @event.ThreadId;
 
@@ -137,8 +137,8 @@ namespace iSynaptic.TestDomain
 
         protected override bool ConflictsWith(IEnumerable<IAggregateEvent<ServiceCaseId>> committedEvents, IEnumerable<IAggregateEvent<ServiceCaseId>> attemptedEvents)
         {
-            return !committedEvents.All(x => x is ServiceCaseComponents.CommunicationRecorded) &&
-                   !attemptedEvents.All(x => x is ServiceCaseComponents.CommunicationRecorded);
+            return !committedEvents.All(x => x is CommunicationRecorded) &&
+                   !attemptedEvents.All(x => x is CommunicationRecorded);
         }
 
         #endregion

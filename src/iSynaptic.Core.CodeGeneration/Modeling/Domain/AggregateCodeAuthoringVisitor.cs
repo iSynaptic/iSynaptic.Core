@@ -40,16 +40,15 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             var genericId = aggregate.Identifier
                                      .OfType<GenericAggregateIdentifierSyntax>();
 
+            var baseAggregate = aggregate.Base
+                                         .Select(x => SymbolTable.Resolve(aggregate, x))
+                                         .Select(x => x.Symbol)
+                                         .Cast<AggregateSyntax>();
+
             var genericSuffix = genericId
                 .Select(x => x.Name)
                 .Select(n => String.Format("<{0}>", n))
                 .ValueOrDefault("");
-
-            var baseAggregate = aggregate.Base
-                                         .Select(x => SymbolTable.Resolve(aggregate.Parent, x))
-                                         .Select(x => x.Symbol)
-                                         .Cast<AggregateSyntax>();
-
 
             var baseName = aggregate.Base
                                     .Select(x => x.ToString())
@@ -91,19 +90,63 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
             {
                 var id = aggregate.GetIdTypeName(SymbolTable);
 
-                new ApplyAggregateComponentCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
+                WriteGeneratedCodeAttribute();
+                WriteLine();
 
-                if (Settings.AggregateComponentSite == ComponentTypeSite.Nested &&
-                   Settings.TypesToGenerate.Contains(DomainTypes.AggregateEvents))
-                {
-                    new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
-                }
+                new ApplyAggregateEventCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
 
-                if (Settings.AggregateComponentSite == ComponentTypeSite.Nested &&
-                   Settings.TypesToGenerate.Contains(DomainTypes.AggregateSnapshots))
-                {
-                    new AggregateSnapshotCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
-                }
+                new AggregateEventCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
+                new AggregateSnapshotCodeAuthoringVisitor(Writer, SymbolTable, Settings).Dispatch(aggregate.Members);
+            }
+        }
+    }
+
+    public class ApplyAggregateEventCodeAuthoringVisitor : MoleculeCodeAuthoringVisitor
+    {
+        public ApplyAggregateEventCodeAuthoringVisitor(IndentingTextWriter writer, SymbolTable symbolTable, DomainCodeAuthoringSettings settings) : base(writer, symbolTable, settings)
+        {
+        }
+
+        protected override bool NotInterestedIn(object subject, string state)
+        {
+            return subject is MoleculeSyntax && !(subject is AggregateEventSyntax);
+        }
+
+        protected override void Visit(MoleculeSyntax molecule)
+        {
+            if (molecule.IsAbstract) return;
+
+            var atoms = molecule.Atoms.Select(GetAtomInfo).Concat(GetBaseAtomInfo(molecule));
+
+            Write($"protected void Apply{molecule.Name}(");
+            Delimit(atoms, "parameter", ", ");
+            WriteLine(")");
+            using (WithBlock())
+            {
+                WriteLine($"if (Version <= 0) throw new InvalidOperationException(\"This overload of Apply{molecule.Name} can only be called after the first event is applied.\");");
+                WriteLine();
+
+                Write($"ApplyEvent(new {molecule.Name}(");
+                Delimit(atoms, "argument", ", ");
+                WriteLine($"{(atoms.Any() ? ", " : "")}Id, Version + 1));");
+            }
+
+            var aggregate = (AggregateSyntax)molecule.Parent;
+
+            var id = aggregate.GetIdTypeName(SymbolTable);
+            var idAtom = new AtomInfo(Syntax.IdentifierName("id"), new TypeReferenceSyntax(id, new TypeCardinalitySyntax(1, 1)), true);
+
+            atoms = atoms.Concat(new[] { idAtom });
+
+            Write($"protected void Apply{molecule.Name}(");
+            Delimit(atoms, "parameter", ", ");
+            WriteLine(")");
+            using (WithBlock())
+            {
+                Write($"ApplyEvent(new {molecule.Name}(");
+                Delimit(atoms, "argument", ", ");
+                WriteLine($", Version + 1));");
+
             }
         }
     }

@@ -98,7 +98,7 @@
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\AstGeneratingVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\AbstractSyntaxTree\ParserTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\AstGeneration.cs" />
-    <Compile Include="CodeGeneration\Modeling\Domain\DomainGeneratorTests.cs" />
+    <Compile Include="CodeGeneration\Modeling\Domain\CompiliationCodeAuthoringVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\ParserTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\SemanticRulesVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\TestDomainTestFixture.cs" />

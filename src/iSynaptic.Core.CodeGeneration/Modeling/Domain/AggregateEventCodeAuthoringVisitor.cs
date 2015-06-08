@@ -59,10 +59,10 @@ namespace iSynaptic.CodeGeneration.Modeling.Domain
         protected override Maybe<String> GetBaseMolecule(MoleculeSyntax molecule)
         {
             var aggregate = (AggregateSyntax)molecule.Parent;
-            var id = aggregate.GetIdTypeName(SymbolTable);
-            var baseMolocule = base.GetBaseMolecule(molecule);
 
-            return baseMolocule
+            var id = aggregate.GetIdTypeName(SymbolTable);
+
+            return base.GetBaseMolecule(molecule)
                 .Or(String.Format("AggregateEvent<{0}>", id));
         }
 
