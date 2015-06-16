@@ -66,8 +66,9 @@
     <Reference Include="FluentAssertions.Core">
       <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
-    <Reference Include="iSynaptic.Commons">
-      <HintPath>..\..\packages\iSynaptic.Commons.0.4.31\lib\iSynaptic.Commons.dll</HintPath>
+    <Reference Include="iSynaptic.Commons, Version=0.4.32.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\iSynaptic.Commons.0.4.32\lib\iSynaptic.Commons.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

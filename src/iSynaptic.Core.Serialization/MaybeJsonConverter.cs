@@ -58,7 +58,7 @@ namespace iSynaptic.Serialization
 
             if (reader.TokenType == JsonToken.Null)
                 return FormatterServices.GetSafeUninitializedObject(objectType);
-
+            
             if (reader.TokenType == JsonToken.StartObject)
             {
                 Maybe<Boolean> hasValue = Maybe.NoValue;

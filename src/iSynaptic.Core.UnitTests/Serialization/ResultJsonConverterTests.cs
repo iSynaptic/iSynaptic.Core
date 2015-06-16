@@ -66,6 +66,60 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
+        public void WriteJson_WithUnitValueAndNoUnitObservations_WritesCorrectly()
+        {
+            Result<Unit, Unit> result = Result.Success();
+
+            String json = _serializer.Serialize(result);
+            json.Should().Be("{\"value\":{},\"wasSuccessful\":true}");
+        }
+
+        [Test]
+        public void WriteJson_WithUnitValueAndOneValueObservations_WritesCorrectly()
+        {
+            Result<Unit, int> result = Result.Success(42);
+
+            String json = _serializer.Serialize(result);
+            json.Should().Be("{\"value\":{},\"wasSuccessful\":true,\"observations\":[42]}");
+        }
+
+        [Test]
+        public void WriteJson_WithUnitValueAndManyValueObservations_WritesCorrectly()
+        {
+            Result<Unit, int> result = Result.Success(42, 47, 1138, 1337);
+
+            String json = _serializer.Serialize(result);
+            json.Should().Be("{\"value\":{},\"wasSuccessful\":true,\"observations\":[42,47,1138,1337]}");
+        }
+
+        [Test]
+        public void WriteJson_WithUnitValueAndOneReferenceObservations_WritesCorrectly()
+        {
+            Result<Unit, string> result = Result.Success("yo!");
+
+            String json = _serializer.Serialize(result);
+            json.Should().Be("{\"value\":{},\"wasSuccessful\":true,\"observations\":[\"yo!\"]}");
+        }
+
+        [Test]
+        public void WriteJson_WithUnitValueAndManyReferenceObservations_WritesCorrectly()
+        {
+            Result<Unit, string> result = Result.Success("This", "one", "goes", "to", "eleven", "one", "louder");
+
+            String json = _serializer.Serialize(result);
+            json.Should().Be("{\"value\":{},\"wasSuccessful\":true,\"observations\":[\"This\",\"one\",\"goes\",\"to\",\"eleven\",\"one\",\"louder\"]}");
+        }
+
+        [Test]
+        public void WriteJson_WithUnitObservations_WritesCorrectly()
+        {
+            Result<String, Unit> result = "foo".ToResult();
+
+            String json = _serializer.Serialize(result);
+            json.Should().Be("{\"value\":\"foo\",\"wasSuccessful\":true}");
+        }
+
+        [Test]
         public void WriteJson_SuccessWithValueAndNoObservations_WritesCorrectly()
         {
             Result<String, String> result = "Hello, World!".ToResult();

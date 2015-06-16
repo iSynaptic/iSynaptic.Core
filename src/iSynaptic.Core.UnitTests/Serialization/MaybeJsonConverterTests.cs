@@ -35,19 +35,29 @@ namespace iSynaptic.Serialization
         private static readonly MaybeJsonConverter _converter =
             new MaybeJsonConverter();
 
+        private static readonly OutcomeJsonConverter _outcomeConverter
+            = new OutcomeJsonConverter();
+
         private static readonly JsonSerializer _serializer =
-            JsonSerializer.Create(new JsonSerializerSettings {Converters = new List<JsonConverter> {_converter}});
+            JsonSerializer.Create(new JsonSerializerSettings
+            {
+                Converters = new List<JsonConverter> { _converter, _outcomeConverter },
+
+                // HACK: Reference loop detection is using value comparison instead of
+                //       reference comparison. Remove when this is fixed
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize
+            });
 
         [Test]
         public void CanConvert_WithMaybeTypes_ReturnsTrue()
         {
-            _converter.CanConvert(typeof (Maybe<String>))
+            _converter.CanConvert(typeof(Maybe<String>))
                 .Should().BeTrue();
 
             _converter.CanConvert(typeof(Maybe<Int32>))
                 .Should().BeTrue();
         }
-        
+
         [Test]
         public void CanConvert_WithOpenMaybeType_ReturnsFalse()
         {
@@ -92,6 +102,66 @@ namespace iSynaptic.Serialization
             Maybe<String> maybe = _serializer.Deserialize<Maybe<String>>(input);
             maybe.HasValue.Should().BeTrue();
             maybe.Value.Should().Be("Hello, World!");
+        }
+
+        [Test]
+        public void EmptyMaybeOfOutcome_CanSerialize()
+        {
+            Maybe<Outcome<string>> maybe = Maybe.NoValue;
+
+            String json = _serializer.Serialize(maybe);
+
+            json.Should().Be("{\"hasValue\":false}");
+        }
+
+        [Test]
+        public void MaybeOfOutcome_WithSuccessOutcomeNoObservations_CanSerialize()
+        {
+            var maybe = Outcome.Success().ToMaybe();
+
+            String json = _serializer.Serialize(maybe);
+
+            json.Should().Be("{\"value\":{\"wasSuccessful\":true}}");
+        }
+
+        [Test]
+        public void MaybeOfOutcome_WithSuccessOutcomeOneValueObservations_CanSerialize()
+        {
+            var maybe = Outcome.Success(42).ToMaybe();
+
+            String json = _serializer.Serialize(maybe);
+
+            json.Should().Be("{\"value\":{\"wasSuccessful\":true,\"observations\":[42]}}");
+        }
+
+        [Test]
+        public void MaybeOfOutcome_WithSuccessOutcomeManyValueObservations_CanSerialize()
+        {
+            var maybe = Outcome.Success(42, 47, 1138, 1337).ToMaybe();
+
+            String json = _serializer.Serialize(maybe);
+
+            json.Should().Be("{\"value\":{\"wasSuccessful\":true,\"observations\":[42,47,1138,1337]}}");
+        }
+
+        [Test]
+        public void MaybeOfOutcome_WithSuccessOutcomeOneReferenceObservations_CanSerialize()
+        {
+            var maybe = Outcome.Success("yo!").ToMaybe();
+
+            String json = _serializer.Serialize(maybe);
+
+            json.Should().Be("{\"value\":{\"wasSuccessful\":true,\"observations\":[\"yo!\"]}}");
+        }
+
+        [Test]
+        public void MaybeOfOutcome_WithSuccessOutcomeManyReferenceObservations_CanSerialize()
+        {
+            var maybe = Outcome.Success("This", "one", "goes", "to", "eleven", "one", "louder").ToMaybe();
+
+            String json = _serializer.Serialize(maybe);
+
+            json.Should().Be("{\"value\":{\"wasSuccessful\":true,\"observations\":[\"This\",\"one\",\"goes\",\"to\",\"eleven\",\"one\",\"louder\"]}}");
         }
     }
 }

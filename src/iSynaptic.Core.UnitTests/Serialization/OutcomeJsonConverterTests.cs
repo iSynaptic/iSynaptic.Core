@@ -36,8 +36,11 @@ namespace iSynaptic.Serialization
         private static readonly OutcomeJsonConverter _converter =
             new OutcomeJsonConverter();
 
+        private static readonly MaybeJsonConverter _maybeConverter =
+            new MaybeJsonConverter();
+
         private static readonly JsonSerializer _serializer =
-            JsonSerializer.Create(new JsonSerializerSettings {Converters = new List<JsonConverter> {_converter}});
+            JsonSerializer.Create(new JsonSerializerSettings {Converters = new List<JsonConverter> {_converter, _maybeConverter}});
 
         [Test]
         public void CanConvert_WithOutcomeTypes_ReturnsTrue()
@@ -94,6 +97,51 @@ namespace iSynaptic.Serialization
             String json = _serializer.Serialize(outcome);
 
             json.Should().Be("{\"wasSuccessful\":false,\"observations\":[\"Something very bad happened!\",\"Really, really bad!\"]}");
+        }
+
+        [Test]
+        public void WriteJson_WithUnitObservations_WritesCorrectly()
+        {
+            Outcome<Unit> outcome = Outcome.Success();
+
+            String json = _serializer.Serialize(outcome);
+            json.Should().Be("{\"wasSuccessful\":true}");
+        }
+
+        [Test]
+        public void WriteJson_WithOneValueObservations_WritesCorrectly()
+        {
+            Outcome<int> outcome = Outcome.Success(42);
+
+            String json = _serializer.Serialize(outcome);
+            json.Should().Be("{\"wasSuccessful\":true,\"observations\":[42]}");
+        }
+
+        [Test]
+        public void WriteJson_WithManyValueObservations_WritesCorrectly()
+        {
+            Outcome<int> outcome = Outcome.Success(42, 47, 1138, 1337);
+
+            String json = _serializer.Serialize(outcome);
+            json.Should().Be("{\"wasSuccessful\":true,\"observations\":[42,47,1138,1337]}");
+        }
+
+        [Test]
+        public void WriteJson_WithOneReferenceObservations_WritesCorrectly()
+        {
+            Outcome<string> outcome = Outcome.Success("yo!");
+
+            String json = _serializer.Serialize(outcome);
+            json.Should().Be("{\"wasSuccessful\":true,\"observations\":[\"yo!\"]}");
+        }
+
+        [Test]
+        public void WriteJson_WithManyReferenceObservations_WritesCorrectly()
+        {
+            Outcome<string> outcome = Outcome.Success("This", "one", "goes", "to", "eleven", "one", "louder");
+
+            String json = _serializer.Serialize(outcome);
+            json.Should().Be("{\"wasSuccessful\":true,\"observations\":[\"This\",\"one\",\"goes\",\"to\",\"eleven\",\"one\",\"louder\"]}");
         }
 
         [Test]
