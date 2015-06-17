@@ -42,6 +42,7 @@ namespace iSynaptic.Serialization
             JsonSerializer.Create(new JsonSerializerSettings
             {
                 Converters = new List<JsonConverter> { _converter, _outcomeConverter },
+                TypeNameHandling = TypeNameHandling.Auto,
 
                 // HACK: Reference loop detection is using value comparison instead of
                 //       reference comparison. Remove when this is fixed
@@ -115,7 +116,63 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void MaybeOfOutcome_WithSuccessOutcomeNoObservations_CanSerialize()
+        public void ReadJson_MaybeOfOutcome_WithSuccessOutcomeNoObservations_CanDeserialize()
+        {
+            String json = "{\"value\":{\"wasSuccessful\":true}}";
+
+            var maybe = _serializer.Deserialize<Maybe<Outcome<Unit>>>(json);
+            maybe.HasValue.Should().BeTrue();
+            maybe.Value.WasSuccessful.Should().BeTrue();
+            maybe.Value.Observations.Should().BeEmpty();
+        }
+
+
+        [Test]
+        public void ReadJson_MaybeOfOutcome_WithSuccessOutcomeOneValueObservations_CanDeserialize()
+        {
+            String json = "{\"value\":{\"wasSuccessful\":true,\"observations\":[42]}}";
+            var maybe = _serializer.Deserialize<Maybe<Outcome<int>>>(json);
+
+            maybe.HasValue.Should().BeTrue();
+            maybe.Value.WasSuccessful.Should().BeTrue();
+            maybe.Value.Observations.Should().BeEquivalentTo(42);
+        }
+
+        [Test]
+        public void ReadJson_MaybeOfOutcome_WithSuccessOutcomeManyValueObservations_CanDeserialize()
+        {
+            String json = "{\"value\":{\"wasSuccessful\":true,\"observations\":[42,47,1138,1337]}}";
+            var maybe = _serializer.Deserialize<Maybe<Outcome<int>>>(json);
+
+            maybe.HasValue.Should().BeTrue();
+            maybe.Value.WasSuccessful.Should().BeTrue();
+            maybe.Value.Observations.Should().BeEquivalentTo(42, 47, 1138, 1337);
+        }
+
+        [Test]
+        public void ReadJson_MaybeOfOutcome_WithSuccessOutcomeOneReferenceObservations_CanDeserialize()
+        {
+            String json = "{\"value\":{\"wasSuccessful\":true,\"observations\":[\"yo!\"]}}";
+            var maybe = _serializer.Deserialize<Maybe<Outcome<string>>>(json);
+
+            maybe.HasValue.Should().BeTrue();
+            maybe.Value.WasSuccessful.Should().BeTrue();
+            maybe.Value.Observations.Should().BeEquivalentTo("yo!");
+        }
+
+        [Test]
+        public void ReadJson_MaybeOfOutcome_WithSuccessOutcomeManyReferenceObservations_CanDeserialize()
+        {
+            String json = "{\"value\":{\"wasSuccessful\":true,\"observations\":[\"This\",\"one\",\"goes\",\"to\",\"eleven\",\"one\",\"louder\"]}}";
+            var maybe = _serializer.Deserialize<Maybe<Outcome<string>>>(json);
+
+            maybe.HasValue.Should().BeTrue();
+            maybe.Value.WasSuccessful.Should().BeTrue();
+            maybe.Value.Observations.Should().BeEquivalentTo("This", "one", "goes", "to", "eleven", "one", "louder");
+        }
+
+        [Test]
+        public void WriteJson_MaybeOfOutcome_WithSuccessOutcomeNoObservations_CanSerialize()
         {
             var maybe = Outcome.Success().ToMaybe();
 
@@ -125,7 +182,7 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void MaybeOfOutcome_WithSuccessOutcomeOneValueObservations_CanSerialize()
+        public void WriteJson_MaybeOfOutcome_WithSuccessOutcomeOneValueObservations_CanSerialize()
         {
             var maybe = Outcome.Success(42).ToMaybe();
 
@@ -135,7 +192,7 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void MaybeOfOutcome_WithSuccessOutcomeManyValueObservations_CanSerialize()
+        public void WriteJson_MaybeOfOutcome_WithSuccessOutcomeManyValueObservations_CanSerialize()
         {
             var maybe = Outcome.Success(42, 47, 1138, 1337).ToMaybe();
 
@@ -145,7 +202,7 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void MaybeOfOutcome_WithSuccessOutcomeOneReferenceObservations_CanSerialize()
+        public void WriteJson_MaybeOfOutcome_WithSuccessOutcomeOneReferenceObservations_CanSerialize()
         {
             var maybe = Outcome.Success("yo!").ToMaybe();
 
@@ -155,13 +212,36 @@ namespace iSynaptic.Serialization
         }
 
         [Test]
-        public void MaybeOfOutcome_WithSuccessOutcomeManyReferenceObservations_CanSerialize()
+        public void WriteJson_MaybeOfOutcome_WithSuccessOutcomeManyReferenceObservations_CanSerialize()
         {
             var maybe = Outcome.Success("This", "one", "goes", "to", "eleven", "one", "louder").ToMaybe();
 
             String json = _serializer.Serialize(maybe);
 
             json.Should().Be("{\"value\":{\"wasSuccessful\":true,\"observations\":[\"This\",\"one\",\"goes\",\"to\",\"eleven\",\"one\",\"louder\"]}}");
+        }
+
+        [Test]
+        public void WriteJson_MaybeOfValue_InCovariantObjectProperty_CanSerialize()
+        {
+            var subject = new ClassWithObjectProperty { Value = 42.ToMaybe() };
+
+            String json = _serializer.Serialize(subject);
+
+            var expected = "{\"Value\":{\"value\":42}}";
+            json.Should().Be(expected);
+        }
+
+        [Test]
+        [Ignore("TODO")]
+        public void ReadJson_MaybeOfValue_InCovariantObjectProperty_CanDeserialize()
+        {
+            String json = "{\"Value\":{\"value\":42}}";
+
+            var subject = _serializer.Deserialize<ClassWithObjectProperty>(json);
+
+            subject.Should().NotBeNull();
+            subject.Value.Should().BeOfType<Maybe<int>>();
         }
     }
 }
