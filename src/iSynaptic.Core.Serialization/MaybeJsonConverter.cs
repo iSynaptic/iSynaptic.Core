@@ -24,33 +24,41 @@ using System;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using iSynaptic.Commons;
+using System.Runtime.Serialization.Formatters;
+using System.Text;
 
 namespace iSynaptic.Serialization
 {
-    public class MaybeJsonConverter : JsonConverter
+    public class MaybeJsonConverter : GenericDataTypeJsonConverter
     {
-        private static readonly Type _maybeTypeDefinition =
-            typeof (Maybe<>);
+        protected override Type TypeDefinition
+        {
+            get
+            {
+                return typeof(Maybe<>);
+            }
+        }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var val = (IMaybe) value;
-            
+            var val = (IMaybe)value;
+
+            writer.WriteStartObject();
+
             if (val.HasValue)
             {
-                writer.WriteStartObject();
                 writer.WritePropertyName("value");
                 serializer.Serialize(writer, val.Value);
-                writer.WriteEndObject();
             }
             else
             {
-                writer.WriteStartObject();
                 writer.WritePropertyName("hasValue");
                 writer.WriteValue(false);
-                writer.WriteEndObject();
             }
+
+            writer.WriteEndObject();
         }
+
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
@@ -96,13 +104,6 @@ namespace iSynaptic.Serialization
             }
 
             throw new JsonReaderException("Unable to interpet json.");
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType.IsGenericType &&
-                   !objectType.IsGenericTypeDefinition &&
-                   objectType.GetGenericTypeDefinition() == _maybeTypeDefinition;
         }
     }
 }

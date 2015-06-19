@@ -28,10 +28,11 @@ namespace iSynaptic
 {
     public class LogicalType : IEquatable<LogicalType>
     {
-        public static readonly Regex Format = new Regex(@"^(?<ns>[a-zA-Z][a-zA-Z0-9]*):(?<type>[a-zA-Z][a-zA-Z0-9\.]*)(:v(?<ver>\d+))?$");
+        public static readonly Regex Format = new Regex(@"^(?<ns>[a-zA-Z][a-zA-Z0-9]*):(?<type>[a-zA-Z][a-zA-Z0-9\.]*)(`(?<arity>\d+))?(:v(?<ver>\d+))?$");
 
         private readonly string _namespaceAlias;
         private readonly string _typeName;
+        private readonly int _arity;
         private readonly Maybe<int> _version;
 
         public static LogicalType Parse(String input)
@@ -50,32 +51,40 @@ namespace iSynaptic
 
             if (match.Success)
             {
+                int arity = match.Groups["arity"].Success
+                    ? int.Parse(match.Groups["arity"].Value)
+                    : 0;
+
                 return match.Groups["ver"].Success 
-                    ? new LogicalType(match.Groups["ns"].Value, match.Groups["type"].Value, int.Parse(match.Groups["ver"].Value)).ToMaybe() 
-                    : new LogicalType(match.Groups["ns"].Value, match.Groups["type"].Value).ToMaybe();
+                    ? new LogicalType(match.Groups["ns"].Value, match.Groups["type"].Value, arity, int.Parse(match.Groups["ver"].Value).ToMaybe()).ToMaybe() 
+                    : new LogicalType(match.Groups["ns"].Value, match.Groups["type"].Value, arity, Maybe.NoValue).ToMaybe();
             }
 
             return Maybe.NoValue;
         }
 
         public LogicalType(String namespaceAlias, String typeName)
-            : this(namespaceAlias, typeName, default(Maybe<int>))
+            : this(namespaceAlias, typeName, 0, default(Maybe<int>))
         {
         }
 
         public LogicalType(String namespaceAlias, String typeName, int version)
-            : this(namespaceAlias, typeName, version.ToMaybe())
+            : this(namespaceAlias, typeName, 0, version.ToMaybe())
         {
         }
 
-        public LogicalType(String namespaceAlias, String typeName, Maybe<int> version)
+        public LogicalType(String namespaceAlias, String typeName, int arity, Maybe<int> version)
         {
             _namespaceAlias = Guard.NotNullOrWhiteSpace(namespaceAlias, "namespaceAlias");
             _typeName = Guard.NotNullOrWhiteSpace(typeName, "typeName");
+
+            if (arity < 0) throw new ArgumentOutOfRangeException("arity", "Arity must not be negative.");
+            _arity = arity;
+
             _version = version;
 
-            string formatted = _version.Select(v => String.Format("{0}:{1}:v{2}", namespaceAlias, typeName, v))
-                .ValueOrDefault(() => String.Format("{0}:{1}", namespaceAlias, typeName));
+            string formatted = _version.Select(v => String.Format("{0}:{1}`{2}:v{3}", namespaceAlias, typeName, arity, v))
+                .ValueOrDefault(() => String.Format("{0}:{1}`{2}", namespaceAlias, typeName, arity));
 
             if(!Format.IsMatch(formatted))
                 throw new ArgumentException("The provided arguments do not match the required format.");
@@ -83,6 +92,7 @@ namespace iSynaptic
 
         public string NamespaceAlias { get { return _namespaceAlias; } }
         public string TypeName { get { return _typeName; } }
+        public int Arity { get { return _arity; } }
         public Maybe<int> Version { get { return _version; } }
 
         public bool Equals(LogicalType other)
@@ -92,6 +102,7 @@ namespace iSynaptic
 
             if (!NamespaceAlias.Equals(other.NamespaceAlias, StringComparison.OrdinalIgnoreCase)) return false;
             if (!TypeName.Equals(other.TypeName, StringComparison.OrdinalIgnoreCase)) return false;
+            if (!Arity.Equals(other.Arity)) return false;
             if (!Version.Equals(other.Version)) return false;
 
             return true;
@@ -108,6 +119,7 @@ namespace iSynaptic
 
             hash = HashCode.MixJenkins32(hash + NamespaceAlias.ToLowerInvariant().GetHashCode());
             hash = HashCode.MixJenkins32(hash + TypeName.ToLowerInvariant().GetHashCode());
+            hash = HashCode.MixJenkins32(hash + Arity);
             hash = HashCode.MixJenkins32(hash + Version.ValueOrDefault(0));
 
             return hash;
@@ -126,9 +138,13 @@ namespace iSynaptic
 
         public override string ToString()
         {
+            string arityPart = Arity > 0
+                ? "`" + Arity.ToString()
+                : String.Empty;
+
             return Version.HasValue 
-                ? String.Format("{0}:{1}:v{2}", NamespaceAlias, TypeName, Version.Value)
-                : String.Format("{0}:{1}", NamespaceAlias, TypeName);
+                ? String.Format("{0}:{1}{2}:v{3}", NamespaceAlias, TypeName, arityPart, Version.Value)
+                : String.Format("{0}:{1}{2}", NamespaceAlias, TypeName, arityPart);
         }
     }
 }

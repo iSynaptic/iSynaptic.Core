@@ -23,6 +23,7 @@
 using System;
 using FluentAssertions;
 using NUnit.Framework;
+using iSynaptic.Commons;
 
 namespace iSynaptic
 {
@@ -36,9 +37,14 @@ namespace iSynaptic
             var type2 = new LogicalType("tst", "foo");
             var type3 = new LogicalType("sts", "Bar");
             Object type4 = new LogicalType("sts", "Bar");
-            var type5 = new LogicalType("tst", "Foo", 1);
-            var type6 = new LogicalType("tst", "Foo", 1);
-            var type7 = new LogicalType("tst", "Foo", 2);
+            var type5 = new LogicalType("tst", "Foo", 0, 1.ToMaybe());
+            var type6 = new LogicalType("tst", "Foo", 0, 1.ToMaybe());
+            var type7 = new LogicalType("tst", "Foo", 0, 2.ToMaybe());
+            var type8 = new LogicalType("tst", "Foo", 1);
+            var type9 = new LogicalType("tst", "Foo", 1);
+            var type10 = new LogicalType("tst", "Foo", 1, 1.ToMaybe());
+            var type11 = new LogicalType("tst", "Foo", 1, 1.ToMaybe());
+            var type12 = new LogicalType("tst", "Foo", 1, 2.ToMaybe());
 
             LogicalType nullType = null;
             
@@ -48,6 +54,11 @@ namespace iSynaptic
             (type5 == type6).Should().BeTrue();
             (type1 != type5).Should().BeTrue();
             (type6 != type7).Should().BeTrue();
+            (type7 != type8).Should().BeTrue();
+            (type8 == type9).Should().BeTrue();
+            (type9 != type10).Should().BeTrue();
+            (type10 == type11).Should().BeTrue();
+            (type11 != type12).Should().BeTrue();
 
             (nullType == null).Should().BeTrue();
             (type1 != nullType).Should().BeTrue();
