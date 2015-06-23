@@ -295,8 +295,10 @@ namespace iSynaptic
         public string TypeName { get { return _typeName; } }
         public int Arity { get { return _arity; } }
         public IEnumerable<LogicalType> TypeArguments { get { return _typeArguments; } }
-        public bool IsOpenType { get { return Arity > 0 && TypeArguments.None(); } }
         public Maybe<int> Version { get { return _version; } }
+
+        public bool IsOpenType { get { return Arity > 0 && TypeArguments.None(); } }
+        public bool IsParameterized { get { return Arity > 0; } }
 
         public LogicalType GetOpenType()
         {

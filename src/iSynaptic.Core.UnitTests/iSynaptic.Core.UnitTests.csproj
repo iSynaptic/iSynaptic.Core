@@ -103,6 +103,7 @@
     <Compile Include="CodeGeneration\Modeling\Domain\ParserTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\SemanticRulesVisitorTests.cs" />
     <Compile Include="CodeGeneration\Modeling\Domain\TestDomainTestFixture.cs" />
+    <Compile Include="LogicalTypeRegistryTests.cs" />
     <Compile Include="LogicalTypeTests.cs" />
     <Compile Include="Modeling\Domain\ValueObjectTests.cs" />
     <Compile Include="Persistence\SqlServerAggregateRepositoryTests.cs" />

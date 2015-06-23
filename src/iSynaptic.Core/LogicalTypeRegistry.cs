@@ -24,6 +24,8 @@ using System;
 using System.Collections.Concurrent;
 using iSynaptic.Commons;
 using iSynaptic.Commons.Collections.Concurrent;
+using System.Linq;
+using iSynaptic.Commons.Linq;
 
 namespace iSynaptic
 {
@@ -40,26 +42,72 @@ namespace iSynaptic
             Guard.NotNull(logicalType, "logicalType");
             Guard.NotNull(actualType, "actualType");
 
-            if(actualType.IsGenericTypeDefinition)
-                throw new ArgumentException("The provided type must not be an open generic.", "actualType");
+            if(logicalType.IsOpenType != actualType.IsGenericTypeDefinition)
+            {
+                throw logicalType.IsOpenType
+                    ? new ArgumentException("Actual type must be a generic type definition.", "actualType")
+                    : new ArgumentException("Actual type must not be a generic type definition.", "actualType");
+            }
+
+            if (logicalType.IsOpenType && logicalType.Arity != actualType.GetGenericArguments().Length)
+            {
+                throw new ArgumentException("The number of generic type parameters does not match the logical type arity.", "actualType");
+            }
 
             lock (_logicalToActualMappings)
             {
-                if(!_logicalToActualMappings.TryAdd(logicalType, actualType))
-                    throw new ArgumentException(String.Format("Unable to add mapping; the mapping already exists for the provided type: {0}.", logicalType), "logicalType");
+                if(_logicalToActualMappings.ContainsKey(logicalType) || _actualToLogicalMappings.ContainsKey(actualType))
+                    throw new ArgumentException("Unable to add mapping; the mapping already exists for the provided types.", "logicalType");
 
+                _logicalToActualMappings.TryAdd(logicalType, actualType);
                 _actualToLogicalMappings.TryAdd(actualType, logicalType);
             }
         }
 
         public Maybe<Type> TryLookupActualType(LogicalType logicalType)
         {
-            return _logicalToActualMappings.TryGetValue(logicalType);
+            var result = _logicalToActualMappings.TryGetValue(logicalType);
+            if(!result.HasValue && !logicalType.IsOpenType)
+            {
+                var openActualType = _logicalToActualMappings.TryGetValue(logicalType.GetOpenType());
+                if (!openActualType.HasValue) return Maybe.NoValue;
+
+                var typeArguments = logicalType.TypeArguments
+                    .Select(x => TryLookupActualType(x))
+                    .Squash()
+                    .ToArray();
+
+                var actualType = openActualType.Value;
+
+                if (typeArguments.Length == actualType.GetGenericArguments().Length)
+                    return actualType.MakeGenericType(typeArguments).ToMaybe();
+            }
+
+            return result;
         }
 
-        public Maybe<LogicalType> TryLookupLogicalType(Type type)
+        public Maybe<LogicalType> TryLookupLogicalType(Type actualType)
         {
-            return _actualToLogicalMappings.TryGetValue(type);
+            var result = _actualToLogicalMappings.TryGetValue(actualType);
+            if (!result.HasValue && actualType.IsGenericType && !actualType.IsGenericTypeDefinition)
+            {
+                var typeArgs = actualType.GetGenericArguments();
+
+                var openLogicalType = _actualToLogicalMappings.TryGetValue(actualType.GetGenericTypeDefinition());
+                if (!openLogicalType.HasValue) return Maybe.NoValue;
+
+                var typeArguments = typeArgs
+                    .Select(x => TryLookupLogicalType(x))
+                    .Squash()
+                    .ToArray();
+
+                var logicalType = openLogicalType.Value;
+
+                if (typeArguments.Length == logicalType.Arity)
+                    return logicalType.MakeClosedType(typeArguments).ToMaybe();
+            }
+
+            return result;
         }
     }
 }
