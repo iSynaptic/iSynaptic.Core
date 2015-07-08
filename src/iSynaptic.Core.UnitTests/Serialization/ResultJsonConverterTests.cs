@@ -26,6 +26,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using Newtonsoft.Json;
 using iSynaptic.Commons;
+using iSynaptic.TestDomain;
 
 namespace iSynaptic.Serialization
 {
@@ -272,6 +273,19 @@ namespace iSynaptic.Serialization
             result.Value.Should().Be("Hello, World!");
             result.WasSuccessful.Should().BeFalse();
             result.Observations.Should().Contain("Something bad happened!", "Really bad!");
+        }
+
+        [Test]
+        public void ReadJson_ValueTypeIsNeededToDeserialize_ReadsCorrectly()
+        {
+            var id = Guid.NewGuid();
+            var input = "{\"value\":{\"$type\":\"ServiceCaseId\",\"Value\":\"" + id + "\"},\"wasSuccessful\":true}";
+
+            var result = _serializer.Deserialize<Result<ServiceCaseId, string>>(input);
+
+            result.Value.Should().BeOfType<ServiceCaseId>();
+            result.Cast<ServiceCaseId>().Value.Should().Be(new ServiceCaseId(id));
+            result.Observations.Should().BeEmpty();
         }
     }
 }

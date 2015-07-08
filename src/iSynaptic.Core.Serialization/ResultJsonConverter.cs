@@ -66,7 +66,7 @@ namespace iSynaptic.Serialization
         {
             Type[] typeArguments = objectType.GetGenericArguments();
 
-            Type valueType = typeArguments[1];
+            Type valueType = typeArguments[0];
             Type observationType = typeArguments[1];
             Type arrayType = observationType.MakeArrayType();
 
